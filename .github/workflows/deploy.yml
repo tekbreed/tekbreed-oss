@@ -1,0 +1,208 @@
+name: CI & Deploy
+
+on:
+  pull_request:
+    branches:
+      - dev
+      - main
+    paths:
+      - "apps/**"
+      - "packages/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "turbo.json"
+      - "playwright.config.*"
+      - ".github/workflows/deploy.yml"
+
+  push:
+    branches:
+      - dev
+      - main
+    paths:
+      - "apps/**"
+      - "packages/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "turbo.json"
+      - "playwright.config.*"
+      - ".github/workflows/deploy.yml"
+
+concurrency:
+  group: tekmemo-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: 22
+
+  DOCS_PACKAGE: "docs"
+  CLOUD_PACKAGE: "cloud"
+  E2E_PACKAGE: "cloud"
+
+  CLOUDFLARE_DOCS_PROJECT_NAME: "tekmemo-docs"
+
+jobs:
+  quality:
+    name: Quality Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm turbo run typecheck --continue
+
+      - name: Format and lint
+        run: pnpm turbo run format-and-lint --continue
+
+      - name: Build
+        run: pnpm turbo run build
+
+  playwright:
+    name: Playwright E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: quality
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: pnpm --filter ${{ env.E2E_PACKAGE }} exec playwright install --with-deps
+
+      - name: Run Playwright tests
+        run: pnpm --filter ${{ env.E2E_PACKAGE }} test:e2e
+        env:
+          CI: true
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ github.ref_name }}
+          path: apps/cloud/playwright-report/
+          retention-days: 7
+
+  deploy-docs:
+    name: Deploy VitePress Docs
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs:
+      - quality
+      - playwright
+
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main')
+
+    environment:
+      name: ${{ github.ref_name == 'main' && 'production' || 'development' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build docs
+        run: pnpm --filter ${{ env.DOCS_PACKAGE }} build
+
+      - name: Deploy docs to Cloudflare Pages
+        run: |
+          if [ "${GITHUB_REF_NAME}" = "main" ]; then
+            pnpm --filter ${{ env.DOCS_PACKAGE }} exec wrangler pages deploy docs/.vitepress/dist \
+              --project-name=${{ env.CLOUDFLARE_DOCS_PROJECT_NAME }} \
+              --branch=main
+          else
+            pnpm --filter ${{ env.DOCS_PACKAGE }} exec wrangler pages deploy docs/.vitepress/dist \
+              --project-name=${{ env.CLOUDFLARE_DOCS_PROJECT_NAME }} \
+              --branch=dev
+          fi
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+  deploy-cloud:
+    name: Deploy React Router Cloud App
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs:
+      - quality
+      - playwright
+
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main')
+
+    environment:
+      name: ${{ github.ref_name == 'main' && 'production' || 'development' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build cloud app
+        run: pnpm --filter ${{ env.CLOUD_PACKAGE }} build
+
+      - name: Deploy cloud app to Cloudflare Workers
+        run: |
+          if [ "${GITHUB_REF_NAME}" = "main" ]; then
+            pnpm --filter ${{ env.CLOUD_PACKAGE }} exec wrangler deploy
+          else
+            pnpm --filter ${{ env.CLOUD_PACKAGE }} exec wrangler deploy --env dev
+          fi
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

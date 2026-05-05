@@ -1,0 +1,57 @@
+{
+	"$schema": "https://turborepo.dev/schema.json",
+	"ui": "tui",
+	"tasks": {
+		"build": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$", ".env*"],
+			"outputs": ["build/**", "dist/**"]
+		},
+		"build:watch": {
+			"dependsOn": ["^build:watch"],
+			"cache": false,
+			"persistent": true
+		},
+		"typecheck": {
+			"dependsOn": ["^typecheck"]
+		},
+		"dev": {
+			"cache": false,
+			"persistent": true
+		},
+		"//#format-and-lint": {},
+		"//#format-and-lint:fix": {
+			"cache": false
+		},
+		"//#format-and-lint:fix:unsafe": {
+			"cache": false
+		},
+		"test": {
+			"dependsOn": ["transit"]
+		},
+		"test:run": {
+			"dependsOn": ["transit"]
+		},
+		"test:watch": {
+			"dependsOn": ["transit"],
+			"cache": false,
+			"persistent": true
+		},
+		"transit": {
+			"dependsOn": ["^transit"]
+		},
+		"test:e2e": {
+			"dependsOn": ["^test:e2e"],
+			"cache": false,
+			"persistent": true
+		},
+		"test:e2e:ui": {
+			"dependsOn": ["^test:e2e:ui"],
+			"cache": false,
+			"persistent": true
+		},
+		"lint:package": {
+			"dependsOn": ["^lint:package"]
+		}
+	}
+}
