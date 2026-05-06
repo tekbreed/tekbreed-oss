@@ -1,0 +1,54 @@
+{
+	"name": "@tekmemo/recall",
+	"version": "0.1.0",
+	"description": "Provider-neutral vector recall contracts, validation, and test utilities for TekMemo.",
+	"license": "MIT",
+	"type": "module",
+	"sideEffects": false,
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.mts",
+	"exports": {
+		".": {
+			"import": {
+				"types": "./dist/index.d.mts",
+				"default": "./dist/index.mjs"
+			},
+			"require": {
+				"types": "./dist/index.d.cts",
+				"default": "./dist/index.cjs"
+			}
+		}
+	},
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE"
+	],
+	"scripts": {
+		"build": "tsdown",
+		"build:watch": "tsdown --watch",
+		"dev": "tsdown --watch",
+		"typecheck": "tsc --noEmit",
+		"test": "vitest",
+		"test:run": "vitest run",
+		"test:watch": "vitest",
+		"test:coverage": "vitest run --coverage",
+		"clean": "rm -rf dist coverage .turbo",
+		"lint:package": "publint"
+	},
+	"keywords": [
+		"ai",
+		"agents",
+		"memory",
+		"rag",
+		"recall",
+		"typescript"
+	],
+	"devDependencies": {
+		"@repo/test-utils": "workspace:*",
+		"@repo/tsdown-config": "workspace:*",
+		"@repo/typescript-config": "workspace:*",
+		"@repo/utils": "workspace:*"
+	}
+}

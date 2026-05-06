@@ -1,0 +1,6 @@
+{
+	"default": {
+		"maxP95Ms": 2000,
+		"maxErrorRate": 0
+	}
+}

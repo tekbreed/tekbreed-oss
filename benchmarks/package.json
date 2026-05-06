@@ -1,0 +1,28 @@
+{
+	"name": "@tekmemo/benchmarks",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"smoke": "node --import tsx scripts/run-smoke.ts",
+		"release": "node --import tsx scripts/run-release.ts",
+		"full": "node --import tsx scripts/run-full.ts",
+		"benchmark:smoke": "pnpm smoke",
+		"benchmark:release": "pnpm release",
+		"benchmark:full": "pnpm full",
+		"benchmark:compare": "node --import tsx scripts/compare-baseline.ts",
+		"report": "node --import tsx scripts/generate-report.ts",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@tekmemo/benchmark-kit": "workspace:*",
+		"@tekmemo/fs": "workspace:*",
+		"@tekmemo/recall": "workspace:*",
+		"@tekmemo/rerank": "workspace:*",
+		"tekmemo": "workspace:*"
+	},
+	"devDependencies": {
+		"@repo/typescript-config": "workspace:*",
+		"tsx": "^4.21.0",
+		"typescript": "5.9.2"
+	}
+}

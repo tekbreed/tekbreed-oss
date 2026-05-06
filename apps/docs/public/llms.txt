@@ -1,0 +1,11 @@
+# TekMemo
+
+TekMemo is a file-first memory runtime for AI apps and agents.
+
+Start with:
+- /guide/getting-started
+- /guide/memory-filesystem
+- /guide/local-testing
+- /sdks/typescript/
+- /api/
+- /hosting/

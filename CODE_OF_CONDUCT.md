@@ -155,13 +155,13 @@ Enforcement decisions are based on impact, severity, and repeated behavior.
 
 ## Reporting
 
-If you experience or witness unacceptable behavior, report it to:
+If you experience or witness unacceptable behavior, contact a maintainer privately through GitHub or report it to:
 
 ```txt
 conduct@tekmemo.dev
 ```
 
-If that email is not yet active, contact a maintainer privately through GitHub.
+If the email is not active, use a private GitHub maintainer contact path.
 
 Please include:
 

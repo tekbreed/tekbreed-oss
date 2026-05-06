@@ -1,0 +1,10 @@
+{
+	"extends": "../packages/typescript-config/base.json",
+	"compilerOptions": {
+		"allowImportingTsExtensions": false,
+		"declaration": false,
+		"declarationMap": false,
+		"noEmit": true
+	},
+	"include": ["scripts/**/*.ts"]
+}

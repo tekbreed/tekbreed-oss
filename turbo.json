@@ -5,53 +5,67 @@
 		"build": {
 			"dependsOn": ["^build"],
 			"inputs": ["$TURBO_DEFAULT$", ".env*"],
-			"outputs": ["build/**", "dist/**"]
+			"outputs": ["build/**", "dist/**", ".vitepress/dist/**"]
 		},
 		"build:watch": {
-			"dependsOn": ["^build:watch"],
 			"cache": false,
 			"persistent": true
-		},
-		"typecheck": {
-			"dependsOn": ["^typecheck"]
 		},
 		"dev": {
 			"cache": false,
 			"persistent": true
 		},
-		"//#format-and-lint": {},
+		"typecheck": {
+			"dependsOn": ["^build"],
+			"outputs": []
+		},
+		"//#format-and-lint": {
+			"inputs": ["$TURBO_DEFAULT$"],
+			"outputs": []
+		},
 		"//#format-and-lint:fix": {
-			"cache": false
+			"cache": false,
+			"inputs": ["$TURBO_DEFAULT$"],
+			"outputs": []
 		},
 		"//#format-and-lint:fix:unsafe": {
-			"cache": false
-		},
-		"test": {
-			"dependsOn": ["transit"]
+			"cache": false,
+			"inputs": ["$TURBO_DEFAULT$"],
+			"outputs": []
 		},
 		"test:run": {
-			"dependsOn": ["transit"]
+			"dependsOn": ["^build"],
+			"outputs": []
 		},
 		"test:watch": {
-			"dependsOn": ["transit"],
+			"dependsOn": ["^build"],
 			"cache": false,
 			"persistent": true
 		},
-		"transit": {
-			"dependsOn": ["^transit"]
-		},
-		"test:e2e": {
-			"dependsOn": ["^test:e2e"],
-			"cache": false,
-			"persistent": true
-		},
-		"test:e2e:ui": {
-			"dependsOn": ["^test:e2e:ui"],
-			"cache": false,
-			"persistent": true
+		"test:coverage": {
+			"dependsOn": ["^build"],
+			"outputs": ["coverage/**"]
 		},
 		"lint:package": {
-			"dependsOn": ["^lint:package"]
+			"dependsOn": ["build"],
+			"outputs": []
+		},
+		"benchmark:smoke": {
+			"dependsOn": ["^build"],
+			"outputs": ["../benchmark-results/smoke/**"]
+		},
+		"benchmark:release": {
+			"dependsOn": ["^build"],
+			"outputs": ["../benchmark-results/release/**"]
+		},
+		"benchmark:full": {
+			"dependsOn": ["^build"],
+			"cache": false,
+			"outputs": ["../benchmark-results/full/**"]
+		},
+		"benchmark:compare": {
+			"dependsOn": ["benchmark:release"],
+			"outputs": []
 		}
 	}
 }
