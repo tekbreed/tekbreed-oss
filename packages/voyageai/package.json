@@ -33,9 +33,11 @@
 	"files": [
 		"dist",
 		"README.md",
-		"PRODUCTION_NOTES.md",
 		"LICENSE"
 	],
+	"publishConfig": {
+		"access": "public"
+	},
 	"scripts": {
 		"build": "tsdown",
 		"build:watch": "tsdown --watch",
