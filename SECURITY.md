@@ -16,13 +16,13 @@ tekmemo
 @tekmemo/agentfs
 @tekmemo/ai-sdk
 @tekmemo/recall
-@tekmemo/upstash
-@tekmemo/voyage
+@tekmemo/upstash-vector
+@tekmemo/voyageai
 @tekmemo/openai
 @tekmemo/rerank
 @tekmemo/rerank-voyage
 @tekmemo/benchmark-kit
-@tekmemo/test-utils
+@repo/test-utils
 ```
 
 This policy also covers:
@@ -75,13 +75,15 @@ Current policy:
 
 Please do **not** report security vulnerabilities through public GitHub issues.
 
-Report security concerns by emailing:
+Use GitHub private vulnerability reporting or GitHub Security Advisories when available.
+
+You may also report security concerns by emailing:
 
 ```txt
 security@tekmemo.dev
 ```
 
-If that email is not yet active, use the private security advisory feature on GitHub if available.
+If the email is not active, use GitHub private vulnerability reporting or contact a maintainer privately through GitHub.
 
 Include as much detail as possible:
 

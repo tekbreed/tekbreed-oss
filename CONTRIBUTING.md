@@ -237,7 +237,7 @@ tekmemo
 @tekmemo/recall
   Provider-neutral recall contracts.
 
-@tekmemo/upstash
+@tekmemo/upstash-vector
   Upstash Vector adapter.
 
 @tekmemo/agentfs
@@ -307,7 +307,7 @@ src/index.ts
 Avoid deep imports like:
 
 ```ts
-import { something } from "@tekmemo/graph/dist/internal/something";
+import { something } from "@tekmemo/recall/dist/internal/something";
 ```
 
 If something is public, export it intentionally.
@@ -593,7 +593,7 @@ When opening an issue, include:
 Good title:
 
 ```txt
-@tekmemo/connectors: JSONL parser skips valid line after malformed object
+@tekmemo/fs: JSONL parser skips valid line after malformed object
 ```
 
 Bad title:

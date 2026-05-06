@@ -6,7 +6,7 @@ This file provides guidance for AI coding agents (e.g. Codex, Copilot, Antigravi
 
 ## What This Repository Is
 
-`tekmemo-internal` is the private monorepo for **TekMemo** — a **layered memory runtime for agents and AI applications**.
+`tekmemo` is the private monorepo for **TekMemo** — a **layered memory runtime for agents and AI applications**.
 
 The monorepo is organized around two product surfaces:
 
@@ -18,7 +18,7 @@ The monorepo is organized around two product surfaces:
 ## Monorepo Structure
 
 ```
-tekmemo-internal/
+tekmemo/
 ├── .github/
 │   └── workflows/          # (playwright.yml removed — cloud app moved out)
 ├── apps/
@@ -34,13 +34,13 @@ tekmemo-internal/
 │   ├── fs/                     # @tekmemo/fs — local filesystem adapter
 │   ├── agentfs/                # @tekmemo/agentfs — AgentFS adapter
 │   ├── openai/                 # @tekmemo/openai — OpenAI embedding adapter
-│   ├── upstash/                # @tekmemo/upstash — Upstash vector adapter
-│   ├── voyage/                 # @tekmemo/voyage — Voyage AI embedding adapter
+│ ├── upstash-vector/ # @tekmemo/upstash-vector — Upstash vector adapter
+│ ├── voyageai/ # @tekmemo/voyageai — Voyage AI embedding adapter
 │   ├── recall/                 # @tekmemo/recall — semantic recall memory
 │   ├── rerank/                 # @tekmemo/rerank — reranking adapter
 │   ├── rerank-voyage/          # @tekmemo/rerank-voyage — Voyage reranking adapter
 │   ├── benchmark-kit/          # @tekmemo/benchmark-kit — benchmarking tools
-│   ├── test-utils/             # @tekmemo/test-utils — testing utilities
+│   ├── test-utils/             # @repo/test-utils — testing utilities
 │   ├── tsdown-config/          # @repo/tsdown-config — shared tsdown base
 │   ├── typescript-config/      # @repo/typescript-config — shared tsconfig bases
 │   └── utils/                  # @repo/utils — shared utility helpers
@@ -81,13 +81,13 @@ This repo uses **two namespace conventions** — keep them separate:
 | `packages/fs` | `@tekmemo/fs` | `@tekmemo` |
 | `packages/agentfs` | `@tekmemo/agentfs` | `@tekmemo` |
 | `packages/openai` | `@tekmemo/openai` | `@tekmemo` |
-| `packages/upstash` | `@tekmemo/upstash` | `@tekmemo` |
-| `packages/voyage` | `@tekmemo/voyage` | `@tekmemo` |
+| `packages/upstash-vector` | `@tekmemo/upstash-vector` | `@tekmemo` |
+| `packages/voyageai` | `@tekmemo/voyageai` | `@tekmemo` |
 | `packages/recall` | `@tekmemo/recall` | `@tekmemo` |
 | `packages/rerank` | `@tekmemo/rerank` | `@tekmemo` |
 | `packages/rerank-voyage` | `@tekmemo/rerank-voyage` | `@tekmemo` |
 | `packages/benchmark-kit` | `@tekmemo/benchmark-kit` | `@tekmemo` |
-| `packages/test-utils` | `@tekmemo/test-utils` | `@tekmemo` |
+| `packages/test-utils` | `@repo/test-utils` | `@repo` — internal tooling only |
 | `packages/tsdown-config` | `@repo/tsdown-config` | `@repo` — internal tooling only |
 | `packages/typescript-config` | `@repo/typescript-config` | `@repo` — internal tooling only |
 | `packages/utils` | `@repo/utils` | `@repo` — internal tooling only |
@@ -289,8 +289,8 @@ Respect the OSS package boundaries:
 | Zone | Packages | Rule |
 |---|---|---|
 | **OSS core** | `tekmemo`, `@tekmemo/ai-sdk`, `@tekmemo/fs`, `@tekmemo/agentfs` | Must be product-neutral, zero cloud dependencies |
-| **Optional OSS** | `@tekmemo/upstash`, `@tekmemo/voyage`, `@tekmemo/openai`, `@tekmemo/recall`, `@tekmemo/rerank`, `@tekmemo/rerank-voyage`, `@tekmemo/benchmark-kit` | Ship only when stable |
-| **Internal tooling** | `@repo/tsdown-config`, `@repo/typescript-config`, `@repo/utils`, `@tekmemo/test-utils` | Never published externally |
+| **Optional OSS** | `@tekmemo/upstash-vector`, `@tekmemo/voyageai`, `@tekmemo/openai`, `@tekmemo/recall`, `@tekmemo/rerank`, `@tekmemo/rerank-voyage`, `@tekmemo/benchmark-kit` | Ship only when stable |
+| **Internal tooling** | `@repo/tsdown-config`, `@repo/typescript-config`, `@repo/utils`, `@repo/test-utils` | Never published externally |
 
 Do not introduce cloud-specific dependencies into OSS packages.
 

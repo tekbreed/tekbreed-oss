@@ -1,6 +1,5 @@
-docs
-apps
-packages
+user-docs
+PRODUCTION_NOTES.md
 
 # Dependencies
 node_modules
@@ -16,6 +15,9 @@ node_modules
 
 # Testing
 coverage
+benchmark-results
+benchmarks/reports/*
+!benchmarks/reports/.gitkeep
 
 # Turbo
 .turbo

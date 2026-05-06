@@ -1,0 +1,84 @@
+name: Benchmarks
+
+run-name: Benchmarks (${{ github.event.inputs.mode || 'full' }})
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Benchmark mode"
+        required: true
+        default: "full"
+        type: choice
+        options:
+          - smoke
+          - release
+          - full
+
+  schedule:
+    - cron: "0 3 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: benchmarks-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: 22
+  PNPM_VERSION: 9
+
+jobs:
+  benchmarks:
+    name: Run benchmarks
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm build
+
+      - name: Run smoke benchmarks
+        if: github.event.inputs.mode == 'smoke'
+        run: pnpm benchmark:smoke
+
+      - name: Run release benchmarks
+        if: github.event.inputs.mode == 'release'
+        run: pnpm benchmark:release
+
+      - name: Run full benchmarks
+        if: github.event.inputs.mode == 'full' || github.event_name == 'schedule'
+        run: pnpm benchmark:full
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          VOYAGE_API_KEY: ${{ secrets.VOYAGE_API_KEY }}
+          UPSTASH_VECTOR_REST_URL: ${{ secrets.UPSTASH_VECTOR_REST_URL }}
+          UPSTASH_VECTOR_REST_TOKEN: ${{ secrets.UPSTASH_VECTOR_REST_TOKEN }}
+
+      - name: Upload benchmark results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results-${{ github.run_id }}
+          path: benchmark-results/
+          retention-days: 30

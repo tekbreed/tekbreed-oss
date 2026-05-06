@@ -1,0 +1,54 @@
+{
+	"name": "@tekmemo/rerank-voyage",
+	"version": "0.1.0",
+	"description": "Voyage AI reranking adapter for TekMemo.",
+	"type": "module",
+	"sideEffects": false,
+	"exports": {
+		".": {
+			"import": {
+				"types": "./dist/index.d.mts",
+				"default": "./dist/index.mjs"
+			},
+			"require": {
+				"types": "./dist/index.d.cts",
+				"default": "./dist/index.cjs"
+			}
+		},
+		"./testing": {
+			"import": {
+				"types": "./dist/testing/index.d.mts",
+				"default": "./dist/testing/index.mjs"
+			},
+			"require": {
+				"types": "./dist/testing/index.d.cts",
+				"default": "./dist/testing/index.cjs"
+			}
+		}
+	},
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE"
+	],
+	"scripts": {
+		"build": "tsdown",
+		"build:watch": "tsdown --watch",
+		"typecheck": "tsc --noEmit",
+		"test": "vitest",
+		"test:run": "vitest run",
+		"test:watch": "vitest",
+		"test:coverage": "vitest run --coverage",
+		"lint:package": "publint",
+		"clean": "rm -rf dist coverage"
+	},
+	"dependencies": {
+		"@tekmemo/rerank": "workspace:*"
+	},
+	"devDependencies": {
+		"@repo/test-utils": "workspace:*",
+		"@repo/tsdown-config": "workspace:*",
+		"@repo/typescript-config": "workspace:*",
+		"@repo/utils": "workspace:*"
+	}
+}

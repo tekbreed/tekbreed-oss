@@ -1,0 +1,96 @@
+name: Release Packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Choose whether to prepare a release PR or publish packages"
+        required: true
+        default: "prepare"
+        type: choice
+        options:
+          - prepare
+          - publish
+
+permissions:
+  actions: read
+  contents: write
+  pull-requests: write
+  id-token: write
+
+concurrency:
+  group: release-packages
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: 22
+  PNPM_VERSION: 9
+
+jobs:
+  release:
+    name: Release packages
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run release checks
+        run: pnpm release:check
+
+      - name: Require release benchmarks
+        if: github.event.inputs.mode == 'publish'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUIRED_SHA: ${{ github.sha }}
+        run: |
+          benchmark_url="$(
+            gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/benchmarks.yml/runs" \
+              --method GET \
+              --field head_sha="${REQUIRED_SHA}" \
+              --field status=completed \
+              --jq '.workflow_runs[] | select(.conclusion == "success") | select(.display_title == "Benchmarks (release)" or .display_title == "Benchmarks (full)") | .html_url' \
+              | head -n 1
+          )"
+
+          if [ -z "${benchmark_url}" ]; then
+            echo "::error::Run Benchmarks with mode 'release' or 'full' via workflow_dispatch on this commit before publishing."
+            exit 1
+          fi
+
+          echo "Found passing benchmark run: ${benchmark_url}"
+
+      - name: Create release PR
+        if: github.event.inputs.mode == 'prepare'
+        uses: changesets/action@v1
+        with:
+          version: pnpm version-packages
+          commit: "chore: version packages"
+          title: "chore: version packages"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish packages
+        if: github.event.inputs.mode == 'publish'
+        run: pnpm release
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

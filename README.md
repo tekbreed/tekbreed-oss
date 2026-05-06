@@ -56,29 +56,50 @@ A typical local memory workspace may look like this:
 .tekmemo/
 ├── manifest.json
 ├── memory/
-│   ├── records.jsonl
-│   └── sources.jsonl
+│   ├── core.md
+│   └── notes.md
+├── events/
+│   ├── memory-events.jsonl
+│   └── conversations.jsonl
+├── indexes/
+│   └── chunks.jsonl
 ├── graph/
 │   ├── nodes.jsonl
 │   └── edges.jsonl
-├── recall/
-│   ├── chunks.jsonl
-│   └── indexes.jsonl
-├── sync/
-│   └── checkpoint.json
-└── logs/
-    └── events.jsonl
+└── snapshots/
+    └── snapshots.jsonl
 ```
 
 Behind the scenes, this makes TekMemo:
 
-* portable
-* inspectable
-* testable
-* source-controlled when needed
-* local-first when needed
-* cloud-syncable later
-* easier to debug than hidden memory stores
+- portable
+- inspectable
+- testable
+- source-controlled when needed
+- local-first when needed
+- cloud-syncable later
+- easier to debug than hidden memory stores
+
+---
+
+## Sponsor TekMemo
+
+TekMemo is open-source memory infrastructure for AI apps and agents.
+
+If TekMemo helps your work, you can support ongoing development, maintenance, documentation, benchmarks, examples, and new integrations through GitHub Sponsors.
+
+[💖 Sponsor TekMemo](https://github.com/sponsors/christophersesugh)
+
+Sponsorship helps fund:
+
+- package maintenance
+- documentation
+- examples
+- benchmarks
+- provider integrations
+- MCP support
+- memory tooling
+- open-source issue triage
 
 ---
 
@@ -90,13 +111,13 @@ The public OSS repository contains the open-source runtime, adapters, docs, exam
 
 The private TekMemo Cloud repository contains hosted cloud functionality such as:
 
-* tenant routing
-* billing
-* usage enforcement
-* encrypted BYOK storage
-* hosted dashboards
-* internal admin tooling
-* managed cloud APIs
+- tenant routing
+- billing
+- usage enforcement
+- encrypted BYOK storage
+- hosted dashboards
+- internal admin tooling
+- managed cloud APIs
 
 This repo intentionally does **not** contain private TekMemo Cloud implementation details.
 
@@ -115,17 +136,17 @@ This repo intentionally does **not** contain private TekMemo Cloud implementatio
 
 ### Embeddings
 
-| Package           | Purpose                  |
-| ----------------- | ------------------------ |
-| `@tekmemo/voyage` | Voyage embedding adapter |
-| `@tekmemo/openai` | OpenAI embedding adapter |
+| Package             | Purpose                    |
+| ------------------- | -------------------------- |
+| `@tekmemo/voyageai` | Voyage AI embedding adapter |
+| `@tekmemo/openai`   | OpenAI embedding adapter    |
 
 ### Vector recall
 
-| Package                 | Purpose                                  |
-| ----------------------- | ---------------------------------------- |
-| `@tekmemo/recall`       | Provider-neutral vector recall contracts |
-| `@tekmemo/upstash`      | Upstash Vector recall adapter            |
+| Package                   | Purpose                                  |
+| ------------------------- | ---------------------------------------- |
+| `@tekmemo/recall`         | Provider-neutral vector recall contracts |
+| `@tekmemo/upstash-vector` | Upstash Vector recall adapter            |
 
 ### Reranking
 
@@ -136,10 +157,10 @@ This repo intentionally does **not** contain private TekMemo Cloud implementatio
 
 ### Advanced memory and ingestion
 
-| Package                  | Purpose                                                                                     |
-| ------------------------ | ------------------------------------------------------------------------------------------- |
-| `@tekmemo/benchmark-kit` | Benchmark runner and reproducible performance tests                                         |
-| `@tekmemo/test-utils`    | Testing utilities for TekMemo packages                                                      |
+| Package                  | Purpose                                             |
+| ------------------------ | --------------------------------------------------- |
+| `@tekmemo/benchmark-kit` | Benchmark runner and reproducible performance tests |
+| `@repo/test-utils`       | Testing utilities for TekMemo packages              |
 
 ---
 
@@ -152,30 +173,24 @@ tekmemo/
 │   └── slides/
 │
 ├── packages/
-│   ├── tekmemo/
-│   ├── fs/
-│   ├── agentfs/
-│   ├── ai-sdk/
-│   ├── voyage/
-│   ├── openai/
-│   ├── recall/
-│   ├── upstash/
-│   ├── rerank/
-│   ├── rerank-voyage/
-│   ├── benchmark-kit/
-│   └── test-utils/
+│   ├── tekmemo/                # Core memory model, types, and utilities
+│   ├── ai-sdk/                 # Vercel AI SDK integration
+│   ├── fs/                     # Local filesystem adapter
+│   ├── agentfs/                # AgentFS adapter
+│   ├── openai/                 # OpenAI embedding adapter
+│   ├── upstash-vector/         # Upstash Vector adapter
+│   ├── voyageai/               # Voyage AI embedding adapter
+│   ├── recall/                 # Semantic recall memory
+│   ├── rerank/                 # Provider-neutral reranking
+│   ├── rerank-voyage/          # Voyage reranking adapter
+│   ├── benchmark-kit/          # Benchmarking tools
+│   ├── test-utils/             # Testing utilities
+│   ├── tsdown-config/          # Shared tsdown config (internal)
+│   ├── typescript-config/      # Shared tsconfig bases (internal)
+│   └── utils/                  # Shared utility helpers (internal)
 │
-├── configs/
-│   ├── tsconfig/
-│   ├── biome/
-│   └── vitest/
-│
-├── docs/
-│   ├── architecture/
-│   ├── decisions/
-│   ├── contributing/
-│   ├── release/
-│   └── security/
+├── benchmarks/                 # Private benchmark suites and release gates
+├── examples/                   # Runnable example projects
 │
 ├── .github/
 ├── README.md
@@ -313,31 +328,31 @@ pnpm add @tekmemo/fs
 Install recall packages:
 
 ```bash
-pnpm add @tekmemo/recall @tekmemo/upstash @tekmemo/openai
+pnpm add @tekmemo/recall @tekmemo/upstash-vector @tekmemo/openai
 ```
 
 Example:
 
 ```ts
-import { createMemoryRecord } from "tekmemo";
-import { createFileSystemMemoryStore } from "@tekmemo/fs";
+import {
+	bootstrapMemoryStore,
+	readCoreMemory,
+	writeCoreMemory,
+} from "tekmemo";
+import { createNodeFsMemoryStore } from "@tekmemo/fs";
 
-const store = createFileSystemMemoryStore({
+const store = createNodeFsMemoryStore({
 	rootDir: ".tekmemo",
 });
 
-await store.write(
-	createMemoryRecord({
-		id: "memory_project_goal",
-		title: "Project goal",
-		content: "TekMemo provides file-first memory for AI apps and agents.",
-		layer: "core",
-		source: {
-			type: "manual",
-			uri: "manual://project-goal",
-		},
-	}),
+await bootstrapMemoryStore(store, { projectId: "local-app" });
+
+await writeCoreMemory(
+	store,
+	"# Core Memory\n\n- TekMemo provides file-first memory for AI apps and agents.\n",
 );
+
+const coreMemory = await readCoreMemory(store);
 ```
 
 ---
@@ -396,19 +411,19 @@ tekmemo
 @tekmemo/recall
   owns provider-neutral recall contracts
 
-@tekmemo/upstash
+@tekmemo/upstash-vector
   owns Upstash Vector adapter
 ```
 
 A package should not silently own:
 
-* billing
-* tenancy
-* usage limits
-* hosted API keys
-* dashboards
-* private cloud deployment logic
-* admin tooling
+- billing
+- tenancy
+- usage limits
+- hosted API keys
+- dashboards
+- private cloud deployment logic
+- admin tooling
 
 Those belong outside this public OSS repo.
 
@@ -434,10 +449,10 @@ Slides live in:
 apps/slides
 ```
 
-Repository-level architecture and contributor documentation lives in:
+Public architecture docs live in:
 
 ```txt
-docs/
+apps/docs/architecture/
 ```
 
 ---
@@ -450,14 +465,10 @@ Examples live in:
 examples/
 ```
 
-Recommended examples include:
+Current runnable examples include:
 
 ```txt
-basic-memory
-recall-upstash
-graph-memory
-connector-filesystem
-mcp-stdio
+local-only
 ```
 
 Each example should be runnable and should explain what it demonstrates.
@@ -471,10 +482,7 @@ TekMemo uses Changesets for package versioning.
 Before publishing, make sure:
 
 ```bash
-pnpm build
-pnpm test
-pnpm typecheck
-pnpm format-and-lint
+pnpm release:check
 ```
 
 all pass.
@@ -487,11 +495,9 @@ Contributions are welcome.
 
 Please read:
 
-```txt
-CONTRIBUTING.md
-CODE_OF_CONDUCT.md
-SECURITY.md
-```
+[CONTRIBUTING](./CONTRIBUTING.md)
+[CODE_OF_CONDUCT](./CODE_OF_CONDUCT.md)
+[SECURITY](./SECURITY.md)
 
 before opening issues or pull requests.
 
@@ -501,22 +507,10 @@ before opening issues or pull requests.
 
 Please do not report security issues through public GitHub issues.
 
-See:
-
-```txt
-SECURITY.md
-```
-
-for responsible disclosure instructions.
+See [SECURITY.md](./SECURITY.md) for responsible disclosure instructions.
 
 ---
 
 ## License
 
-MIT License.
-
-See:
-
-```txt
-LICENSE
-```
+[MIT License](./LICENSE)
