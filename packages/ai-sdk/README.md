@@ -1,64 +1,193 @@
 # @tekmemo/ai-sdk
 
-[![npm](https://img.shields.io/npm/v/%40tekmemo%2Fai-sdk?label=npm)](https://www.npmjs.com/package/@tekmemo/ai-sdk)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![Types](https://img.shields.io/badge/types-included-blue)](./dist/index.d.mts)
-[![CI](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml/badge.svg)](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml)
-[![Status](https://img.shields.io/badge/status-active-brightgreen)](../../README.md)
+[![npm version](https://img.shields.io/npm/v/@tekmemo/ai-sdk.svg)](https://www.npmjs.com/package/@tekmemo/ai-sdk)
+[![npm downloads](https://img.shields.io/npm/dm/@tekmemo/ai-sdk.svg)](https://www.npmjs.com/package/@tekmemo/ai-sdk)
+[![license](https://img.shields.io/npm/l/@tekmemo/ai-sdk.svg)](https://www.npmjs.com/package/@tekmemo/ai-sdk)
 
-Vercel AI SDK integration for **TekMemo**. This package enables AI agents to interact with their own memory through structured tools and automated context injection.
+Vercel AI SDK integration for TekMemo memory.
 
-## Features
+This package supports two integration styles:
 
-- **Context Building**: Automatically assemble Core, Archival, and Recall memory into a prompt-ready string.
-- **Structured Tools**: Ready-to-use `memoryTool` for the AI SDK `generateText` and `streamText` functions.
-- **Retrieval Planning**: Configurable retrieval logic to decide which memory layers to read for a given call.
+1. **Store-based local tools** — the original `MemoryStore` API for local `.tekmemo/` files.
+2. **Runtime-based tools** — a newer plug-and-play layer for local, cloud, or hybrid runtimes.
+
+The runtime layer aligns with the current TekMemo runbook:
+
+```txt
+AI app / chatbot
+  → @tekmemo/ai-sdk
+  → local runtime OR @tekmemo/cloud-client runtime OR hybrid runtime
+  → .tekmemo/ or TekMemo Cloud/self-hosted API
+```
+
+The package does **not** build raw TekMemo Cloud URLs and does **not** store BYOK provider credentials. Cloud and BYOK behavior are handled by the runtime/cloud app.
 
 ## Installation
 
 ```bash
-# pnpm
 pnpm add @tekmemo/ai-sdk tekmemo
-
-# npm
-npm install @tekmemo/ai-sdk tekmemo
-
-# yarn
-yarn add @tekmemo/ai-sdk tekmemo
 ```
 
-## Usage
+For local file-backed memory:
 
-### Using the Memory Tool
+```bash
+pnpm add @tekmemo/fs
+```
 
-```typescript
-import { generateText } from "ai";
-import { buildMemoryToolDefinition } from "@tekmemo/ai-sdk";
-import { store } from "./my-store";
+For cloud or hybrid runtime:
 
-const { text } = await generateText({
-  model: openai("gpt-4o"),
-  tools: {
-    manage_memory: buildMemoryToolDefinition({ store })
+```bash
+pnpm add @tekmemo/cloud-client
+```
+
+## Local runtime example
+
+```ts
+import { createNodeFsMemoryStore } from "@tekmemo/fs";
+import {
+  createLocalAiSdkRuntime,
+  buildRuntimeMemoryToolDefinition,
+} from "@tekmemo/ai-sdk";
+
+const workspace = createNodeFsMemoryStore({ rootDir: process.cwd() });
+const runtime = createLocalAiSdkRuntime({ workspace });
+
+export const memoryTool = buildRuntimeMemoryToolDefinition({
+  runtime,
+  access: {
+    projectId: "local-project",
+    userId: "user_123",
+    conversationId: "conv_123",
   },
-  prompt: "Remember that my birthday is tomorrow."
+  allowWrites: true,
 });
 ```
 
-### Injecting Memory Context
+## Cloud runtime example
 
-```typescript
-import { buildPrepareCallMemoryText } from "@tekmemo/ai-sdk";
+```ts
+import {
+  createTekMemoCloudClient,
+  createCloudTekMemoRuntime,
+} from "@tekmemo/cloud-client";
+import { buildRuntimeMemoryToolDefinition } from "@tekmemo/ai-sdk";
 
-const context = await buildPrepareCallMemoryText({
-  stores: { workspace: store },
-  retrievalPlan: { readUserMemory: true, readArchivalMemory: true },
-  baseInstructions: "You are a helpful assistant with access to the following memory:"
+const client = createTekMemoCloudClient({
+  baseUrl: "https://memo.tekbreed.com/api/v1",
+  apiKey: process.env.TEKMEMO_API_KEY, // tk_live_...
 });
 
-// Pass `context` to your system prompt
+const runtime = createCloudTekMemoRuntime({
+  client,
+  projectId: "proj_123",
+});
+
+export const memoryTool = buildRuntimeMemoryToolDefinition({
+  runtime,
+  access: {
+    projectId: "proj_123",
+    userId: "user_123",
+    conversationId: "conv_123",
+  },
+  allowWrites: true,
+});
 ```
 
-## Related Packages
+## Hybrid runtime example
 
-- [`tekmemo`](../tekmemo): Core memory models and logic.
+```ts
+import { createHybridTekMemoRuntime } from "@tekmemo/cloud-client";
+import { createLocalAiSdkRuntime } from "@tekmemo/ai-sdk";
+
+const runtime = createHybridTekMemoRuntime({
+  local: createLocalAiSdkRuntime({ workspace }),
+  cloud: cloudRuntime,
+  readPolicy: "local-first",
+  writePolicy: "local-first",
+});
+```
+
+## Scope-aware memory
+
+The runtime tool supports scoped memory for chatbot and multi-user applications:
+
+```txt
+project              shared project/app memory
+workspace            shared workspace memory
+tenant               organization-wide memory
+user                 private per-user memory
+conversation         active thread/session memory
+participant-shared   group conversation memory
+```
+
+Safe defaults:
+
+- Project/workspace memory can be read by default.
+- User memory is used only when `userId` exists.
+- Conversation memory is used only when `conversationId` exists.
+- Participant-shared memory is used only when `participantIds` exists.
+- Another user's private memory is filtered out.
+
+Example write:
+
+```ts
+await memoryTool.execute({
+  command: "remember",
+  scope: "user",
+  kind: "preference",
+  content: "User prefers concise TypeScript examples.",
+});
+```
+
+The note metadata will include scope information:
+
+```json
+{
+  "scope": "user",
+  "visibility": "private",
+  "projectId": "proj_123",
+  "userId": "user_123",
+  "createdByPackage": "@tekmemo/ai-sdk"
+}
+```
+
+## Runtime tool commands
+
+```txt
+read_core_memory
+update_core_memory
+remember
+list_notes
+recall
+build_context
+index
+```
+
+Writes require `allowWrites: true`.
+
+Core updates require `allowCoreUpdates: true`.
+
+Indexing requires `allowIndexing: true`.
+
+Potential secrets are rejected unless `allowSecrets: true` is explicitly set.
+
+## Backward-compatible MemoryStore tool
+
+The original store-based tool still works:
+
+```ts
+import { buildMemoryToolDefinition } from "@tekmemo/ai-sdk";
+
+const tool = buildMemoryToolDefinition({ store });
+```
+
+This is useful for simple local `.tekmemo/` workflows.
+
+## BYOK
+
+`@tekmemo/ai-sdk` does not store or resolve provider keys.
+
+- Local BYOK: provider keys are supplied to local provider adapters by the app.
+- Hosted cloud BYOK: provider keys are stored/resolved by TekMemo Cloud.
+- Self-hosted BYOK: provider keys are stored/resolved inside the user's self-hosted cloud.
+

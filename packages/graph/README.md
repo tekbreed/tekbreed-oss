@@ -1,5 +1,9 @@
 # `@tekmemo/graph`
 
+[![npm version](https://img.shields.io/npm/v/@tekmemo/graph.svg)](https://www.npmjs.com/package/@tekmemo/graph)
+[![npm downloads](https://img.shields.io/npm/dm/@tekmemo/graph.svg)](https://www.npmjs.com/package/@tekmemo/graph)
+[![license](https://img.shields.io/npm/l/@tekmemo/graph.svg)](https://www.npmjs.com/package/@tekmemo/graph)
+
 Provider-neutral graph memory primitives for TekMemo.
 
 This package adds relationship memory without requiring Neo4j, Turso, Qdrant, Upstash, OpenAI, Voyage, TekMemo Cloud, or any external runtime dependency.
