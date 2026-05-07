@@ -3,37 +3,26 @@ title: CLI API
 description: TekMemo CLI commands for local memory, inspection, indexing, snapshots, and sync.
 ---
 
-# CLI API
+# CLI
 
-The TekMemo CLI helps developers operate `.tekmemo/` stores.
+TekMemo does not include a public CLI in the current release.
 
-## Commands
+Use the runtime APIs directly for now.
 
-```sh
-tekmemo init
-tekmemo status
-tekmemo inspect
-tekmemo index
-tekmemo search "project decisions"
-tekmemo snapshot create "before-launch"
-tekmemo sync push
-tekmemo sync pull
-```
+## Available today
 
-## `tekmemo init`
+- `tekmemo`
+- `@tekmemo/fs`
+- `@tekmemo/recall`
+- `@tekmemo/ai-sdk`
+- `@tekmemo/openai`
+- `@tekmemo/voyageai`
+- `@tekmemo/upstash-vector`
+- `@tekmemo/rerank`
+- `@tekmemo/rerank-voyage`
+- `@tekmemo/agentfs`
 
-Creates a `.tekmemo/` folder with the default memory filesystem.
+## Planned
 
-```sh
-tekmemo init
-```
+A CLI may be added later for local initialization, inspection, indexing, and sync workflows.
 
-## `tekmemo inspect`
-
-Prints the memory manifest, files, indexes, and sync state.
-
-```sh
-tekmemo inspect
-```
-
-<AdSlot placement="cli-api-bottom" />

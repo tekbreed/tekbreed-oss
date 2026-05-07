@@ -16,11 +16,11 @@ npm install tekmemo @tekmemo/fs
 ## Example
 
 ```ts
-import { bootstrapStore, readCoreMemory } from "tekmemo";
+import { bootstrapMemoryStore, readCoreMemory } from "tekmemo";
 import { createNodeFsMemoryStore } from "@tekmemo/fs";
 
 const store = createNodeFsMemoryStore({ rootDir: process.cwd() });
-await bootstrapStore(store);
+await bootstrapMemoryStore(store);
 console.log(await readCoreMemory(store));
 ```
 

@@ -27,9 +27,9 @@ npm install tekmemo
 ## Example
 
 ```ts
-import { bootstrapStore, readCoreMemory } from "tekmemo";
+import { bootstrapMemoryStore, readCoreMemory } from "tekmemo";
 
-await bootstrapStore(store);
+await bootstrapMemoryStore(store);
 const core = await readCoreMemory(store);
 ```
 
