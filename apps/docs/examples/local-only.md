@@ -19,8 +19,7 @@ import {
 import { createNodeFsMemoryStore } from '@tekmemo/fs'
 
 const store = createNodeFsMemoryStore({
-  rootDir: process.cwd(),
-  memoryDirName: '.tekmemo'
+  rootDir: process.cwd()
 })
 
 await bootstrapMemoryStore(store)

@@ -29,9 +29,12 @@ A memory path is a path inside `.tekmemo/`.
 ```txt
 memory/core.md
 memory/notes.md
-conversations/conversations.jsonl
+events/conversations.jsonl
 events/memory-events.jsonl
 indexes/chunks.jsonl
+graph/nodes.jsonl
+graph/edges.jsonl
+snapshots/snapshots.jsonl
 ```
 
 TekMemo uses internal relative paths so the same code can work across local files, syncable stores, and cloud-backed stores.
@@ -57,11 +60,7 @@ A type describes what kind of memory is being stored.
 | :--- | :--- | :--- |
 | Core | `memory/core.md` | Compact canonical truth. |
 | Notes | `memory/notes.md` | Durable long-form notes. |
-| Facts | `memory/facts.jsonl` | Structured factual memory. |
-| Preferences | `memory/preferences.jsonl` | User or team preferences. |
-| Procedures | `memory/procedures.jsonl` | How tasks should be done. |
-| Policies | `memory/policies.jsonl` | Hard rules and constraints. |
-| Conversations | `conversations/conversations.jsonl` | Conversation history and summaries. |
+| Conversations | `events/conversations.jsonl` | Conversation history and summaries. |
 
 ## Recall
 

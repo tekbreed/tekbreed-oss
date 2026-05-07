@@ -4,7 +4,26 @@
 	"description": "Vercel AI SDK integration for TekMemo memory tools and context building.",
 	"private": false,
 	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/tekbreed/tekmemo.git",
+		"directory": "packages/ai-sdk"
+	},
+	"homepage": "https://github.com/tekbreed/tekmemo#readme",
+	"bugs": {
+		"url": "https://github.com/tekbreed/tekmemo/issues"
+	},
 	"type": "module",
+	"sideEffects": false,
+	"keywords": [
+		"ai",
+		"memory",
+		"agents",
+		"llm",
+		"recall",
+		"typescript",
+		"tekmemo"
+	],
 	"main": "./dist/index.cjs",
 	"module": "./dist/index.mjs",
 	"types": "./dist/index.d.mts",

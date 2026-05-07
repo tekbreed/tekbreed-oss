@@ -1,6 +1,6 @@
 ---
-title: CLI API
-description: TekMemo CLI commands for local memory, inspection, indexing, snapshots, and sync.
+title: CLI
+description: CLI documentation for TekMemo.
 ---
 
 # CLI
@@ -25,4 +25,3 @@ Use the runtime APIs directly for now.
 ## Planned
 
 A CLI may be added later for local initialization, inspection, indexing, and sync workflows.
-

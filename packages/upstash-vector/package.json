@@ -3,6 +3,15 @@
 	"version": "0.1.0",
 	"description": "Upstash Vector recall adapter for TekMemo.",
 	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/tekbreed/tekmemo.git",
+		"directory": "packages/upstash-vector"
+	},
+	"homepage": "https://github.com/tekbreed/tekmemo#readme",
+	"bugs": {
+		"url": "https://github.com/tekbreed/tekmemo/issues"
+	},
 	"type": "module",
 	"sideEffects": false,
 	"main": "./dist/index.cjs",
@@ -42,11 +51,14 @@
 	},
 	"keywords": [
 		"ai",
-		"agents",
 		"memory",
+		"agents",
+		"llm",
+		"recall",
+		"typescript",
+		"tekmemo",
 		"upstash",
-		"vector",
-		"typescript"
+		"vector"
 	],
 	"dependencies": {
 		"@tekmemo/recall": "workspace:^"

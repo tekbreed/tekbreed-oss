@@ -20,8 +20,7 @@ import { bootstrapMemoryStore, readCoreMemory } from 'tekmemo'
 import { createNodeFsMemoryStore } from '@tekmemo/fs'
 
 const store = createNodeFsMemoryStore({
-  rootDir: process.cwd(),
-  memoryDirName: '.tekmemo'
+  rootDir: process.cwd()
 })
 
 await bootstrapMemoryStore(store)
@@ -34,26 +33,20 @@ Behind the scenes, TekMemo creates a `.tekmemo/` folder with canonical memory fi
 
 ```txt
 .tekmemo/
-├─ manifest.json
-├─ config.json
-├─ memory/
-│  ├─ core.md
-│  ├─ notes.md
-│  ├─ facts.jsonl
-│  ├─ preferences.jsonl
-│  ├─ procedures.jsonl
-│  └─ policies.jsonl
-├─ conversations/
-│  └─ conversations.jsonl
-├─ events/
-│  └─ memory-events.jsonl
-├─ indexes/
-│  ├─ chunks.jsonl
-│  ├─ keyword.json
-│  └─ vector-manifest.json
-├─ graph/
-├─ snapshots/
-└─ sync/
+├── manifest.json
+├── memory/
+│   ├── core.md
+│   └── notes.md
+├── events/
+│   ├── memory-events.jsonl
+│   └── conversations.jsonl
+├── indexes/
+│   └── chunks.jsonl
+├── graph/
+│   ├── nodes.jsonl
+│   └── edges.jsonl
+└── snapshots/
+    └── snapshots.jsonl
 ```
 
 ## Write a note

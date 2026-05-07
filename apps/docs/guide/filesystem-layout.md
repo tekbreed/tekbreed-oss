@@ -1,6 +1,6 @@
 ---
-title: Memory Filesystem
-description: Learn the .tekmemo folder format and what each file is for.
+title: Filesystem Layout
+description: Canonical filesystem layout for TekMemo memory stores.
 ---
 
 # Filesystem Layout
@@ -67,4 +67,3 @@ Optional graph edges for relationship-aware memory.
 ## `.tekmemo/snapshots/snapshots.jsonl`
 
 Snapshot records for checkpointing memory state.
-

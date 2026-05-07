@@ -13,10 +13,10 @@ It owns the memory contracts. It does not own cloud billing, UI, vector provider
 
 ```ts
 export interface MemoryStore {
-  read(path: MemoryFilePath): Promise<string>
-  write(path: MemoryFilePath, content: string): Promise<void>
-  append(path: MemoryFilePath, content: string): Promise<void>
-  exists(path: MemoryFilePath): Promise<boolean>
+  read(path: MemoryPath): Promise<string>
+  write(path: MemoryPath, content: string): Promise<void>
+  append(path: MemoryPath, content: string): Promise<void>
+  exists(path: MemoryPath): Promise<boolean>
 }
 ```
 

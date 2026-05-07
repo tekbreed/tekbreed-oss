@@ -172,6 +172,21 @@ importers:
         specifier: workspace:*
         version: link:../utils
 
+  packages/graph:
+    devDependencies:
+      '@repo/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
+      '@repo/tsdown-config':
+        specifier: workspace:*
+        version: link:../tsdown-config
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@repo/utils':
+        specifier: workspace:*
+        version: link:../utils
+
   packages/openai:
     dependencies:
       openai:

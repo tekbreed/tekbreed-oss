@@ -27,7 +27,7 @@ import { runStructuredMemoryTool } from "./run-structured-memory-tool";
 export function buildMemoryToolDefinition(context: MemoryToolExecutionContext) {
 	return {
 		description:
-			"Read, create, update, or search memory files under .memory. Use core.md for compact persistent memory, notes.md for archival notes, and conversations.jsonl for recall history.",
+			"Read, create, update, or search memory files under .tekmemo. Use core.md for compact persistent memory, notes.md for archival notes, and conversations.jsonl for recall history.",
 		inputSchema: memoryToolInputSchema,
 		execute: async (input: unknown) => {
 			const parsed = memoryToolInputSchema.parse(input);

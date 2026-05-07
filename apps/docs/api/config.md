@@ -3,35 +3,28 @@ title: Config API
 description: Configure local memory, recall, provider adapters, and hosted TypeScript apps.
 ---
 
-# Config API
+# Configuration
 
-TekMemo can be configured with `tekmemo.config.ts`.
+TekMemo does not support config files in the current release.
 
-## Schema shape
+There is currently no `tekmemo.config.ts`, `tekmemo.config.js`, or `tekmemo/config` export.
 
-| Key | Type | Description |
-| :--- | :--- | :--- |
-| `root` | `string` | Memory root directory. Defaults to `.tekmemo`. |
-| `recall.keyword` | `boolean` | Enables local keyword recall. |
-| `recall.semantic` | `boolean` | Enables vector-backed semantic recall. |
-| `sync.enabled` | `boolean` | Enables cloud or adapter sync. |
-| `sync.provider` | `string` | Sync provider name. |
+Configure TekMemo directly in code when creating stores, embedders, rerankers, and recall adapters.
 
 ## Example
 
 ```ts
-import { defineTekMemoConfig } from 'tekmemo/config'
+import { bootstrapMemoryStore } from "tekmemo";
+import { createNodeFsMemoryStore } from "@tekmemo/fs";
 
-export default defineTekMemoConfig({
-  root: '.tekmemo',
-  recall: {
-    keyword: true,
-    semantic: false
-  },
-  sync: {
-    enabled: false
-  }
-})
+const store = createNodeFsMemoryStore({
+  rootDir: process.cwd(),
+});
+
+await bootstrapMemoryStore(store);
 ```
 
-<AdSlot placement="config-api-bottom" />
+## Planned
+
+A config file API may be added later if it becomes necessary for CLI, framework, or cloud-sync workflows.
+
