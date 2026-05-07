@@ -139,6 +139,7 @@ This repo intentionally does **not** contain private TekMemo Cloud implementatio
 | `tekmemo`          | Core memory contracts, records, chunks, source refs, and `.tekmemo/` conventions |
 | `@tekmemo/fs`      | Local filesystem-backed memory store                                             |
 | `@tekmemo/agentfs` | AgentFS/Turso AgentFS-backed memory store and sync hooks                         |
+| `@tekmemo/graph`   | Provider-neutral graph memory primitives (nodes, edges, relationships)    |
 | `@tekmemo/ai-sdk`  | AI SDK tool definitions and memory tool bridge                                   |
 
 ### Embeddings

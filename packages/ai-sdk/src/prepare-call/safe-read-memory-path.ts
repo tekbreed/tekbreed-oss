@@ -2,23 +2,14 @@
  * Safely reads a memory path, returning a default value if not found.
  *
  * @remarks
- * Wraps store.read() and catches "not found" errors.
+ * Wraps store.read() and catches common TekMemo/storage not-found errors.
+ * Other errors are propagated.
  *
  * @internal
  */
 
-import { isNotFoundError } from "@repo/utils";
 import type { MemoryPath, MemoryStore } from "tekmemo";
 
-/**
- * Safely reads a memory path, returning a default value if not found.
- * Other errors are propagated.
- *
- * @param store - The memory store to read from.
- * @param path - The memory path to read.
- * @param defaultValue - Value to return if path is not found.
- * @returns The file content, or defaultValue if not found.
- */
 export async function safeReadMemoryPath(
 	store: MemoryStore,
 	path: MemoryPath,
@@ -27,9 +18,24 @@ export async function safeReadMemoryPath(
 	try {
 		return await store.read(path);
 	} catch (error) {
-		if (isNotFoundError(error)) {
-			return defaultValue;
-		}
+		if (isNotFoundError(error)) return defaultValue;
 		throw error;
 	}
+}
+
+function isNotFoundError(error: unknown): boolean {
+	if (!error || typeof error !== "object") return false;
+	const record = error as Record<string, unknown>;
+	const name = typeof record.name === "string" ? record.name.toLowerCase() : "";
+	const code = typeof record.code === "string" ? record.code.toLowerCase() : "";
+	const message =
+		typeof record.message === "string" ? record.message.toLowerCase() : "";
+	return (
+		name.includes("notfound") ||
+		name.includes("not_found") ||
+		code === "enoent" ||
+		code.includes("not_found") ||
+		message.includes("not found") ||
+		message.includes("does not exist")
+	);
 }

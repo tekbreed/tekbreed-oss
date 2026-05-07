@@ -1,7 +1,7 @@
 {
 	"name": "@tekmemo/ai-sdk",
 	"version": "0.1.0",
-	"description": "Vercel AI SDK integration for TekMemo memory tools and context building.",
+	"description": "Vercel AI SDK integration for TekMemo local, cloud, and hybrid memory runtimes.",
 	"private": false,
 	"license": "MIT",
 	"repository": {
@@ -22,7 +22,12 @@
 		"llm",
 		"recall",
 		"typescript",
-		"tekmemo"
+		"tekmemo",
+		"cloud",
+		"hybrid",
+		"mcp",
+		"chatbot",
+		"scoped-memory"
 	],
 	"main": "./dist/index.cjs",
 	"module": "./dist/index.mjs",
@@ -53,7 +58,10 @@
 		"typecheck": "tsc --noEmit",
 		"test": "vitest",
 		"test:run": "vitest run",
-		"lint:package": "publint"
+		"lint:package": "publint",
+		"test:watch": "vitest",
+		"test:coverage": "vitest run --coverage",
+		"clean": "rm -rf dist coverage .turbo"
 	},
 	"dependencies": {
 		"ai": "^6.0.174",
@@ -65,5 +73,13 @@
 		"@repo/tsdown-config": "workspace:*",
 		"@repo/typescript-config": "workspace:*",
 		"@repo/utils": "workspace:*"
+	},
+	"peerDependencies": {
+		"@tekmemo/cloud-client": ">=0.1.0"
+	},
+	"peerDependenciesMeta": {
+		"@tekmemo/cloud-client": {
+			"optional": true
+		}
 	}
 }

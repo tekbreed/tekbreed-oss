@@ -1,104 +1,121 @@
-# `@repo/test-utils`
+# @repo/test-utils
 
 Shared contract tests, fixtures, and fakes for TekMemo packages.
 
-This package makes every adapter obey the same behavioral contract.
+## Usage;
 
-## Why it exists
+This internal package provides testing utilities for all TekMemo packages.
 
-TekMemo has many packages:
+### Exports;
 
-- `@tekmemo/fs`
-- `@tekmemo/agentfs`
-- `@tekmemo/voyageai`
-- `@tekmemo/openai`
-- `@tekmemo/recall`
-- `@tekmemo/upstash-vector`
-- `@tekmemo/turso-vector`
-- `@tekmemo/qdrant`
-- `@tekmemo/rerank`
-- `@tekmemo/rerank-voyage`
+The package exports testing utilities through subpath exports:
 
-Without shared contract tests, each adapter can accidentally behave differently.
+| Export path | Description |
+|-------------|-------------|
+| `.` | Main testing utilities |
+| `./contracts` | Shared contract tests for MemoryStore, RecallStore, etc. |
+| `./fakes` | Fake implementations for testing |
+| `./fixtures` | Test fixtures (nodes, edges, documents) |
+| `./vitest` | Vitest setup and utilities |
 
-This package prevents that.
+---
 
-## Install
+## Contract tests;
 
-```bash
-pnpm add -D @repo/test-utils vitest
-```
-
-## Memory store contract
+Shared contract tests ensure all implementations behave correctly:
 
 ```ts
-import { defineMemoryStoreContractTests } from "@repo/test-utils/contracts";
+import { runMemoryStoreContractTests } from "@repo/test-utils/contracts";
 
-defineMemoryStoreContractTests({
-  name: "@tekmemo/fs",
-  async createStore() {
-    return createNodeFsMemoryStore({ rootDir });
-  },
-  async cleanup() {
-    await rm(rootDir, { recursive: true, force: true });
+// Run contract tests for your MemoryStore implementation
+runMemoryStoreContractTests({
+  createStore: () => new YourMemoryStore(),
+  supportsAppend: true,
+  supportsMissingFileBehavior: true
+});
+```
+
+Available contract test suites:
+- `runMemoryStoreContractTests` — for MemoryStore implementations
+- `runRecallStoreContractTests` — for RecallStore implementations
+- `runEmbedderContractTests` — for embedder implementations
+- `runRankerContractTests` — for ranker implementations
+
+---
+
+## Fake implementations;
+
+Pre-built fakes for testing without real providers:
+
+```ts
+import {
+  FakeMemoryStore,
+  FakeRecallStore,
+  FakeEmbedder,
+  FakeRanker,
+} from "@repo/test-utils/fakes";
+
+// Use in tests
+const store = new FakeMemoryStore();
+await store.write(".tekmemo/memory/core.md", "content");
+
+const embedder = new FakeEmbedder({
+  embeddings: [[0.1, 0.2, 0.3]]  // predefined embeddings
+});
+```
+
+---
+
+## Fixtures;
+
+Reusable test data:
+
+```ts
+import {
+  createTestNode,
+  createTestEdge,
+  createTestMemoryEvent,
+  createTestChunk,
+} from "@repo/test-utils/fixtures";
+
+const node = createTestNode({ id: "test-1", type: "concept" });
+const edge = createTestEdge({ from: "a", to: "b", type: "uses" });
+```
+
+---
+
+## Vitest utilities;
+
+```ts
+import { setupTestEnvironment } from "@repo/test-utils/vitest";
+
+// Setup in vitest.config.ts
+export default defineConfig({
+  test: {
+    setupFiles: ["@repo/test-utils/vitest"]
   }
 });
 ```
 
-## Embedder contract
+---
 
-```ts
-import { defineEmbedderContractTests } from "@repo/test-utils/contracts";
+## Package boundary;
 
-defineEmbedderContractTests({
-  name: "@tekmemo/voyageai",
-  createEmbedder() {
-    return createVoyageEmbedder({ client: fakeClient, expectedDimensions: 4 });
-  },
-  expectedDimensions: 4
-});
-```
+**This package owns:**
+- Shared contract test suites
+- Fake implementations for testing
+- Test fixtures
+- Vitest setup utilities
 
-## Recall store contract
+**This package does NOT own:**
+- Production implementations
+- Public API documentation
+- Provider-specific logic
 
-```ts
-import { defineRecallStoreContractTests } from "@repo/test-utils/contracts";
+---
 
-defineRecallStoreContractTests({
-  name: "@tekmemo/upstash-vector",
-  async createStore() {
-    return createUpstashRecallStore({ index: fakeIndex, dimensions: 3 });
-  }
-});
-```
+## Related packages;
 
-## Reranker contract
-
-```ts
-import { defineRerankerContractTests } from "@repo/test-utils/contracts";
-
-defineRerankerContractTests({
-  name: "@tekmemo/rerank-voyage",
-  createReranker() {
-    return createVoyageReranker({ client: fakeClient });
-  }
-});
-```
-
-## Package boundary
-
-This package owns:
-
-- contract test definitions
-- fake stores/providers
-- reusable fixtures
-- reusable assertions
-- mutation-safety helpers
-
-It does **not** own:
-
-- production runtime behavior
-- provider integrations
-- cloud billing
-- BYOK encryption
-- `.tekmemo/` protocol implementation
+- `tekmemo` — Core memory contracts
+- `@tekmemo/recall` — Recall store contracts
+- `@tekmemo/rerank` — Ranker contracts

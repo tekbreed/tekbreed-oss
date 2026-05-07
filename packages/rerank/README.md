@@ -1,35 +1,82 @@
-# `@tekmemo/rerank`
+# @tekmemo/rerank`
 
-[![npm](https://img.shields.io/npm/v/%40tekmemo%2Frerank?label=npm)](https://www.npmjs.com/package/@tekmemo/rerank)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![Types](https://img.shields.io/badge/types-included-blue)](./dist/index.d.mts)
-[![CI](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml/badge.svg)](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml)
-[![Status](https://img.shields.io/badge/status-preview-orange)](../../README.md)
+[![npm version](https://img.shields.io/npm/v/@tekmemo/rerank.svg)](https://www.npmjs.com/package/@tekmemo/rerank)
+[![npm downloads](https://img.shields.io/npm/dm/@tekmemo/rerank.svg)](https://www.npmjs.com/package/@tekmemo/rerank)
+[![license](https://img.shields.io/npm/l/@tekmemo/rerank.svg)](https://www.npmjs.com/package/@tekmemo/rerank)
 
 Provider-neutral reranking contracts and utilities for TekMemo.
 
 This package defines the interface that provider adapters implement, such as:
-
 - `@tekmemo/rerank-voyage`
-- `@tekmemo/rerank-cohere`
-- `@tekmemo/rerank-jina`
+- `@tekmemo/rerank-cohere` (future)
+- `@tekmemo/rerank-jina` (future)
 
 It does **not** call any provider API.
 
-## Install
+## Installation;
 
 ```bash
 pnpm add @tekmemo/rerank
 ```
 
-## Usage
+---
+
+## API reference;
+
+### `Ranker` interface;
 
 ```ts
-import { createDeterministicFallbackReranker } from "@tekmemo/rerank";
+import type { Ranker, RankerDocument, RankerQuery, RankerResult } from "@tekmemo/rerank";
 
-const reranker = createDeterministicFallbackReranker();
+interface Ranker {
+  rerank(query: RankerQuery): Promise<RankerResult[]>;
+}
+```
 
-const results = await reranker.rerank({
+### `RankerQuery`;
+
+```ts
+interface RankerQuery {
+  query: string;                           // Query text
+  documents: RankerDocument[];              // Documents to rerank
+  topK?: number;                          // Max results (default: 10)
+  namespace?: string;                       // Optional namespace
+}
+```
+
+### `RankerDocument`;
+
+```ts
+interface RankerDocument {
+  id: string;        // Document ID
+  text: string;      // Document text
+  metadata?: Record<string, unknown>;  // Optional metadata
+}
+```
+
+### `RankerResult`;
+
+```ts
+interface RankerResult {
+  id: string;        // Document ID
+  index: number;     // Original index in input array
+  score: number;     // Relevance score (0-1)
+  metadata?: Record<string, unknown>;
+}
+```
+
+---
+
+## Deterministic fallback ranker;
+
+Use the deterministic ranker for local tests, examples, and adapter contract tests.
+
+```ts
+import { createDeterministicFallbackRanker } from "@tekmemo/rerank";
+
+const ranker = createDeterministicFallbackRanker();
+
+const results = await ranker.rerank({
   query: "memory architecture",
   documents: [
     { id: "doc_1", text: "TekMemo uses file-first memory." },
@@ -37,23 +84,61 @@ const results = await reranker.rerank({
   ],
   topK: 1
 });
+
+// results[0].id = "doc_1" (better match for query)
+// results[0].score = 0.85 (simulated score)
 ```
 
-## Package boundary
+The deterministic ranker uses simple word-overlap scoring as a fallback when no provider is available.
 
-This package owns:
+---
 
-- reranking interfaces
-- input validation
-- deterministic result sorting
-- metadata safety checks
-- fallback reranker for tests/local dev
-- fake reranker for adapter tests
+## Testing;
 
-It does not own:
+The package includes a fake ranker for unit tests:
 
-- Voyage/Cohere/Jina API calls
-- vector recall
-- embeddings
-- billing
-- cloud BYOK encryption
+```ts
+import { createFakeRanker } from "@tekmemo/rerank/testing";
+
+const fakeRanker = createFakeRanker({
+  // Optional: predefined results
+  results: [
+    { id: "doc_1", index: 0, score: 0.9 },
+    { id: "doc_2", index: 1, score: 0.5 }
+  ]
+});
+
+const results = await fakeRanker.rerank({
+  query: "...",
+  documents: [...]
+});
+```
+
+---
+
+## Package boundary;
+
+**This package owns:**
+- `Ranker` interface
+- Input validation
+- Deterministic result sorting
+- Metadata safety checks
+- Fallback ranker for tests/local dev
+- Fake ranker for adapter tests
+
+**This package does NOT own:**
+- Voyage/Cohere/Jina API calls (see provider packages)
+- Vector recall (see `@tekmemo/recall`)
+- Embeddings (see `@tekmemo/openai`, `@tekmemo/voyageai`)
+- Billing
+- Cloud BYOK encryption
+
+---
+
+## Related packages;
+
+- `tekmemo` — Core memory contracts
+- `@tekmemo/recall` — Vector recall contracts
+- `@tekmemo/rerank-voyage` — Voyage reranking adapter
+- `@tekmemo/openai` — OpenAI embeddings
+- `@tekmemo/voyageai` — Voyage embeddings

@@ -1,19 +1,100 @@
 # @repo/typescript-config
 
-Shared TypeScript configurations for the **TekMemo** monorepo.
+Shared TypeScript configurations for TekMemo packages.
 
-> [!IMPORTANT]
-> This is an internal-only package.
+This internal package provides the base TypeScript configurations that all packages extend. It ensures consistent TypeScript settings across the monorepo.
 
-## Usage
+## Available Configs;
 
-In any package's `tsconfig.json`:
+| Config | Description |
+|--------|-------------|
+| `base.json` | Base config for Node.js packages (strict, ESM, target ES2022) |
+| `react.json` | Extends base with React JSX support |
+
+---
+
+## Usage;
+
+### In package.json;
 
 ```json
 {
-  "extends": "@repo/typescript-config/base.json",
-  "compilerOptions": {
-    "outDir": "./dist"
+  "scripts": {
+    "typecheck": "tsc --noEmit"
   }
 }
 ```
+
+### In tsconfig.json;
+
+```json
+{
+  "extends": "@repo/typescript-config/base.json"
+}
+```
+
+For React packages:
+
+```json
+{
+  "extends": "@repo/typescript-config/react.json"
+}
+```
+
+---
+
+## Base configuration;
+
+The `base.json` includes:
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": ["src"]
+}
+```
+
+---
+
+## Requirements;
+
+| Tool | Version |
+|------|---------|
+| TypeScript | `>=5.0` |
+| Node.js | `>=22` |
+
+---
+
+## Package boundary;
+
+**This package owns:**
+- Base TypeScript configuration
+- React TypeScript configuration
+- Future config variants (browser, etc.)
+
+**This package does NOT own:**
+- Build tool configuration (see `@repo/tsdown-config`)
+- Runtime code
+- Package-specific settings
+
+---
+
+## Related packages;
+
+- `@repo/tsdown-config` — Shared tsdown build configuration
+- `@repo/utils` — Shared utility helpers
