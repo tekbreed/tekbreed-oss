@@ -77,4 +77,6 @@ export const runtimeMemoryToolInputSchema = z.discriminatedUnion("command", [
 	}),
 ]);
 
-export type RuntimeMemoryToolInput = z.infer<typeof runtimeMemoryToolInputSchema>;
+export type RuntimeMemoryToolInput = z.infer<
+	typeof runtimeMemoryToolInputSchema
+>;

@@ -1,3 +1,4 @@
+import type { MemoryStore } from "tekmemo";
 import {
 	appendTimestampedNote,
 	CORE_MEMORY_PATH,
@@ -7,14 +8,12 @@ import {
 	searchMemoryText,
 	writeCoreMemory,
 } from "tekmemo";
-import type { MemoryStore } from "tekmemo";
 import type {
-	AiRuntimeCreateNoteInput,
 	AiRuntimeMemoryNote,
+	AiRuntimePage,
 	AiRuntimeRecallHit,
 	AiRuntimeRecallInput,
 	AiRuntimeRecallResult,
-	AiRuntimePage,
 	TekMemoAiRuntime,
 } from "../types/runtime";
 
@@ -41,7 +40,9 @@ export function createLocalAiSdkRuntime(
 				if (input.tag && !note.tags?.includes(input.tag)) return false;
 				return true;
 			});
-			return { items: items.slice(0, input.limit ?? 50) } satisfies AiRuntimePage<AiRuntimeMemoryNote>;
+			return {
+				items: items.slice(0, input.limit ?? 50),
+			} satisfies AiRuntimePage<AiRuntimeMemoryNote>;
 		},
 		async createNote(input) {
 			const timestamp = new Date().toISOString();
@@ -71,7 +72,12 @@ export function createLocalAiSdkRuntime(
 			return localRecall(options, input);
 		},
 		async index() {
-			return { status: "skipped", warnings: ["Local AI SDK runtime uses deterministic text search; no cloud index job was created."] };
+			return {
+				status: "skipped",
+				warnings: [
+					"Local AI SDK runtime uses deterministic text search; no cloud index job was created.",
+				],
+			};
 		},
 	};
 }
@@ -89,7 +95,11 @@ async function localRecall(
 		.filter(Boolean)
 		.join("\n\n");
 
-	for (const result of searchMemoryText({ content: workspaceText, query: input.query, limit: topK })) {
+	for (const result of searchMemoryText({
+		content: workspaceText,
+		query: input.query,
+		limit: topK,
+	})) {
 		hits.push({
 			id: `workspace_${result.index}`,
 			text: result.text,
@@ -107,7 +117,11 @@ async function localRecall(
 		]
 			.filter(Boolean)
 			.join("\n\n");
-		for (const result of searchMemoryText({ content: userText, query: input.query, limit: topK })) {
+		for (const result of searchMemoryText({
+			content: userText,
+			query: input.query,
+			limit: topK,
+		})) {
 			hits.push({
 				id: `user_${result.index}`,
 				text: result.text,
@@ -133,7 +147,10 @@ async function safeReadNotes(store: MemoryStore): Promise<string> {
 	}
 }
 
-async function safeReadPath(store: MemoryStore, path: typeof CORE_MEMORY_PATH | typeof NOTES_MEMORY_PATH): Promise<string> {
+async function safeReadPath(
+	store: MemoryStore,
+	path: typeof CORE_MEMORY_PATH | typeof NOTES_MEMORY_PATH,
+): Promise<string> {
 	try {
 		return await store.read(path);
 	} catch {
@@ -148,11 +165,18 @@ function parseMarkdownNotes(markdown: string): AiRuntimeMemoryNote[] {
 		.filter((section) => section.startsWith("## "));
 	return sections.map((section, index) => {
 		const lines = section.split(/\r?\n/);
-		const heading = lines[0]?.replace(/^##\s+/, "").trim() || `note-${index + 1}`;
+		const heading =
+			lines[0]?.replace(/^##\s+/, "").trim() || `note-${index + 1}`;
 		const contentStart = lines.findIndex((line) => line.trim() === "");
 		const metaLines = lines.slice(1, contentStart === -1 ? 1 : contentStart);
-		const body = (contentStart === -1 ? lines.slice(1) : lines.slice(contentStart + 1)).join("\n").trim();
-		const kind = readMeta(metaLines, "kind") as AiRuntimeMemoryNote["kind"] | undefined;
+		const body = (
+			contentStart === -1 ? lines.slice(1) : lines.slice(contentStart + 1)
+		)
+			.join("\n")
+			.trim();
+		const kind = readMeta(metaLines, "kind") as
+			| AiRuntimeMemoryNote["kind"]
+			| undefined;
 		const tags = readMeta(metaLines, "tags")
 			?.split(",")
 			.map((tag) => tag.trim())
@@ -175,11 +199,15 @@ function readMeta(lines: string[], key: string): string | undefined {
 	return found?.slice(prefix.length).trim();
 }
 
-function parseMetadata(raw: string | undefined): Record<string, any> | undefined {
+function parseMetadata(
+	raw: string | undefined,
+): Record<string, any> | undefined {
 	if (!raw) return undefined;
 	try {
 		const value = JSON.parse(raw);
-		return value && typeof value === "object" && !Array.isArray(value) ? value : undefined;
+		return value && typeof value === "object" && !Array.isArray(value)
+			? value
+			: undefined;
 	} catch {
 		return undefined;
 	}

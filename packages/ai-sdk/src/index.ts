@@ -7,8 +7,18 @@
  * @public
  */
 
+export type {
+	AgentSessionInstructionPaths,
+	BuildAgentSessionInstructionsOptions,
+} from "./agent-session/build-agent-session-instructions";
+export { buildAgentSessionInstructions } from "./agent-session/build-agent-session-instructions";
 export { buildPrepareCallMemoryText } from "./prepare-call/build-prepare-call-memory-text";
 export { safeReadMemoryPath } from "./prepare-call/safe-read-memory-path";
+export { buildRuntimeMemoryContext } from "./runtime/build-runtime-memory-context";
+export {
+	type CreateLocalAiSdkRuntimeOptions,
+	createLocalAiSdkRuntime,
+} from "./runtime/local-runtime";
 export type { MemoryToolInput } from "./schemas/memory-tool-schema";
 export { memoryToolInputSchema } from "./schemas/memory-tool-schema";
 export type { RuntimeMemoryToolInput } from "./schemas/runtime-memory-tool-schema";
@@ -16,19 +26,7 @@ export {
 	runtimeMemoryScopeSchema,
 	runtimeMemoryToolInputSchema,
 } from "./schemas/runtime-memory-tool-schema";
-export { buildMemoryToolDefinition } from "./tools/build-memory-tool-definition";
 export {
-	buildRuntimeMemoryToolDefinition,
-	runRuntimeMemoryTool,
-} from "./tools/build-runtime-memory-tool-definition";
-export { runStructuredMemoryTool } from "./tools/run-structured-memory-tool";
-export { buildRuntimeMemoryContext } from "./runtime/build-runtime-memory-context";
-export {
-	createLocalAiSdkRuntime,
-	type CreateLocalAiSdkRuntimeOptions,
-} from "./runtime/local-runtime";
-export {
-	TekMemoScopeError,
 	assertMemoryScope,
 	assertScopeAllowed,
 	canReadMemoryMetadata,
@@ -36,7 +34,14 @@ export {
 	createScopeMetadata,
 	inferWriteScope,
 	normalizeAccessContext,
+	TekMemoScopeError,
 } from "./scope/scope-policy";
+export { buildMemoryToolDefinition } from "./tools/build-memory-tool-definition";
+export {
+	buildRuntimeMemoryToolDefinition,
+	runRuntimeMemoryTool,
+} from "./tools/build-runtime-memory-tool-definition";
+export { runStructuredMemoryTool } from "./tools/run-structured-memory-tool";
 export type {
 	BuildPrepareCallMemoryTextInput,
 	MemoryStores,

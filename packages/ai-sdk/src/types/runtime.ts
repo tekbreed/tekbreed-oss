@@ -10,7 +10,10 @@
  */
 
 export type JsonPrimitive = string | number | boolean | null;
-export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
+export type JsonValue =
+	| JsonPrimitive
+	| JsonValue[]
+	| { [key: string]: JsonValue };
 export type JsonObject = { [key: string]: JsonValue | undefined };
 
 export type AiMemoryScope =
@@ -162,11 +165,26 @@ export interface AiRuntimeIndexResult {
 
 export interface TekMemoAiRuntime {
 	readCoreMemory(signal?: AbortSignal): Promise<AiRuntimeCoreMemoryDocument>;
-	updateCoreMemory(input: { content: string }, signal?: AbortSignal): Promise<AiRuntimeCoreMemoryDocument>;
-	listNotes(input?: AiRuntimeListNotesInput, signal?: AbortSignal): Promise<AiRuntimePage<AiRuntimeMemoryNote>>;
-	createNote(input: AiRuntimeCreateNoteInput, signal?: AbortSignal): Promise<AiRuntimeMemoryNote>;
-	recall(input: AiRuntimeRecallInput, signal?: AbortSignal): Promise<AiRuntimeRecallResult>;
-	index?(input?: AiRuntimeIndexInput, signal?: AbortSignal): Promise<AiRuntimeIndexResult>;
+	updateCoreMemory(
+		input: { content: string },
+		signal?: AbortSignal,
+	): Promise<AiRuntimeCoreMemoryDocument>;
+	listNotes(
+		input?: AiRuntimeListNotesInput,
+		signal?: AbortSignal,
+	): Promise<AiRuntimePage<AiRuntimeMemoryNote>>;
+	createNote(
+		input: AiRuntimeCreateNoteInput,
+		signal?: AbortSignal,
+	): Promise<AiRuntimeMemoryNote>;
+	recall(
+		input: AiRuntimeRecallInput,
+		signal?: AbortSignal,
+	): Promise<AiRuntimeRecallResult>;
+	index?(
+		input?: AiRuntimeIndexInput,
+		signal?: AbortSignal,
+	): Promise<AiRuntimeIndexResult>;
 }
 
 export interface ScopedMemoryWriteInput {

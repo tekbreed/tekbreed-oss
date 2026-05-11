@@ -1,6 +1,6 @@
 {
 	"name": "@tekmemo/fs",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "Node.js filesystem adapter for TekMemo's canonical .tekmemo/ local memory protocol.",
 	"private": false,
 	"license": "MIT",
@@ -9,20 +9,20 @@
 		"url": "git+https://github.com/tekbreed/tekmemo.git",
 		"directory": "packages/fs"
 	},
-	"homepage": "https://github.com/tekbreed/tekmemo#readme",
+	"homepage": "https://docs.tekmemo.dev/packages/fs",
 	"bugs": {
 		"url": "https://github.com/tekbreed/tekmemo/issues"
 	},
 	"type": "module",
 	"sideEffects": false,
 	"keywords": [
-		"ai",
-		"memory",
 		"agents",
+		"ai",
 		"llm",
+		"memory",
 		"recall",
-		"typescript",
-		"tekmemo"
+		"tekmemo",
+		"typescript"
 	],
 	"main": "./dist/index.cjs",
 	"module": "./dist/index.mjs",
@@ -41,11 +41,11 @@
 	},
 	"files": [
 		"dist",
-		"README.md",
-		"LICENSE"
+		"README.md"
 	],
 	"publishConfig": {
-		"access": "public"
+		"access": "public",
+		"registry": "https://registry.npmjs.org/"
 	},
 	"scripts": {
 		"build": "tsdown",
@@ -53,7 +53,11 @@
 		"typecheck": "tsc --noEmit",
 		"test": "vitest",
 		"test:run": "vitest run",
-		"lint:package": "publint"
+		"lint:package": "publint",
+		"clean": "rm -rf dist coverage .turbo",
+		"prepack": "pnpm build",
+		"pack:dry-run": "pnpm build && npm pack --dry-run",
+		"release:check": "pnpm build && pnpm typecheck && pnpm test:run && pnpm lint:package && npm pack --dry-run"
 	},
 	"dependencies": {
 		"tekmemo": "workspace:^"
@@ -63,5 +67,12 @@
 		"@repo/tsdown-config": "workspace:*",
 		"@repo/typescript-config": "workspace:*",
 		"@repo/utils": "workspace:*"
+	},
+	"engines": {
+		"node": ">=22"
+	},
+	"funding": {
+		"type": "github",
+		"url": "https://github.com/sponsors/christophersesugh"
 	}
 }

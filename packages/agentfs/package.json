@@ -1,7 +1,7 @@
 {
 	"name": "@tekmemo/agentfs",
-	"version": "0.1.0",
-	"description": "AgentFS-backed MemoryStore adapter for TekMemo with sync and lease management.",
+	"version": "0.2.0",
+	"description": "AgentFS session workspace and MemoryStore adapter for TekMemo-powered agents.",
 	"private": false,
 	"license": "MIT",
 	"repository": {
@@ -53,7 +53,10 @@
 		"typecheck": "tsc --noEmit",
 		"test": "vitest",
 		"test:run": "vitest run",
-		"lint:package": "publint"
+		"lint:package": "publint",
+		"prepack": "pnpm build",
+		"pack:dry-run": "pnpm build && npm pack --dry-run",
+		"release:check": "pnpm build && pnpm typecheck && pnpm test:run && pnpm lint:package && npm pack --dry-run"
 	},
 	"dependencies": {
 		"tekmemo": "workspace:^"

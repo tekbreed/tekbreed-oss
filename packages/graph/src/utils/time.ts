@@ -40,11 +40,20 @@ export function isExpired(
 ): boolean {
 	const now = toDate(nowInput, "now") ?? new Date();
 
-	if (record.expiresAt && toDate(record.expiresAt, "expiresAt")! <= now)
+	if (
+		record.expiresAt &&
+		(toDate(record.expiresAt, "expiresAt") ?? new Date(0)) <= now
+	)
 		return true;
-	if (record.validFrom && toDate(record.validFrom, "validFrom")! > now)
+	if (
+		record.validFrom &&
+		(toDate(record.validFrom, "validFrom") ?? new Date(0)) > now
+	)
 		return true;
-	if (record.validUntil && toDate(record.validUntil, "validUntil")! <= now)
+	if (
+		record.validUntil &&
+		(toDate(record.validUntil, "validUntil") ?? new Date(0)) <= now
+	)
 		return true;
 
 	return false;

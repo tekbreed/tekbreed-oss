@@ -1,5 +1,6 @@
-import { runtimeMemoryToolInputSchema } from "../schemas/runtime-memory-tool-schema";
 import { buildRuntimeMemoryContext } from "../runtime/build-runtime-memory-context";
+import type { RuntimeMemoryToolInput } from "../schemas/runtime-memory-tool-schema";
+import { runtimeMemoryToolInputSchema } from "../schemas/runtime-memory-tool-schema";
 import {
 	canReadMemoryMetadata,
 	createRecallFilters,
@@ -7,10 +8,11 @@ import {
 	inferWriteScope,
 	normalizeAccessContext,
 } from "../scope/scope-policy";
-import type { RuntimeMemoryToolInput } from "../schemas/runtime-memory-tool-schema";
 import type { RuntimeMemoryToolOptions } from "../types/runtime";
 
-export function buildRuntimeMemoryToolDefinition(options: RuntimeMemoryToolOptions) {
+export function buildRuntimeMemoryToolDefinition(
+	options: RuntimeMemoryToolOptions,
+) {
 	return {
 		description:
 			"Use TekMemo memory with safe project/user/conversation scope boundaries. Supports local, cloud, or hybrid runtimes.",
@@ -36,10 +38,14 @@ export async function runRuntimeMemoryTool(
 		}
 		case "update_core_memory": {
 			if (!options.allowCoreUpdates) {
-				throw new Error("Core memory updates are disabled for this AI SDK tool.");
+				throw new Error(
+					"Core memory updates are disabled for this AI SDK tool.",
+				);
 			}
 			assertSafeContent(input.content, options.allowSecrets, maxContentChars);
-			const result = await options.runtime.updateCoreMemory({ content: input.content });
+			const result = await options.runtime.updateCoreMemory({
+				content: input.content,
+			});
 			return JSON.stringify({ ok: true, data: result }, null, 2);
 		}
 		case "remember": {
@@ -124,9 +130,14 @@ export async function runRuntimeMemoryTool(
 				throw new Error("Indexing is disabled for this AI SDK tool.");
 			}
 			if (!options.runtime.index) {
-				throw new Error("The configured TekMemo runtime does not support indexing.");
+				throw new Error(
+					"The configured TekMemo runtime does not support indexing.",
+				);
 			}
-			const result = await options.runtime.index({ mode: input.mode, force: input.force });
+			const result = await options.runtime.index({
+				mode: input.mode,
+				force: input.force,
+			});
 			return JSON.stringify({ ok: true, data: result }, null, 2);
 		}
 	}
@@ -140,7 +151,9 @@ function assertSafeContent(
 	maxContentChars: number,
 ): void {
 	if (content.length > maxContentChars) {
-		throw new Error(`Content exceeds maximum length of ${maxContentChars} characters.`);
+		throw new Error(
+			`Content exceeds maximum length of ${maxContentChars} characters.`,
+		);
 	}
 	if (allowSecrets) return;
 	const secretPatterns = [

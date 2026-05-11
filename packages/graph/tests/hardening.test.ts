@@ -69,6 +69,7 @@ describe("hardening", () => {
 
 		expect(first?.id).toBe(second?.id);
 		expect((await graph.queryEdges()).length).toBe(1);
+		expect(first!.id).toBeDefined();
 		expect((await graph.getEdge(first!.id))?.weight).toBe(0.9);
 	});
 
@@ -204,6 +205,7 @@ describe("hardening", () => {
 			edge({ from: "a", to: "c", type: "uses", weight: 0.2, dedupeKey: "ac" }),
 		]);
 
+		expect(ab).toBeDefined();
 		await graph.deleteEdge(ab!.id);
 		expect(
 			(await graph.neighbors({ nodeId: "a", direction: "out" })).map(
@@ -212,6 +214,7 @@ describe("hardening", () => {
 		).toEqual(["c"]);
 
 		await graph.decayEdges({ factor: 0.5, minWeight: 0.2 });
+		expect(ac).toBeDefined();
 		expect(await graph.getEdge(ac!.id)).toBe(undefined);
 		expect(await graph.neighbors({ nodeId: "a", direction: "out" })).toEqual(
 			[],

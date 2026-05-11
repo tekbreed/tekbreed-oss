@@ -20,7 +20,10 @@ const DEFAULT_PROJECT_SCOPES: AiMemoryScope[] = ["project", "workspace"];
 
 export class TekMemoScopeError extends Error {
 	readonly code = "tekmemo_scope_error";
-	constructor(message: string, readonly details: Record<string, unknown> = {}) {
+	constructor(
+		message: string,
+		readonly details: Record<string, unknown> = {},
+	) {
 		super(message);
 		this.name = "TekMemoScopeError";
 	}
@@ -55,7 +58,10 @@ export function normalizeAccessContext(
 }
 
 export function assertMemoryScope(scope: unknown): AiMemoryScope {
-	if (typeof scope !== "string" || !ALLOWED_SCOPES.has(scope as AiMemoryScope)) {
+	if (
+		typeof scope !== "string" ||
+		!ALLOWED_SCOPES.has(scope as AiMemoryScope)
+	) {
 		throw new TekMemoScopeError("Invalid memory scope.", { scope });
 	}
 	return scope as AiMemoryScope;
@@ -66,10 +72,13 @@ export function assertScopeAllowed(
 	context: NormalizedAiMemoryAccessContext,
 ): void {
 	if (!context.allowedScopes.includes(scope)) {
-		throw new TekMemoScopeError("Memory scope is not allowed for this operation.", {
-			scope,
-			allowedScopes: context.allowedScopes,
-		});
+		throw new TekMemoScopeError(
+			"Memory scope is not allowed for this operation.",
+			{
+				scope,
+				allowedScopes: context.allowedScopes,
+			},
+		);
 	}
 
 	if (scope === "user" && !context.userId) {
@@ -103,7 +112,10 @@ export function inferWriteScope(
 		return scope;
 	}
 
-	if (context.conversationId && context.allowedScopes.includes("conversation")) {
+	if (
+		context.conversationId &&
+		context.allowedScopes.includes("conversation")
+	) {
 		return "conversation";
 	}
 	if (context.userId && context.allowedScopes.includes("user")) {
@@ -156,7 +168,11 @@ export function createRecallFilters(
 			if (context.allowedScopes.includes(scope)) scopes.push(scope);
 		}
 	}
-	if (context.includeUserMemory && context.userId && context.allowedScopes.includes("user")) {
+	if (
+		context.includeUserMemory &&
+		context.userId &&
+		context.allowedScopes.includes("user")
+	) {
 		scopes.push("user");
 	}
 	if (
@@ -197,7 +213,10 @@ export function canReadMemoryMetadata(
 	if (!metadata) return true;
 	const context = normalizeAccessContext(contextInput);
 	const scopeValue = metadata.scope;
-	if (typeof scopeValue !== "string" || !ALLOWED_SCOPES.has(scopeValue as AiMemoryScope)) {
+	if (
+		typeof scopeValue !== "string" ||
+		!ALLOWED_SCOPES.has(scopeValue as AiMemoryScope)
+	) {
 		// Older memory without explicit scope is treated as project/workspace memory.
 		return context.includeProjectMemory;
 	}
@@ -205,7 +224,10 @@ export function canReadMemoryMetadata(
 	const scope = scopeValue as AiMemoryScope;
 	if (!context.allowedScopes.includes(scope)) return false;
 
-	if ((scope === "project" || scope === "workspace" || scope === "tenant") && context.includeProjectMemory) {
+	if (
+		(scope === "project" || scope === "workspace" || scope === "tenant") &&
+		context.includeProjectMemory
+	) {
 		return true;
 	}
 	if (scope === "user") {
@@ -219,7 +241,9 @@ export function canReadMemoryMetadata(
 	}
 	if (scope === "participant-shared") {
 		const ids = Array.isArray(metadata.participantIds)
-			? metadata.participantIds.filter((id): id is string => typeof id === "string")
+			? metadata.participantIds.filter(
+					(id): id is string => typeof id === "string",
+				)
 			: [];
 		return (
 			context.includeSharedParticipantMemory &&
@@ -245,7 +269,9 @@ function uniqueScopes(values: AiMemoryScope[]): AiMemoryScope[] {
 	return [...new Set(values)];
 }
 
-function compactObject(value: Record<string, unknown>): Record<string, unknown> {
+function compactObject(
+	value: Record<string, unknown>,
+): Record<string, unknown> {
 	const result: Record<string, unknown> = {};
 	for (const [key, entry] of Object.entries(value)) {
 		if (entry === undefined) continue;

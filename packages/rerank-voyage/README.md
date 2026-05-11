@@ -1,160 +1,72 @@
-# @tekmemo/rerank-voyage`
+# `@tekmemo/rerank-voyage`
 
-[![npm version](https://img.shields.io/npm/v/@tekmemo/rerank-voyage.svg)](https://www.npmjs.com/package/@tekmemo/rerank-voyage)
-[![npm downloads](https://img.shields.io/npm/dm/@tekmemo/rerank-voyage.svg)](https://www.npmjs.com/package/@tekmemo/rerank-voyage)
-[![license](https://img.shields.io/npm/l/@tekmemo/rerank-voyage.svg)](https://www.npmjs.com/package/@tekmemo/rerank-voyage)
+[![npm](https://img.shields.io/npm/v/@tekmemo/rerank-voyage?label=npm)](https://www.npmjs.com/package/@tekmemo%2Frerank-voyage)
+[![npm downloads](https://img.shields.io/npm/dm/@tekmemo/rerank-voyage)](https://www.npmjs.com/package/@tekmemo%2Frerank-voyage)
+[![CI](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml/badge.svg)](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml)
+[![Docs](https://img.shields.io/badge/docs-online-blue)](https://docs.tekmemo.dev)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)
 
-Voyage AI reranking adapter for TekMemo.
+## Purpose
 
-This package implements the provider-neutral `Ranker` interface from `@tekmemo/rerank`.
+**Voyage reranker.** Voyage AI reranking adapter implementing TekMemo rerank contracts.
 
-## Installation;
+## Install
 
 ```bash
-pnpm add @tekmemo/rerank @tekmemo/rerank-voyage
+pnpm add @tekmemo/rerank-voyage
 ```
 
-## Quickstart;
+## Quick start
 
 ```ts
-import { createVoyageRanker } from "@tekmemo/rerank-voyage";
+import { createVoyageReranker } from "@tekmemo/rerank-voyage";
 
-const ranker = createVoyageRanker({
-  apiKey: process.env.VOYAGE_API_KEY!,
-  model: "rerank-2.5-lite"
-});
-
-const results = await ranker.rerank({
-  query: "memory architecture",
-  documents: [
-    { id: "doc_1", text: "TekMemo starts from .tekmemo files." },
-    { id: "doc_2", text: "Billing is cloud-only." }
-  ],
-  topK: 1
-});
-
-console.log(results[0]?.id);     // "doc_1"
-console.log(results[0]?.score);   // 0.92 (example score)
+const reranker = createVoyageReranker({ apiKey: process.env.VOYAGE_API_KEY! });
 ```
 
----
+## Boundary
 
-## API reference;
+This package owns its package-level contract only. It does not own TekMemo Cloud billing, dashboards, tenancy, hosted database storage, or provider secrets unless explicitly stated by its package name.
 
-### `createVoyageRanker(options)` → `VoyageRanker`
+For hosted memory, use `@tekmemo/cloud-client`. For local file-backed memory, use `tekmemo` with `@tekmemo/fs`. For MCP tools, use `@tekmemo/mcp-server`.
 
-Creates a Voyage AI reranker:
+## Scripts
 
-```ts
-import { createVoyageRanker } from "@tekmemo/rerank-voyage";
-
-const ranker = createVoyageRanker({
-  // Required
-  apiKey: process.env.VOYAGE_API_KEY!,
-
-  // Optional
-  model: "rerank-2.5-lite",  // default: "rerank-2.5-lite"
-  baseURL: "https://...",        // default: Voyage API
-  timeoutMs: 30_000,              // default: 30_000
-  maxRetries: 3,                  // default: 3
-});
+```bash
+pnpm --filter @tekmemo/rerank-voyage typecheck
+pnpm --filter @tekmemo/rerank-voyage test:run
+pnpm --filter @tekmemo/rerank-voyage build
+pnpm --filter @tekmemo/rerank-voyage lint:package
 ```
 
-### `rerank(query)` → `Promise<RankerResult[]>`
+## Docs
 
-Rerank documents by relevance to query:
+- Package docs: https://docs.tekmemo.dev/packages/
+- Examples: https://docs.tekmemo.dev/examples/
+- Repository: https://github.com/tekbreed/tekmemo
 
-```ts
-const results = await ranker.rerank({
-  query: "memory architecture",
-  documents: [
-    { id: "doc_1", text: "..." },
-    { id: "doc_2", text: "..." }
-  ],
-  topK: 10,                      // optional, default: 10
-  namespace: "optional-namespace"  // optional
-});
+## Publishing metadata
 
-// results[0].id - Document ID
-// results[0].index - Original index
-// results[0].score - Relevance score (0-1)
+- npm package: `@tekmemo/rerank-voyage`
+- publish visibility: public
+- runtime format: dual ESM/CJS
+- ESM output: `dist/**/*.mjs` + `dist/**/*.d.mts`
+- CJS output: `dist/**/*.cjs` + `dist/**/*.d.cts`
+- package contents: `dist` and `README.md`
+- package boundary: hosted cloud calls must go through `@tekmemo/cloud-client` unless this package is `@tekmemo/cloud-client` itself.
+
+
+## Publish readiness
+
+Before publishing this package, run:
+
+```bash
+pnpm --filter @tekmemo/rerank-voyage release:check
 ```
 
----
+The package-level check builds `dist/`, runs TypeScript and tests, runs `publint`, and performs `npm pack --dry-run`. Publish from CI with Changesets and npm trusted publishing/provenance after the root release preflight passes.
 
-## Supported models;
+## License
 
-| Model | Description |
-|-------|-------------|
-| `rerank-2.5-lite` | Fast, cost-effective (default) |
-| `rerank-2.5` | Higher quality |
-| `rerank-2` | Legacy model |
-
-Check [Voyage AI docs](https://docs.voyageai.com) for latest models.
-
----
-
-## BYOK (Bring Your Own Key);
-
-```ts
-createVoyageRanker({
-  apiKey: userProvidedVoyageKey,  // From user or config
-  model: "rerank-2.5-lite"
-});
-```
-
-The package does not persist or log keys.
-
----
-
-## Production features;
-
-- REST client for Voyage reranking API
-- BYOK-ready config
-- Model validation
-- Batch splitting (for large document sets)
-- Retry with exponential backoff
-- Timeout handling
-- Response shape validation
-- Score validation
-- Fake Voyage ranker for tests
-
----
-
-## Error handling;
-
-```ts
-import { VoyageRankerError } from "@tekmemo/rerank-voyage";
-
-try {
-  const results = await ranker.rerank({...});
-} catch (error) {
-  if (error instanceof VoyageRankerError) {
-    console.error("Reranking failed:", error.message);
-    console.error("Status:", error.status);
-  }
-}
-```
-
----
-
-## Boundary;
-
-**This package only calls Voyage reranking.**
-
-**It does NOT own:**
-- Vector recall (see `@tekmemo/recall`)
-- Embeddings (see `@tekmemo/voyageai`, `@tekmemo/openai`)
-- `.tekmemo/` protocol
-- Billing
-- Cloud BYOK encryption
-- Tenant/provider routing
-
----
-
-## Related packages;
-
-- `@tekmemo/rerank` — Reranking contracts
-- `@tekmemo/recall` — Vector recall
-- `@tekmemo/voyageai` — Voyage embeddings
-- `@tekmemo/openai` — OpenAI embeddings
+MIT.

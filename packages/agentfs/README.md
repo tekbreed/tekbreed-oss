@@ -4,9 +4,13 @@
 [![npm downloads](https://img.shields.io/npm/dm/@tekmemo/agentfs.svg)](https://www.npmjs.com/package/@tekmemo/agentfs)
 [![license](https://img.shields.io/npm/l/@tekmemo/agentfs.svg)](https://www.npmjs.com/package/@tekmemo/agentfs)
 
-AgentFS-backed `MemoryStore` adapter for TekMemo.
+AgentFS session workspace and `MemoryStore` adapter for TekMemo-powered agents.
 
-This package lets TekMemo use an AgentFS-like remote file runtime while preserving the canonical local memory protocol:
+Use this package when you want agents to work with TekMemo memory through a safe filesystem-facing workspace. AgentFS is not the durable memory engine; TekMemo remains the canonical memory layer, while AgentFS holds session context, plans, command notes, checkpoints, and extracted memory artifacts.
+
+For the full CLI, MCP, coding-agent, and Cloud integration flow, see [AgentFS End-to-End Integration](./END_TO_END.md).
+
+It can also expose an AgentFS-like remote file runtime as a TekMemo `MemoryStore` while preserving the canonical local memory protocol:
 
 ```txt
 .tekmemo/
@@ -29,6 +33,54 @@ pnpm add tekmemo @tekmemo/agentfs
 
 ## Quickstart
 
+### Agent session workspace
+
+```ts
+import { createTekMemoAgentSession } from "@tekmemo/agentfs";
+
+const session = createTekMemoAgentSession({
+  client: agentfsClient,
+  memory: tekmemoStore,
+  projectId: "proj_123",
+  task: "Refactor the auth middleware",
+});
+
+await session.prepare();
+
+console.log(session.paths.context.core);
+console.log(session.paths.working.plan);
+console.log(session.paths.output.durableMemory);
+
+// Let the agent work, then read curated outputs and sync the workspace.
+await session.complete({
+  checkpointLabel: "after-auth-refactor",
+  extractDurableMemory: true,
+});
+```
+
+The generated workspace uses this shape:
+
+```txt
+/agent-sessions/session_.../
+  context/
+    manifest.json
+    core.md
+    notes.md
+  working/
+    plan.md
+    commands.md
+    errors.md
+    changes.md
+    notes.md
+  output/
+    summary.md
+    durable-memory.md
+    follow-ups.md
+  meta.json
+```
+
+### MemoryStore adapter
+
 ```ts
 import { bootstrapMemoryStore, CORE_MEMORY_PATH } from "tekmemo";
 import { createAgentfsMemoryStore } from "@tekmemo/agentfs";
@@ -47,6 +99,28 @@ const content = await store.read(CORE_MEMORY_PATH);
 ---
 
 ## API reference
+
+### `createTekMemoAgentSession(options)` → `TekMemoAgentSession`
+
+Creates a high-level agent session workspace:
+
+```ts
+const session = createTekMemoAgentSession({
+  client: agentfsClient,
+  memory: tekmemoStore,
+  task: "Add Cloudflare D1 support",
+  projectId: "proj_123",
+  sessionId: "session_d1_refactor" // optional
+});
+
+await session.prepare();
+const extracted = await session.extract();
+await session.complete({ extractDurableMemory: true });
+```
+
+`prepare()` pulls AgentFS changes when available, writes TekMemo context files, and scaffolds working/output files without overwriting existing agent work unless `overwriteWorkspaceFiles` is enabled.
+
+`complete()` reads the output files, optionally appends `output/durable-memory.md` into TekMemo notes, checkpoints the AgentFS workspace, and pushes when the client supports sync.
 
 ### `createAgentfsMemoryStore(client, options)` → `AgentfsMemoryStore`
 
@@ -193,7 +267,8 @@ const content = await store.read(".tekmemo/memory/core.md"); // "" if missing
 ## Error handling
 
 ```ts
-import { AgentfsMemoryStoreError, MemoryNotFoundError } from "@tekmemo/agentfs";
+import { AgentfsClientError, AgentfsValidationError } from "@tekmemo/agentfs";
+import { MemoryNotFoundError, MemoryStoreError } from "tekmemo";
 
 try {
   await store.read(".tekmemo/memory/core.md");
@@ -201,10 +276,12 @@ try {
   if (error instanceof MemoryNotFoundError) {
     // File doesn't exist
   }
-  if (error instanceof AgentfsMemoryStoreError) {
+  if (error instanceof MemoryStoreError) {
     console.error(error.message);
-    console.error(error.path);        // Memory path
-    console.error(error.absolutePath); // AgentFS path
+  }
+  if (error instanceof AgentfsClientError) {
+    console.error(error.message);
+    console.error(error.details);
   }
 }
 ```
@@ -239,6 +316,8 @@ try {
 ## Package boundary
 
 **This package owns:**
+- Agent workspace/session files for TekMemo-powered coding agents
+- Session memory extraction from AgentFS output files
 - AgentFS adapter for `MemoryStore` interface
 - Sync hooks for AgentFS sessions
 - Lease management utilities

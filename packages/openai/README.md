@@ -1,205 +1,72 @@
-# @tekmemo/openai
+# `@tekmemo/openai`
 
-[![npm version](https://img.shields.io/npm/v/@tekmemo/openai.svg)](https://www.npmjs.com/package/@tekmemo/openai)
-[![npm downloads](https://img.shields.io/npm/dm/@tekmemo/openai.svg)](https://www.npmjs.com/package/@tekmemo/openai)
-[![license](https://img.shields.io/npm/l/@tekmemo/openai.svg)](https://www.npmjs.com/package/@tekmemo/openai)
+[![npm](https://img.shields.io/npm/v/@tekmemo/openai?label=npm)](https://www.npmjs.com/package/@tekmemo%2Fopenai)
+[![npm downloads](https://img.shields.io/npm/dm/@tekmemo/openai)](https://www.npmjs.com/package/@tekmemo%2Fopenai)
+[![CI](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml/badge.svg)](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml)
+[![Docs](https://img.shields.io/badge/docs-online-blue)](https://docs.tekmemo.dev)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)
 
-Production-ready OpenAI embedding adapter for TekMemo.
+## Purpose
 
-This package is intentionally **provider-specific** and **BYOK-ready**. It accepts an OpenAI API key from the host application and does not store secrets.
+**OpenAI embeddings.** OpenAI embedding adapter for TekMemo recall pipelines.
 
-## Installation;
+## Install
 
 ```bash
 pnpm add @tekmemo/openai
 ```
 
-`@tekmemo/openai` uses the official `openai` SDK for production API calls and keeps a small injectable embeddings-client interface for tests and custom hosts.
-
-## Quickstart;
+## Quick start
 
 ```ts
 import { createOpenAIEmbedder } from "@tekmemo/openai";
 
-const embedder = createOpenAIEmbedder({
-  apiKey: process.env.OPENAI_API_KEY!,
-  model: "text-embedding-3-small",
-  dimensions: 1024
-});
-
-const result = await embedder.embedTexts({
-  texts: ["TekMemo is file-first memory infrastructure."]
-});
-
-console.log(result.embeddings[0]?.embedding);
-// [-0.01, 0.02, ...] - embedding vector
+const embedder = createOpenAIEmbedder({ apiKey: process.env.OPENAI_API_KEY! });
 ```
 
----
+## Boundary
 
-## API reference
+This package owns its package-level contract only. It does not own TekMemo Cloud billing, dashboards, tenancy, hosted database storage, or provider secrets unless explicitly stated by its package name.
 
-### `createOpenAIEmbedder(options)` → `OpenAIEmbedder`
+For hosted memory, use `@tekmemo/cloud-client`. For local file-backed memory, use `tekmemo` with `@tekmemo/fs`. For MCP tools, use `@tekmemo/mcp-server`.
 
-Creates an OpenAI embedding client:
+## Scripts
 
-```ts
-import { createOpenAIEmbedder } from "@tekmemo/openai";
-
-const embedder = createOpenAIEmbedder({
-  // Required
-  apiKey: process.env.OPENAI_API_KEY!,
-
-  // Optional
-  model: "text-embedding-3-small",  // default: "text-embedding-3-small"
-  dimensions: 1024,                  // default: undefined (use model default)
-  baseURL: "https://...",             // default: OpenAI default
-  timeoutMs: 60_000,                  // default: 60_000 (60 seconds)
-  maxRetries: 3,                      // default: SDK default
-});
+```bash
+pnpm --filter @tekmemo/openai typecheck
+pnpm --filter @tekmemo/openai test:run
+pnpm --filter @tekmemo/openai build
+pnpm --filter @tekmemo/openai lint:package
 ```
 
-### `embedTexts(input)` → `Promise<EmbedResult>`
+## Docs
 
-Generate embeddings for texts:
+- Package docs: https://docs.tekmemo.dev/packages/
+- Examples: https://docs.tekmemo.dev/examples/
+- Repository: https://github.com/tekbreed/tekmemo
 
-```ts
-const result = await embedder.embedTexts({
-  texts: [
-    "TekMemo uses file-first memory.",
-    "Local-first architecture is key."
-  ],
-  inputType: "document"  // optional: "document" | "query" (for some models)
-});
+## Publishing metadata
 
-// result.embeddings - Array of { id, embedding, text? }
-// result.usage - Token usage info (if available)
+- npm package: `@tekmemo/openai`
+- publish visibility: public
+- runtime format: dual ESM/CJS
+- ESM output: `dist/**/*.mjs` + `dist/**/*.d.mts`
+- CJS output: `dist/**/*.cjs` + `dist/**/*.d.cts`
+- package contents: `dist` and `README.md`
+- package boundary: hosted cloud calls must go through `@tekmemo/cloud-client` unless this package is `@tekmemo/cloud-client` itself.
+
+
+## Publish readiness
+
+Before publishing this package, run:
+
+```bash
+pnpm --filter @tekmemo/openai release:check
 ```
 
-### Options;
+The package-level check builds `dist/`, runs TypeScript and tests, runs `publint`, and performs `npm pack --dry-run`. Publish from CI with Changesets and npm trusted publishing/provenance after the root release preflight passes.
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `apiKey` | `string` | required | OpenAI API key |
-| `model` | `string` | `"text-embedding-3-small"` | OpenAI embedding model |
-| `dimensions` | `number` | `undefined` | Reduce dimensions (v3 models only) |
-| `baseURL` | `string` | OpenAI default | Custom base URL |
-| `timeoutMs` | `number` | `60_000` | Request timeout in milliseconds |
-| `maxRetries` | `number` | SDK default | Max retry attempts |
+## License
 
----
-
-## Recommended TekMemo defaults;
-
-For most TekMemo recall flows:
-
-```ts
-createOpenAIEmbedder({
-  apiKey: process.env.OPENAI_API_KEY!,
-  model: "text-embedding-3-small",
-  dimensions: 1024
-});
-```
-
-OpenAI's embedding guide says:
-- `text-embedding-3-small` defaults to 1536 dimensions
-- `text-embedding-3-large` defaults to 3072 dimensions
-- The `dimensions` parameter can reduce those vector sizes for compatible v3 embedding models
-
-## Supported models;
-
-| Model | Default dimensions | Max dimensions |
-|-------|-------------------|----------------|
-| `text-embedding-3-small` | 1536 | 1536 (can reduce) |
-| `text-embedding-3-large` | 3072 | 3072 (can reduce) |
-| `text-embedding-ada-002` | 1536 | 1536 (fixed) |
-
----
-
-## BYOK (Bring Your Own Key);
-
-```ts
-createOpenAIEmbedder({
-  apiKey: userProvidedOpenAIKey,  // From user or config
-  model: "text-embedding-3-small"
-});
-```
-
-The package does not persist, encrypt, or log keys. TekMemo Cloud BYOK storage belongs in closed-source cloud code.
-
----
-
-## Testing;
-
-The package includes a fake OpenAI client for unit tests:
-
-```ts
-import { createFakeOpenAIClient } from "@tekmemo/openai/testing";
-
-const fakeClient = createFakeOpenAIClient({
-  embeddings: [
-    [0.1, 0.2, 0.3],  // for first text
-    [0.4, 0.5, 0.6],  // for second text
-  ]
-});
-
-const embedder = createOpenAIEmbedder({
-  apiKey: "fake-key",
-  model: "text-embedding-3-small"
-});
-
-// Inject fake client (implementation detail - may vary)
-```
-
----
-
-## Production features;
-
-- Official OpenAI SDK client for embeddings
-- BYOK-ready config
-- Model and dimension validation
-- Batch splitting (OpenAI has request limits)
-- SDK retry/timeout support
-- Response shape validation
-- Embedding count validation
-- Finite-number vector validation
-- Fake OpenAI client for unit tests
-
----
-
-## Error handling;
-
-```ts
-import { OpenAIEmbedderError } from "@tekmemo/openai";
-
-try {
-  const result = await embedder.embedTexts({ texts: ["..."] });
-} catch (error) {
-  if (error instanceof OpenAIEmbedderError) {
-    console.error("Embedding failed:", error.message);
-    console.error("Status:", error.status);      // HTTP status if available
-    console.error("Code:", error.code);            // Error code if available
-  }
-}
-```
-
----
-
-## What this package does NOT own;
-
-- `.tekmemo/` file protocol
-- Vector storage (see `@tekmemo/recall` + `@tekmemo/upstash-vector`)
-- Recall store contracts (see `@tekmemo/recall`)
-- Reranking (see `@tekmemo/rerank`)
-- Billing
-- Cloud BYOK encryption
-- Tenant/provider routing
-
----
-
-## Related packages;
-
-- `tekmemo` — Core memory contracts
-- `@tekmemo/recall` — Vector recall contracts
-- `@tekmemo/upstash-vector` — Upstash Vector adapter
-- `@tekmemo/voyageai` — Alternative embedding adapter
+MIT.

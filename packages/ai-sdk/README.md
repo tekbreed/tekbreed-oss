@@ -1,541 +1,169 @@
-# @tekmemo/ai-sdk
+# `@tekmemo/ai-sdk`
 
-[![npm version](https://img.shields.io/npm/v/@tekmemo/ai-sdk.svg)](https://www.npmjs.com/package/@tekmemo/ai-sdk)
-[![npm downloads](https://img.shields.io/npm/dm/@tekmemo/ai-sdk.svg)](https://www.npmjs.com/package/@tekmemo/ai-sdk)
-[![license](https://img.shields.io/npm/l/@tekmemo/ai-sdk.svg)](https://www.npmjs.com/package/@tekmemo/ai-sdk)
+[![npm](https://img.shields.io/npm/v/@tekmemo/ai-sdk?label=npm)](https://www.npmjs.com/package/@tekmemo%2Fai-sdk)
+[![npm downloads](https://img.shields.io/npm/dm/@tekmemo/ai-sdk)](https://www.npmjs.com/package/@tekmemo%2Fai-sdk)
+[![CI](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml/badge.svg)](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml)
+[![Docs](https://img.shields.io/badge/docs-online-blue)](https://docs.tekmemo.dev)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)
 
-Vercel AI SDK integration for TekMemo memory.
+## Purpose
 
-## Integration styles
+`@tekmemo/ai-sdk` makes TekMemo usable as a Vercel AI SDK tool with minimal glue code. It exposes helpers for:
 
-This package supports two integration styles:
+- creating an AI SDK-compatible memory tool
+- defining a ready-to-spread `tools` object
+- building a memory-aware `system` prompt
+- using local, cloud, or hybrid TekMemo runtimes behind the same API
+- enforcing project, user, conversation, and participant scope boundaries before memory is returned to the model
+- generating AgentFS session instructions for Codex, Claude Code, and AI SDK agents
 
-1. **Runtime-based tools** (recommended) — plug-and-play layer for local, cloud, or hybrid runtimes.
-2. **Store-based local tools** — the original `MemoryStore` API for local `.tekmemo/` files.
+## AgentFS session instructions
 
-The runtime layer aligns with the current TekMemo architecture:
-
-```txt
-AI app / chatbot
-  → @tekmemo/ai-sdk
-  → local runtime OR @tekmemo/cloud-client runtime OR hybrid runtime
-  → .tekmemo/ or TekMemo Cloud/self-hosted API
-```
-
-The package does **not** build raw TekMemo Cloud URLs and does **not** store BYOK provider credentials. Cloud and BYOK behavior are handled by the runtime/cloud app.
-
-## Installation
-
-### Core
-
-```bash
-pnpm add @tekmemo/ai-sdk tekmemo
-```
-
-### For local file-backed memory
-
-```bash
-pnpm add @tekmemo/fs
-```
-
-### For cloud or hybrid runtime
-
-```bash
-pnpm add @tekmemo/cloud-client
-```
-
----
-
-## Runtime-based integration (recommended)
-
-### Local runtime example
+Use this when an AI SDK-powered agent is working inside an AgentFS session created by `@tekmemo/agentfs`:
 
 ```ts
+import { createTekMemoAgentSession } from "@tekmemo/agentfs";
+import { buildAgentSessionInstructions } from "@tekmemo/ai-sdk";
+
+const session = createTekMemoAgentSession({
+  client: agentfsClient,
+  memory: tekmemoStore,
+  task: "Refactor auth middleware",
+});
+
+await session.prepare();
+
+const system = buildAgentSessionInstructions({
+  sessionId: session.sessionId,
+  task: "Refactor auth middleware",
+  paths: session.paths,
+});
+```
+
+## Install
+
+```bash
+pnpm add @tekmemo/ai-sdk ai tekmemo @tekmemo/fs
+```
+
+For hosted memory, also install `@tekmemo/cloud-client` and create a cloud runtime there.
+
+## Plug-and-play AI SDK usage
+
+```ts
+import { generateText } from "ai";
+import { openai } from "@ai-sdk/openai";
 import { createNodeFsMemoryStore } from "@tekmemo/fs";
 import {
+  buildTekMemoSystemPrompt,
   createLocalAiSdkRuntime,
-  buildRuntimeMemoryToolDefinition,
+  defineTekMemoTools,
 } from "@tekmemo/ai-sdk";
 
-const workspace = createNodeFsMemoryStore({ rootDir: process.cwd() });
-const runtime = createLocalAiSdkRuntime({ workspace });
+const workspace = createNodeFsMemoryStore({
+  rootDir: process.cwd(),
+  createRoot: true,
+  missingFileBehavior: "empty",
+});
 
-export const memoryTool = buildRuntimeMemoryToolDefinition({
+const access = {
+  projectId: "my-project",
+  userId: "user_123",
+  conversationId: "thread_456",
+  actorId: "assistant:web",
+};
+
+const runtime = createLocalAiSdkRuntime({ workspace, access });
+const { system } = await buildTekMemoSystemPrompt({
   runtime,
-  access: {
-    projectId: "local-project",
-    userId: "user_123",
-    conversationId: "conv_123",
-  },
+  access,
+  query: "What should I remember before answering this request?",
+  system: "You are a helpful product engineering assistant.",
+});
+
+const result = await generateText({
+  model: openai("gpt-4.1-mini"),
+  system,
+  prompt: "Summarize the current implementation risks.",
+  tools: defineTekMemoTools({
+    runtime,
+    access,
+    allowWrites: true,
+    allowCoreUpdates: false,
+  }),
+});
+
+console.log(result.text);
+```
+
+The exported tool name is `tekmemo_memory`. To control the tool key yourself, use `createTekMemoTool()` directly:
+
+```ts
+import { createTekMemoTool } from "@tekmemo/ai-sdk";
+
+const tools = {
+  memory: createTekMemoTool({ runtime, access, allowWrites: true }),
+};
+```
+
+## Local convenience helpers
+
+For local file-backed apps, `createLocalTekMemoTool()` and `defineLocalTekMemoTools()` create the local runtime and AI SDK tool in one call.
+
+```ts
+import { defineLocalTekMemoTools } from "@tekmemo/ai-sdk";
+
+const tools = defineLocalTekMemoTools({
+  workspace,
+  access: { projectId: "my-project", userId: "user_123" },
   allowWrites: true,
-  allowCoreUpdates: false,
-  allowIndexing: false,
-  allowSecrets: false,
-  maxContentChars: 50_000,
 });
 ```
 
-### Cloud runtime example
+Use the explicit `runtime + defineTekMemoTools()` form when you also need to call `buildTekMemoSystemPrompt()` with the same runtime.
 
-```ts
-import {
-  createTekMemoCloudClient,
-  createCloudTekMemoRuntime,
-} from "@tekmemo/cloud-client";
-import { buildRuntimeMemoryToolDefinition } from "@tekmemo/ai-sdk";
+## Safety defaults
 
-const client = createTekMemoCloudClient({
-  baseUrl: "https://memo.tekbreed.com/api/v1",
-  apiKey: process.env.TEKMEMO_API_KEY, // tk_live_...
-});
+Writes are disabled unless `allowWrites: true` is passed. Core memory updates are disabled unless `allowCoreUpdates: true` is passed. Indexing is disabled unless `allowIndexing: true` is passed. Likely API keys and private keys are rejected by default unless `allowSecrets: true` is intentionally enabled.
 
-const runtime = createCloudTekMemoRuntime({
-  client,
-  projectId: "proj_123",
-});
+Scope filtering is applied using the `access` object. User memory requires `userId`, conversation memory requires `conversationId`, and participant-shared memory requires `participantIds`.
 
-export const memoryTool = buildRuntimeMemoryToolDefinition({
-  runtime,
-  access: {
-    projectId: "proj_123",
-    userId: "user_123",
-    conversationId: "conv_123",
-  },
-  allowWrites: true,
-});
+## Boundary
+
+This package owns the AI SDK integration layer only. It does not own TekMemo Cloud billing, dashboards, tenancy, hosted database storage, or provider secrets.
+
+For hosted memory, use `@tekmemo/cloud-client`. For local file-backed memory, use `tekmemo` with `@tekmemo/fs`. For MCP tools, use `@tekmemo/mcp-server`.
+
+## Scripts
+
+```bash
+pnpm --filter @tekmemo/ai-sdk typecheck
+pnpm --filter @tekmemo/ai-sdk test:run
+pnpm --filter @tekmemo/ai-sdk build
+pnpm --filter @tekmemo/ai-sdk lint:package
 ```
 
-### Hybrid runtime example
+## Publishing metadata
 
-```ts
-import { createHybridTekMemoRuntime } from "@tekmemo/cloud-client";
-import { createLocalAiSdkRuntime } from "@tekmemo/ai-sdk";
+- npm package: `@tekmemo/ai-sdk`
+- publish visibility: public
+- runtime format: dual ESM/CJS
+- ESM output: `dist/**/*.mjs` + `dist/**/*.d.mts`
+- CJS output: `dist/**/*.cjs` + `dist/**/*.d.cts`
+- package contents: `dist` and `README.md`
+- package boundary: hosted cloud calls must go through `@tekmemo/cloud-client`
 
-const runtime = createHybridTekMemoRuntime({
-  local: createLocalAiSdkRuntime({ workspace }),
-  cloud: cloudRuntime,
-  readPolicy: "local-first",    // "local-first" | "cloud-first" | "local-only" | "cloud-only"
-  writePolicy: "local-first",   // "local-first" | "cloud-first" | "local-only" | "cloud-only"
-});
+## Publish readiness
+
+Before publishing this package, run:
+
+```bash
+pnpm --filter @tekmemo/ai-sdk release:check
 ```
 
----
+The package-level check builds `dist/`, runs TypeScript and tests, runs `publint`, and performs `npm pack --dry-run`. Publish from CI with Changesets and npm trusted publishing/provenance after the root release preflight passes.
 
-## API reference
+## License
 
-### `buildRuntimeMemoryToolDefinition(options)`
-
-Creates an AI SDK compatible tool definition for memory operations.
-
-```ts
-import { buildRuntimeMemoryToolDefinition } from "@tekmemo/ai-sdk";
-
-const tool = buildRuntimeMemoryToolDefinition({
-  // Required
-  runtime: TekMemoAiRuntime,           // The runtime to use
-  access: {
-    projectId: string,                  // Project/organization ID
-    userId?: string,                     // User ID (enables user scope)
-    conversationId?: string,             // Conversation ID (enables conversation scope)
-    participantIds?: string[],           // Participant IDs (enables participant-shared scope)
-    tenantId?: string,                  // Tenant ID (enables tenant scope)
-    workspaceId?: string,               // Workspace ID (enables workspace scope)
-  },
-
-  // Optional flags
-  allowWrites: false,                   // Allow remember command
-  allowCoreUpdates: false,              // Allow update_core_memory command
-  allowIndexing: false,                 // Allow index command
-  allowSecrets: false,                  // Allow writing potential secrets
-
-  // Optional limits
-  maxContentChars: 50_000,             // Max chars for content (default: 50k)
-});
-```
-
-Returns: `{ description, inputSchema, execute }` — ready to use with `generateText`, `streamText`, etc.
-
-### `runRuntimeMemoryTool(options, input)` → `Promise<string>`
-
-Run a memory tool command programmatically (without AI SDK):
-
-```ts
-import { runRuntimeMemoryTool } from "@tekmemo/ai-sdk";
-
-const result = await runRuntimeMemoryTool(options, {
-  command: "remember",
-  content: "User prefers TypeScript",
-  scope: "user",
-});
-// result is JSON string: '{"ok":true,"data":{...}}'
-```
-
-### `buildRuntimeMemoryContext(input)` → `Promise<string>`
-
-Build prompt-ready memory context from all memory layers:
-
-```ts
-import { buildRuntimeMemoryContext } from "@tekmemo/ai-sdk";
-
-const context = await buildRuntimeMemoryContext({
-  runtime,
-  access: { projectId: "proj_123", userId: "user_123" },
-  query: "recent decisions",       // optional: focus context
-  includeCoreMemory: true,
-  includeNotes: true,
-  includeRecall: true,
-  maxChars: 50_000,
-});
-// Use `context` in your system prompt
-```
-
----
-
-## Runtime tool commands
-
-The memory tool supports these commands:
-
-### `read_core_memory`
-
-Read the project's core memory (canonical truth).
-
-```ts
-await memoryTool.execute({ command: "read_core_memory" });
-```
-
-### `update_core_memory`
-
-Update core memory content (requires `allowCoreUpdates: true`).
-
-```ts
-await memoryTool.execute({
-  command: "update_core_memory",
-  content: "Updated core memory content...",
-});
-```
-
-### `remember`
-
-Create a new memory note (requires `allowWrites: true`).
-
-```ts
-await memoryTool.execute({
-  command: "remember",
-  content: "User prefers concise TypeScript examples.",
-  kind: "preference",              // "decision" | "constraint" | "goal" | "preference" | "reference" | "summary" | "note"
-  title: "TypeScript Preference",    // optional
-  tags: ["typescript", "preferences"], // optional, max 25
-  confidence: 0.95,                 // optional, 0-1
-  source: "conversation",           // optional, source identifier
-  scope: "user",                   // "project" | "workspace" | "tenant" | "user" | "conversation" | "participant-shared"
-  visibility: "private",           // "private" | "shared" | "system"
-  metadata: { key: "value" },      // optional, flat object
-});
-```
-
-#### Note kinds
-
-| Kind | Description |
-|------|-------------|
-| `decision` | Decisions, ADRs |
-| `constraint` | Constraints, limitations |
-| `goal` | Goals, objectives |
-| `preference` | User/agent preferences |
-| `reference` | Reference material |
-| `summary` | Summaries |
-| `note` (default) | Generic note |
-
-#### Visibility
-
-| Value | Who can read |
-|-------|---------------|
-| `private` | Only the creator (based on `userId`) |
-| `shared` | Anyone with access to the project/workspace |
-| `system` | System-generated, typically hidden from users |
-
-### `list_notes`
-
-List memory notes with filtering.
-
-```ts
-await memoryTool.execute({
-  command: "list_notes",
-  limit: 20,                       // optional, max 50
-  kind: "preference",              // optional filter by kind
-  tag: "typescript",               // optional filter by tag
-});
-```
-
-### `recall`
-
-Semantic recall (vector search) over memory notes.
-
-```ts
-await memoryTool.execute({
-  command: "recall",
-  query: "TypeScript examples",    // search query
-  topK: 10,                       // optional, max 50
-  strategy: "hybrid",              // "local" | "vector" | "hybrid"
-  rerank: true,                    // optional, rerank results
-});
-```
-
-### `build_context`
-
-Build prompt-ready memory context.
-
-```ts
-await memoryTool.execute({
-  command: "build_context",
-  query: "recent activity",        // optional, focus context
-  includeCoreMemory: true,
-  includeNotes: true,
-  includeRecall: true,
-  maxChars: 50_000,
-});
-```
-
-### `index`
-
-Index memory for semantic recall (requires `allowIndexing: true`).
-
-```ts
-await memoryTool.execute({
-  command: "index",
-  mode: "changed",                 // "all" | "changed" | "core" | "notes"
-  force: false,                    // force re-index everything
-});
-```
-
----
-
-## Scope-aware memory
-
-The runtime tool supports scoped memory for chatbot and multi-user applications:
-
-| Scope | Description | Requires |
-|-------|-------------|----------|
-| `project` | Shared project/app memory | `projectId` |
-| `workspace` | Shared workspace memory | `workspaceId` |
-| `tenant` | Organization-wide memory | `tenantId` |
-| `user` | Private per-user memory | `userId` |
-| `conversation` | Active thread/session memory | `conversationId` |
-| `participant-shared` | Group conversation memory | `participantIds` |
-
-### Safe defaults
-
-- Project/workspace memory can be read by default.
-- User memory is used only when `userId` exists.
-- Conversation memory is used only when `conversationId` exists.
-- Participant-shared memory is used only when `participantIds` exists.
-- Another user's private memory is filtered out.
-
-### Example: Writing to user scope
-
-```ts
-await memoryTool.execute({
-  command: "remember",
-  scope: "user",
-  kind: "preference",
-  content: "User prefers concise TypeScript examples.",
-});
-```
-
-The note metadata will include scope information:
-
-```json
-{
-  "scope": "user",
-  "visibility": "private",
-  "projectId": "proj_123",
-  "userId": "user_123",
-  "createdByPackage": "@tekmemo/ai-sdk"
-}
-```
-
----
-
-## Store-based integration (legacy)
-
-The original store-based tool still works:
-
-```ts
-import { buildMemoryToolDefinition } from "@tekmemo/ai-sdk";
-
-const tool = buildMemoryToolDefinition({
-  store,             // MemoryStore instance
-  recallStores,      // optional: { workspace, project, user, conversation }
-  retrievalPlan,     // optional: { readCoreMemory, readArchivalMemory, recall }
-});
-```
-
-This is useful for simple local `.tekmemo/` workflows without the runtime layer.
-
-### `buildMemoryToolDefinition(options)`
-
-```ts
-import { buildMemoryToolDefinition } from "@tekmemo/ai-sdk";
-
-const tool = buildMemoryToolDefinition({
-  store: MemoryStore,                    // Required: local memory store
-  recallStores: {                        // Optional: for recall command
-    workspace: MemoryStore,
-    project: MemoryStore,
-    user: MemoryStore,
-    conversation: MemoryStore,
-  },
-  retrievalPlan: {                        // Optional: configure what to read
-    readCoreMemory: true,
-    readArchivalMemory: true,
-    recall: true,
-    recallTopK: 5,
-  },
-  allowWrites: false,
-  allowCoreUpdates: false,
-  allowSecrets: false,
-});
-```
-
-### `runStructuredMemoryTool(options, input)` → `Promise<string>`
-
-Run the store-based tool programmatically:
-
-```ts
-import { runStructuredMemoryTool } from "@tekmemo/ai-sdk";
-
-const result = await runStructuredMemoryTool(options, {
-  command: "remember",
-  content: "Remember this fact",
-});
-```
-
----
-
-## Context building
-
-### `buildPrepareCallMemoryText(input)` → `Promise<string>`
-
-Build prompt-ready memory text for injection into system prompts:
-
-```ts
-import { buildPrepareCallMemoryText } from "@tekmemo/ai-sdk";
-
-const context = await buildPrepareCallMemoryText({
-  stores: {
-    workspace: workspaceStore,
-    project: projectStore,
-    user: userStore,
-  },
-  retrievalPlan: {
-    readCoreMemory: true,
-    readArchivalMemory: true,
-    recall: true,
-    recallTopK: 5,
-  },
-  baseInstructions: "You are a helpful assistant with access to the following memory:",
-});
-// Use `context` in your system prompt
-```
-
-### `safeReadMemoryPath(store, path, defaultValue?)` → `Promise<unknown>`
-
-Safely read a memory path, returning a default value if not found:
-
-```ts
-import { safeReadMemoryPath } from "@tekmemo/ai-sdk";
-
-const content = await safeReadMemoryPath(
-  store,
-  ".tekmemo/memory/core.md",
-  "Default content if not found"
-);
-```
-
----
-
-## Scope policy utilities
-
-```ts
-import {
-  assertMemoryScope,       // Assert scope is valid and allowed
-  assertScopeAllowed,       // Check if scope is allowed
-  canReadMemoryMetadata,    // Check if metadata allows reading
-  createRecallFilters,      // Create recall filters from access context
-  createScopeMetadata,      // Create metadata for a scope write
-  inferWriteScope,          // Infer scope from access context
-  normalizeAccessContext,   // Normalize access context
-} from "@tekmemo/ai-sdk";
-```
-
----
-
-## BYOK (Bring Your Own Key)
-
-`@tekmemo/ai-sdk` does not store or resolve provider keys.
-
-- **Local BYOK**: provider keys are supplied to local provider adapters by the app.
-- **Hosted cloud BYOK**: provider keys are stored/resolved by TekMemo Cloud.
-- **Self-hosted BYOK**: provider keys are stored/resolved inside the user's self-hosted cloud.
-
----
-
-## Error handling
-
-The tool returns JSON strings with error information:
-
-```ts
-const result = await memoryTool.execute({ command: "remember", ... });
-const parsed = JSON.parse(result);
-
-if (!parsed.ok) {
-  console.error("Error:", parsed.error);
-}
-```
-
-Common errors:
-- `"Core memory updates are disabled"` — `allowCoreUpdates: false`
-- `"Memory writes are disabled"` — `allowWrites: false`
-- `"Indexing is disabled"` — `allowIndexing: false`
-- `"Potential secret detected"` — `allowSecrets: false` and secret pattern detected
-- `"Content exceeds maximum length"` — content too long
-
----
-
-## Types
-
-Key types exported:
-
-```ts
-import type {
-  // Runtime types
-  TekMemoAiRuntime,
-  RuntimeMemoryToolOptions,
-  BuildRuntimeMemoryContextInput,
-  BuildRuntimeMemoryContextResult,
-
-  // Memory types
-  MemoryToolInput,
-  RuntimeMemoryToolInput,
-  MemoryToolExecutionContext,
-  MemoryStores,
-
-  // Access context
-  AiMemoryAccessContext,
-  NormalizedAiMemoryAccessContext,
-  AiMemoryScope,
-  AiMemoryKind,
-  AiMemoryVisibility,
-  AiMemoryScopeMetadata,
-
-  // Retrieval
-  MemoryHit,
-  MemoryScope,
-  RetrievalPlan,
-
-  // Other
-  JsonValue,
-  JsonObject,
-  JsonPrimitive,
-} from "@tekmemo/ai-sdk";
-```
-
+MIT.

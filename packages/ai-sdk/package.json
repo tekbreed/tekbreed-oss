@@ -1,6 +1,6 @@
 {
 	"name": "@tekmemo/ai-sdk",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "Vercel AI SDK integration for TekMemo local, cloud, and hybrid memory runtimes.",
 	"private": false,
 	"license": "MIT",
@@ -9,25 +9,25 @@
 		"url": "git+https://github.com/tekbreed/tekmemo.git",
 		"directory": "packages/ai-sdk"
 	},
-	"homepage": "https://github.com/tekbreed/tekmemo#readme",
+	"homepage": "https://docs.tekmemo.dev/packages/ai-sdk",
 	"bugs": {
 		"url": "https://github.com/tekbreed/tekmemo/issues"
 	},
 	"type": "module",
 	"sideEffects": false,
 	"keywords": [
-		"ai",
-		"memory",
 		"agents",
-		"llm",
-		"recall",
-		"typescript",
-		"tekmemo",
+		"ai",
+		"chatbot",
 		"cloud",
 		"hybrid",
+		"llm",
 		"mcp",
-		"chatbot",
-		"scoped-memory"
+		"memory",
+		"recall",
+		"scoped-memory",
+		"tekmemo",
+		"typescript"
 	],
 	"main": "./dist/index.cjs",
 	"module": "./dist/index.mjs",
@@ -46,11 +46,11 @@
 	},
 	"files": [
 		"dist",
-		"README.md",
-		"LICENSE"
+		"README.md"
 	],
 	"publishConfig": {
-		"access": "public"
+		"access": "public",
+		"registry": "https://registry.npmjs.org/"
 	},
 	"scripts": {
 		"build": "tsdown",
@@ -61,10 +61,12 @@
 		"lint:package": "publint",
 		"test:watch": "vitest",
 		"test:coverage": "vitest run --coverage",
-		"clean": "rm -rf dist coverage .turbo"
+		"clean": "rm -rf dist coverage .turbo",
+		"prepack": "pnpm build",
+		"pack:dry-run": "pnpm build && npm pack --dry-run",
+		"release:check": "pnpm build && pnpm typecheck && pnpm test:run && pnpm lint:package && npm pack --dry-run"
 	},
 	"dependencies": {
-		"ai": "^6.0.174",
 		"tekmemo": "workspace:^",
 		"zod": "^4.4.2"
 	},
@@ -72,14 +74,23 @@
 		"@repo/test-utils": "workspace:*",
 		"@repo/tsdown-config": "workspace:*",
 		"@repo/typescript-config": "workspace:*",
-		"@repo/utils": "workspace:*"
+		"@repo/utils": "workspace:*",
+		"ai": "^6.0.174"
 	},
 	"peerDependencies": {
+		"ai": ">=5.0.0 <7.0.0",
 		"@tekmemo/cloud-client": ">=0.1.0"
 	},
 	"peerDependenciesMeta": {
 		"@tekmemo/cloud-client": {
 			"optional": true
 		}
+	},
+	"engines": {
+		"node": ">=22"
+	},
+	"funding": {
+		"type": "github",
+		"url": "https://github.com/sponsors/christophersesugh"
 	}
 }

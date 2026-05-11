@@ -24,7 +24,12 @@ export async function buildRuntimeMemoryContext(
 	if (baseInstructions) {
 		sections.push({
 			title: "Instructions",
-			text: limitText(baseInstructions, maxSectionChars, warnings, "Instructions"),
+			text: limitText(
+				baseInstructions,
+				maxSectionChars,
+				warnings,
+				"Instructions",
+			),
 		});
 	}
 
@@ -34,7 +39,12 @@ export async function buildRuntimeMemoryContext(
 			if (core.content.trim()) {
 				sections.push({
 					title: "Project Memory",
-					text: limitText(core.content, maxSectionChars, warnings, "Project Memory"),
+					text: limitText(
+						core.content,
+						maxSectionChars,
+						warnings,
+						"Project Memory",
+					),
 				});
 			}
 		} catch (error) {
@@ -118,14 +128,20 @@ export async function buildRuntimeMemoryContext(
 	};
 }
 
-function formatNote(note: { title?: string; content: string; kind?: string; tags?: string[] }): string {
+function formatNote(note: {
+	title?: string;
+	content: string;
+	kind?: string;
+	tags?: string[];
+}): string {
 	const title = note.title ? ` ${note.title}` : "";
 	const tags = note.tags?.length ? ` [${note.tags.join(", ")}]` : "";
 	return `- (${note.kind ?? "note"})${title}${tags}: ${singleLine(note.content)}`;
 }
 
 function formatRecallHit(hit: { text: string; score?: number }): string {
-	const score = typeof hit.score === "number" ? ` score=${hit.score.toFixed(3)}` : "";
+	const score =
+		typeof hit.score === "number" ? ` score=${hit.score.toFixed(3)}` : "";
 	return `- ${singleLine(hit.text)}${score}`;
 }
 
@@ -133,7 +149,12 @@ function singleLine(value: string): string {
 	return value.replace(/\s+/g, " ").trim();
 }
 
-function limitText(value: string, max: number, warnings: string[], section: string): string {
+function limitText(
+	value: string,
+	max: number,
+	warnings: string[],
+	section: string,
+): string {
 	if (value.length <= max) return value;
 	warnings.push(`${section} was truncated to ${max} characters.`);
 	return `${value.slice(0, Math.max(0, max - 20)).trimEnd()}\n…[truncated]`;

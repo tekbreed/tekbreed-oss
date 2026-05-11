@@ -9,7 +9,10 @@ import {
 	type TekMemoAiRuntime,
 } from "../src/index.js";
 
-function createFakeRuntime(): TekMemoAiRuntime & { notes: any[]; recallInput?: any } {
+function createFakeRuntime(): TekMemoAiRuntime & {
+	notes: any[];
+	recallInput?: any;
+} {
 	const notes: any[] = [];
 	return {
 		notes,
@@ -23,7 +26,12 @@ function createFakeRuntime(): TekMemoAiRuntime & { notes: any[]; recallInput?: a
 			return { items: notes };
 		},
 		async createNote(input) {
-			const note = { id: `note_${notes.length + 1}`, kind: input.kind ?? "note", content: input.content, metadata: input.metadata };
+			const note = {
+				id: `note_${notes.length + 1}`,
+				kind: input.kind ?? "note",
+				content: input.content,
+				metadata: input.metadata,
+			};
 			notes.push(note);
 			return note;
 		},
@@ -31,9 +39,29 @@ function createFakeRuntime(): TekMemoAiRuntime & { notes: any[]; recallInput?: a
 			this.recallInput = input;
 			return {
 				items: [
-					{ id: "project", text: "shared project hit", metadata: { scope: "project", visibility: "system" } },
-					{ id: "same-user", text: "same user hit", metadata: { scope: "user", visibility: "private", userId: "user_a" } },
-					{ id: "other-user", text: "other user hit", metadata: { scope: "user", visibility: "private", userId: "user_b" } },
+					{
+						id: "project",
+						text: "shared project hit",
+						metadata: { scope: "project", visibility: "system" },
+					},
+					{
+						id: "same-user",
+						text: "same user hit",
+						metadata: {
+							scope: "user",
+							visibility: "private",
+							userId: "user_a",
+						},
+					},
+					{
+						id: "other-user",
+						text: "other user hit",
+						metadata: {
+							scope: "user",
+							visibility: "private",
+							userId: "user_b",
+						},
+					},
 				],
 			};
 		},
@@ -56,13 +84,20 @@ test("normalizes safe scope defaults from access context", () => {
 });
 
 test("scope metadata stores private user memory without leaking participant memory", () => {
-	const context = normalizeAccessContext({ projectId: "proj", userId: "user_a" });
+	const context = normalizeAccessContext({
+		projectId: "proj",
+		userId: "user_a",
+	});
 	const metadata = createScopeMetadata({ context, scope: "user" });
 	expect(metadata.scope).toBe("user");
 	expect(metadata.visibility).toBe("private");
 	expect(metadata.userId).toBe("user_a");
-	expect(canReadMemoryMetadata(metadata, { projectId: "proj", userId: "user_a" })).toBe(true);
-	expect(canReadMemoryMetadata(metadata, { projectId: "proj", userId: "user_b" })).toBe(false);
+	expect(
+		canReadMemoryMetadata(metadata, { projectId: "proj", userId: "user_a" }),
+	).toBe(true);
+	expect(
+		canReadMemoryMetadata(metadata, { projectId: "proj", userId: "user_b" }),
+	).toBe(false);
 });
 
 test("recall filters include only authorized scope identifiers", () => {
