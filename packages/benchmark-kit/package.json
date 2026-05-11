@@ -1,6 +1,6 @@
 {
 	"name": "@tekmemo/benchmark-kit",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "Provider-neutral benchmarking toolkit for TekMemo packages and adapters.",
 	"license": "MIT",
 	"repository": {
@@ -8,21 +8,21 @@
 		"url": "git+https://github.com/tekbreed/tekmemo.git",
 		"directory": "packages/benchmark-kit"
 	},
-	"homepage": "https://github.com/tekbreed/tekmemo#readme",
+	"homepage": "https://docs.tekmemo.dev/packages/benchmark-kit",
 	"bugs": {
 		"url": "https://github.com/tekbreed/tekmemo/issues"
 	},
 	"type": "module",
 	"sideEffects": false,
 	"keywords": [
-		"ai",
-		"memory",
 		"agents",
+		"ai",
+		"benchmark",
 		"llm",
+		"memory",
 		"recall",
-		"typescript",
 		"tekmemo",
-		"benchmark"
+		"typescript"
 	],
 	"exports": {
 		".": {
@@ -48,11 +48,11 @@
 	},
 	"files": [
 		"dist",
-		"README.md",
-		"LICENSE"
+		"README.md"
 	],
 	"publishConfig": {
-		"access": "public"
+		"access": "public",
+		"registry": "https://registry.npmjs.org/"
 	},
 	"scripts": {
 		"build": "tsdown",
@@ -62,12 +62,26 @@
 		"test:run": "vitest run",
 		"test:coverage": "vitest run --coverage",
 		"lint:package": "publint",
-		"clean": "rm -rf dist coverage"
+		"clean": "rm -rf dist coverage",
+		"prepack": "pnpm build",
+		"pack:dry-run": "pnpm build && npm pack --dry-run",
+		"release:check": "pnpm build && pnpm typecheck && pnpm test:run && pnpm lint:package && npm pack --dry-run"
 	},
 	"devDependencies": {
 		"@repo/test-utils": "workspace:*",
 		"@repo/tsdown-config": "workspace:*",
 		"@repo/typescript-config": "workspace:*",
 		"@repo/utils": "workspace:*"
+	},
+	"private": false,
+	"engines": {
+		"node": ">=22"
+	},
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.mts",
+	"funding": {
+		"type": "github",
+		"url": "https://github.com/sponsors/christophersesugh"
 	}
 }

@@ -1,6 +1,6 @@
 {
 	"name": "@tekmemo/graph",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "Provider-neutral graph memory primitives for TekMemo.",
 	"type": "module",
 	"sideEffects": false,
@@ -24,7 +24,8 @@
 		"README.md"
 	],
 	"publishConfig": {
-		"access": "public"
+		"access": "public",
+		"registry": "https://registry.npmjs.org/"
 	},
 	"scripts": {
 		"build": "tsdown",
@@ -32,14 +33,20 @@
 		"test": "vitest",
 		"test:run": "vitest run",
 		"typecheck": "tsc --noEmit",
-		"lint:package": "publint"
+		"lint:package": "publint",
+		"clean": "rm -rf dist coverage .turbo",
+		"prepack": "pnpm build",
+		"pack:dry-run": "pnpm build && npm pack --dry-run",
+		"release:check": "pnpm build && pnpm typecheck && pnpm test:run && pnpm lint:package && npm pack --dry-run"
 	},
 	"keywords": [
-		"tekmemo",
-		"memory",
-		"graph",
 		"agents",
-		"ai"
+		"ai",
+		"graph",
+		"graph-memory",
+		"memory",
+		"tekmemo",
+		"typescript"
 	],
 	"license": "MIT",
 	"repository": {
@@ -47,7 +54,7 @@
 		"url": "git+https://github.com/tekbreed/tekmemo.git",
 		"directory": "packages/graph"
 	},
-	"homepage": "https://github.com/tekbreed/tekmemo/tree/main/packages/graph#readme",
+	"homepage": "https://docs.tekmemo.dev/packages/graph",
 	"bugs": {
 		"url": "https://github.com/tekbreed/tekmemo/issues"
 	},
@@ -59,5 +66,10 @@
 		"@repo/tsdown-config": "workspace:*",
 		"@repo/typescript-config": "workspace:*",
 		"@repo/utils": "workspace:*"
+	},
+	"private": false,
+	"funding": {
+		"type": "github",
+		"url": "https://github.com/sponsors/christophersesugh"
 	}
 }

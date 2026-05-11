@@ -1,14 +1,16 @@
-# `@tekmemo/agentfs`
+# @tekmemo/agentfs
 
-[![npm](https://img.shields.io/npm/v/%40tekmemo%2Fagentfs?label=npm)](https://www.npmjs.com/package/@tekmemo/agentfs)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![Types](https://img.shields.io/badge/types-included-blue)](./dist/index.d.mts)
-[![CI](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml/badge.svg)](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml)
-[![Status](https://img.shields.io/badge/status-experimental-yellow)](../../README.md)
+[![npm version](https://img.shields.io/npm/v/@tekmemo/agentfs.svg)](https://www.npmjs.com/package/@tekmemo/agentfs)
+[![npm downloads](https://img.shields.io/npm/dm/@tekmemo/agentfs.svg)](https://www.npmjs.com/package/@tekmemo/agentfs)
+[![license](https://img.shields.io/npm/l/@tekmemo/agentfs.svg)](https://www.npmjs.com/package/@tekmemo/agentfs)
 
-AgentFS-backed `MemoryStore` adapter for TekMemo.
+AgentFS session workspace and `MemoryStore` adapter for TekMemo-powered agents.
 
-This package lets TekMemo use an AgentFS-like remote file runtime while preserving the canonical local memory protocol:
+Use this package when you want agents to work with TekMemo memory through a safe filesystem-facing workspace. AgentFS is not the durable memory engine; TekMemo remains the canonical memory layer, while AgentFS holds session context, plans, command notes, checkpoints, and extracted memory artifacts.
+
+For the full CLI, MCP, coding-agent, and Cloud integration flow, see [AgentFS End-to-End Integration](./END_TO_END.md).
+
+It can also expose an AgentFS-like remote file runtime as a TekMemo `MemoryStore` while preserving the canonical local memory protocol:
 
 ```txt
 .tekmemo/
@@ -23,13 +25,61 @@ This package lets TekMemo use an AgentFS-like remote file runtime while preservi
   snapshots/snapshots.jsonl
 ```
 
-## Install
+## Installation
 
 ```bash
 pnpm add tekmemo @tekmemo/agentfs
 ```
 
-## Basic usage
+## Quickstart
+
+### Agent session workspace
+
+```ts
+import { createTekMemoAgentSession } from "@tekmemo/agentfs";
+
+const session = createTekMemoAgentSession({
+  client: agentfsClient,
+  memory: tekmemoStore,
+  projectId: "proj_123",
+  task: "Refactor the auth middleware",
+});
+
+await session.prepare();
+
+console.log(session.paths.context.core);
+console.log(session.paths.working.plan);
+console.log(session.paths.output.durableMemory);
+
+// Let the agent work, then read curated outputs and sync the workspace.
+await session.complete({
+  checkpointLabel: "after-auth-refactor",
+  extractDurableMemory: true,
+});
+```
+
+The generated workspace uses this shape:
+
+```txt
+/agent-sessions/session_.../
+  context/
+    manifest.json
+    core.md
+    notes.md
+  working/
+    plan.md
+    commands.md
+    errors.md
+    changes.md
+    notes.md
+  output/
+    summary.md
+    durable-memory.md
+    follow-ups.md
+  meta.json
+```
+
+### MemoryStore adapter
 
 ```ts
 import { bootstrapMemoryStore, CORE_MEMORY_PATH } from "tekmemo";
@@ -42,36 +92,55 @@ const store = createAgentfsMemoryStore(agentfsClient, {
 
 await bootstrapMemoryStore(store);
 await store.write(CORE_MEMORY_PATH, "# Core Memory\n");
+
+const content = await store.read(CORE_MEMORY_PATH);
 ```
 
-Behind the scenes, `CORE_MEMORY_PATH` resolves to:
+---
 
-```txt
-/stores/project/proj_123/.tekmemo/memory/core.md
-```
+## API reference
 
-## Supported scopes
+### `createTekMemoAgentSession(options)` → `TekMemoAgentSession`
+
+Creates a high-level agent session workspace:
 
 ```ts
-createAgentfsMemoryStore(client, {
-  scope: "project",
-  projectId: "proj_123"
+const session = createTekMemoAgentSession({
+  client: agentfsClient,
+  memory: tekmemoStore,
+  task: "Add Cloudflare D1 support",
+  projectId: "proj_123",
+  sessionId: "session_d1_refactor" // optional
 });
 
-createAgentfsMemoryStore(client, {
-  scope: "user",
-  userId: "usr_123"
-});
+await session.prepare();
+const extracted = await session.extract();
+await session.complete({ extractDurableMemory: true });
+```
 
-createAgentfsMemoryStore(client, {
-  scope: "session",
-  sessionId: "sess_123"
+`prepare()` pulls AgentFS changes when available, writes TekMemo context files, and scaffolds working/output files without overwriting existing agent work unless `overwriteWorkspaceFiles` is enabled.
+
+`complete()` reads the output files, optionally appends `output/durable-memory.md` into TekMemo notes, checkpoints the AgentFS workspace, and pushes when the client supports sync.
+
+### `createAgentfsMemoryStore(client, options)` → `AgentfsMemoryStore`
+
+Creates an AgentFS-backed memory store:
+
+```ts
+import { createAgentfsMemoryStore } from "@tekmemo/agentfs";
+
+const store = createAgentfsMemoryStore(client, {
+  scope: "project",           // "project" | "user" | "session"
+  projectId: "proj_123",      // required for project scope
+  userId: "usr_123",           // required for user scope
+  sessionId: "sess_123",       // required for session scope
+  missingFileBehavior: "throw", // "throw" (default) | "empty"
 });
 ```
 
-## AgentFS-like client contract
+### AgentFS-like client contract
 
-AgentFS is still a beta surface, so this package intentionally accepts a small structural client instead of importing a hard SDK type. In production, pass the real AgentFS SDK/client object through this boundary as long as it provides the methods below.
+AgentFS is still a beta surface, so this package accepts a structural client:
 
 ```ts
 interface AgentfsLikeClient {
@@ -87,98 +156,187 @@ interface AgentfsLikeClient {
 }
 ```
 
-`appendText` and `exists` are optional. If `appendText` is missing, the store can fall back to same-instance serialized read/write append.
+`appendText` and `exists` are optional. If `appendText` is missing, falls back to read/write.
 
-## Missing file behavior
-
-The default behavior matches the production TekMemo core store: missing reads throw `MemoryNotFoundError`.
+### Supported scopes
 
 ```ts
+// Project scope
 createAgentfsMemoryStore(client, {
   scope: "project",
-  projectId: "proj_123",
-  missingFileBehavior: "throw"
+  projectId: "proj_123"
 });
-```
+// Paths resolve to: /stores/project/proj_123/.tekmemo/...
 
-For older relaxed behavior:
-
-```ts
+// User scope
 createAgentfsMemoryStore(client, {
-  scope: "project",
-  projectId: "proj_123",
-  missingFileBehavior: "empty"
+  scope: "user",
+  userId: "usr_123"
 });
+// Paths resolve to: /stores/user/usr_123/.tekmemo/...
+
+// Session scope
+createAgentfsMemoryStore(client, {
+  scope: "session",
+  sessionId: "sess_123"
+});
+// Paths resolve to: /stores/session/sess_123/.tekmemo/...
 ```
+
+Behind the scenes, `CORE_MEMORY_PATH` resolves to:
+```txt
+/stores/project/proj_123/.tekmemo/memory/core.md
+```
+
+---
 
 ## Sync hooks
 
 ```ts
 import { syncBeforeSession, syncAfterSession } from "@tekmemo/agentfs";
 
+// Before agent session
 await syncBeforeSession(agentfsClient);
 
-// run agent session
+// Run agent session
+// ...
 
+// After agent session (checkpoints before pushing by default)
 await syncAfterSession(agentfsClient, "after-agent-session");
 ```
 
-`syncAfterSession` checkpoints before pushing by default.
+---
 
-## Leases
+## Lease management
 
 ```ts
 import { InMemoryLeaseManager, withMemoryLease } from "@tekmemo/agentfs";
 
+// Create lease manager (in-memory, for tests/single-process)
 const leaseManager = new InMemoryLeaseManager();
 
+// Run operation with lease
 await withMemoryLease({
   leaseManager,
   storeId: "project:proj_123",
   ownerId: "worker-1",
-  ttlMs: 30_000,
+  ttlMs: 30_000,             // 30 second TTL
   operation: async () => {
-    // critical memory operation
+    // Critical memory operation
+    await store.write(".tekmemo/memory/core.md", content);
   }
 });
 ```
 
 The in-memory lease manager is useful for tests and single-process coordination. Distributed production leases should use a durable/shared implementation.
 
+---
+
+## Missing file behavior
+
+### Strict mode (default)
+
+```ts
+const store = createAgentfsMemoryStore(client, {
+  scope: "project",
+  projectId: "proj_123",
+  missingFileBehavior: "throw"
+});
+
+try {
+  await store.read(".tekmemo/memory/core.md"); // throws MemoryNotFoundError
+} catch (error) {
+  // MemoryNotFoundError
+}
+```
+
+### Relaxed mode
+
+```ts
+const store = createAgentfsMemoryStore(client, {
+  scope: "project",
+  projectId: "proj_123",
+  missingFileBehavior: "empty"
+});
+
+const content = await store.read(".tekmemo/memory/core.md"); // "" if missing
+```
+
+---
+
+## Error handling
+
+```ts
+import { AgentfsClientError, AgentfsValidationError } from "@tekmemo/agentfs";
+import { MemoryNotFoundError, MemoryStoreError } from "tekmemo";
+
+try {
+  await store.read(".tekmemo/memory/core.md");
+} catch (error) {
+  if (error instanceof MemoryNotFoundError) {
+    // File doesn't exist
+  }
+  if (error instanceof MemoryStoreError) {
+    console.error(error.message);
+  }
+  if (error instanceof AgentfsClientError) {
+    console.error(error.message);
+    console.error(error.details);
+  }
+}
+```
+
+---
+
 ## Edge cases handled
 
-- invalid AgentFS client shape
-- invalid scope
-- missing scope IDs
-- unsafe IDs with `/`, `\\`, `..`, null bytes, spaces, or unsupported characters
-- unsafe root prefixes
-- unsupported TekMemo memory paths
-- path traversal attempts
-- missing files
-- non-string provider responses
-- non-string write/append content
-- client read/write/append/exists failures
-- optional native append support
-- read/write fallback append
-- same-instance append serialization
-- sync no-op behavior
-- sync failure wrapping
-- checkpoint label validation
-- lease contention
-- expired leases
-- release-on-error lease behavior
+- Invalid AgentFS client shape
+- Invalid scope
+- Missing scope IDs
+- Unsafe IDs (with `/`, `\`, `..`, null bytes, spaces)
+- Unsafe root prefixes
+- Unsupported TekMemo memory paths
+- Path traversal attempts
+- Missing files
+- Non-string provider responses
+- Non-string write/append content
+- Client read/write/append/exists failures
+- Optional native append support
+- Read/write fallback append
+- Same-instance append serialization
+- Sync no-op behavior
+- Sync failure wrapping
+- Checkpoint label validation
+- Lease contention
+- Expired leases
+- Release-on-error lease behavior
+
+---
 
 ## Package boundary
 
-`@tekmemo/agentfs` only adapts TekMemo's `MemoryStore` contract to an AgentFS-like file runtime.
+**This package owns:**
+- Agent workspace/session files for TekMemo-powered coding agents
+- Session memory extraction from AgentFS output files
+- AgentFS adapter for `MemoryStore` interface
+- Sync hooks for AgentFS sessions
+- Lease management utilities
+- Path resolution for AgentFS scopes
 
-It does **not** own:
-
-- the `.tekmemo/` protocol itself
-- local filesystem storage
-- vector recall
-- embeddings
-- reranking
-- cloud billing
-- cloud tenancy
+**This package does NOT own:**
+- The `.tekmemo/` protocol itself (owned by `tekmemo` core)
+- Local filesystem storage (see `@tekmemo/fs`)
+- Vector recall
+- Embeddings
+- Reranking
+- Cloud billing
+- Cloud tenancy
 - BYOK storage
+
+---
+
+## Related packages
+
+- `tekmemo` — Core memory contracts and types
+- `@tekmemo/fs` — Local filesystem adapter
+- `@tekmemo/recall` — Vector recall contracts

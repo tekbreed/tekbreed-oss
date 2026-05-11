@@ -1,0 +1,19 @@
+{
+	"name": "@tekmemo/example-sveltekit",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "tsx src/index.ts",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@tekmemo/cloud-client": "workspace:^",
+		"@sveltejs/kit": "^2.0.0",
+		"svelte": "^5.0.0"
+	},
+	"devDependencies": {
+		"tsx": "^4.21.0",
+		"typescript": "5.9.2",
+		"@types/node": "^22.15.3"
+	}
+}

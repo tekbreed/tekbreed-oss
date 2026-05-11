@@ -34,7 +34,21 @@ export type {
 } from "./leases/memory-lease-manager.js";
 export type { WithMemoryLeaseOptions } from "./leases/with-memory-lease";
 export { withMemoryLease } from "./leases/with-memory-lease";
-
+export type {
+	CompleteTekMemoAgentSessionOptions,
+	CompleteTekMemoAgentSessionResult,
+	CreateTekMemoAgentSessionOptions,
+	ExtractedSessionMemory,
+	PrepareTekMemoAgentSessionResult,
+	TekMemoAgentSession,
+	TekMemoAgentSessionPaths,
+} from "./session/agent-session.js";
+export {
+	createAgentWorkspaceFiles,
+	createAgentWorkspacePaths,
+	createTekMemoAgentSession,
+	extractSessionMemory,
+} from "./session/agent-session.js";
 export {
 	AgentfsMemoryStore,
 	createAgentfsMemoryStore,

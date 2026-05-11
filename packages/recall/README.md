@@ -1,33 +1,15 @@
 # `@tekmemo/recall`
 
-[![npm](https://img.shields.io/npm/v/%40tekmemo%2Frecall?label=npm)](https://www.npmjs.com/package/@tekmemo/recall)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![Types](https://img.shields.io/badge/types-included-blue)](./dist/index.d.mts)
+[![npm](https://img.shields.io/npm/v/@tekmemo/recall?label=npm)](https://www.npmjs.com/package/@tekmemo%2Frecall)
+[![npm downloads](https://img.shields.io/npm/dm/@tekmemo/recall)](https://www.npmjs.com/package/@tekmemo%2Frecall)
 [![CI](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml/badge.svg)](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml)
-[![Status](https://img.shields.io/badge/status-active-brightgreen)](../../README.md)
+[![Docs](https://img.shields.io/badge/docs-online-blue)](https://docs.tekmemo.dev)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)
 
-Provider-neutral vector recall contracts, validation helpers, scoring utilities, filter matching, and an in-memory test implementation for TekMemo.
+## Purpose
 
-This package does **not** talk to Upstash, Turso, Qdrant, Pinecone, Chroma, LanceDB, Weaviate, or Milvus directly.
-
-Those provider-specific packages should implement the `RecallStore` interface exported here.
-
-## Why this package exists
-
-TekMemo is file-first. Local memory lives in `.tekmemo/`, but recall providers can vary.
-
-The recall flow is:
-
-```txt
-.tekmemo memory files
-  -> chunk records
-  -> embeddings
-  -> RecallStore implementation
-  -> recall query results
-  -> optional reranking
-```
-
-`@tekmemo/recall` defines the provider-neutral contract for that recall layer.
+**Recall contracts.** Provider-neutral vector recall contracts, document chunk contracts, and search result types.
 
 ## Install
 
@@ -35,116 +17,57 @@ The recall flow is:
 pnpm add @tekmemo/recall
 ```
 
-## Core API
+## Quick start
 
 ```ts
-import type { RecallStore, RecallDocument, RecallQuery } from "@tekmemo/recall";
+import type { RecallAdapter } from "@tekmemo/recall";
+
+const adapter: RecallAdapter = createYourRecallAdapter();
+const results = await adapter.query({ query: "billing webhooks", topK: 8 });
 ```
 
-### `RecallStore`
+## Boundary
 
-```ts
-export interface RecallStore {
-  upsert(documents: RecallDocument[]): Promise<void>;
-  query(query: RecallQuery): Promise<RecallResult[]>;
-  delete(ids: string[], options?: { namespace?: string }): Promise<void>;
-  deleteBySource(input: DeleteBySourceInput): Promise<void>;
-}
+This package owns its package-level contract only. It does not own TekMemo Cloud billing, dashboards, tenancy, hosted database storage, or provider secrets unless explicitly stated by its package name.
+
+For hosted memory, use `@tekmemo/cloud-client`. For local file-backed memory, use `tekmemo` with `@tekmemo/fs`. For MCP tools, use `@tekmemo/mcp-server`.
+
+## Scripts
+
+```bash
+pnpm --filter @tekmemo/recall typecheck
+pnpm --filter @tekmemo/recall test:run
+pnpm --filter @tekmemo/recall build
+pnpm --filter @tekmemo/recall lint:package
 ```
 
-## In-memory store
+## Docs
 
-Use the in-memory store for local tests, examples, and adapter contract tests.
+- Package docs: https://docs.tekmemo.dev/packages/
+- Examples: https://docs.tekmemo.dev/examples/
+- Repository: https://github.com/tekbreed/tekmemo
 
-```ts
-import { createInMemoryRecallStore } from "@tekmemo/recall";
+## Publishing metadata
 
-const store = createInMemoryRecallStore({
-  duplicateDocumentIdBehavior: "last-write-wins"
-});
+- npm package: `@tekmemo/recall`
+- publish visibility: public
+- runtime format: dual ESM/CJS
+- ESM output: `dist/**/*.mjs` + `dist/**/*.d.mts`
+- CJS output: `dist/**/*.cjs` + `dist/**/*.d.cts`
+- package contents: `dist` and `README.md`
+- package boundary: hosted cloud calls must go through `@tekmemo/cloud-client` unless this package is `@tekmemo/cloud-client` itself.
 
-await store.upsert([
-  {
-    id: "chunk_1",
-    text: "TekMemo uses local .tekmemo memory files.",
-    embedding: [1, 0, 0],
-    metadata: {
-      projectId: "proj_1",
-      sourceType: "document",
-      sourceId: "core",
-      memoryType: "core"
-    }
-  }
-]);
 
-const results = await store.query({
-  embedding: [1, 0, 0],
-  topK: 5,
-  filter: {
-    projectId: "proj_1"
-  }
-});
+## Publish readiness
+
+Before publishing this package, run:
+
+```bash
+pnpm --filter @tekmemo/recall release:check
 ```
 
-## Namespaces
+The package-level check builds `dist/`, runs TypeScript and tests, runs `publint`, and performs `npm pack --dry-run`. Publish from CI with Changesets and npm trusted publishing/provenance after the root release preflight passes.
 
-Use namespaces to isolate tenants/projects in providers that support namespaces.
+## License
 
-```ts
-import { createProjectNamespace } from "@tekmemo/recall";
-
-const namespace = createProjectNamespace({
-  tenantId: "ten_1",
-  projectId: "proj_1"
-});
-```
-
-## Filters
-
-The neutral filter format supports:
-
-- exact values
-- `$eq`
-- `$ne`
-- `$in`
-- `$nin`
-- `$gt`
-- `$gte`
-- `$lt`
-- `$lte`
-- `$exists`
-- `$contains`
-
-Provider adapters should map this neutral shape to the provider's native filter syntax.
-
-## Production behavior
-
-This package handles:
-
-- invalid embeddings
-- dimension mismatches
-- invalid `topK`
-- unsafe IDs
-- unsafe namespaces
-- non-JSON metadata
-- circular metadata
-- unsupported filter operators
-- deterministic sorting
-- namespace isolation
-- metadata filtering
-- duplicate document IDs
-- deletion by ID
-- deletion by source
-
-## Package boundary
-
-This package must not own:
-
-- embedding providers
-- vector provider SDKs
-- reranking providers
-- cloud billing
-- cloud tenancy
-- BYOK secret storage
-
-Provider packages should depend on this package and implement `RecallStore`.
+MIT.

@@ -1,0 +1,20 @@
+{
+	"name": "@tekmemo/example-mcp",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "tsx src/index.ts",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@tekmemo/cloud-client": "workspace:^",
+		"@tekmemo/mcp-server": "workspace:^",
+		"tekmemo": "workspace:^",
+		"@tekmemo/fs": "workspace:^"
+	},
+	"devDependencies": {
+		"tsx": "^4.21.0",
+		"typescript": "5.9.2",
+		"@types/node": "^22.15.3"
+	}
+}

@@ -1,14 +1,15 @@
 # `@tekmemo/voyageai`
 
-[![npm](https://img.shields.io/npm/v/%40tekmemo%2Fvoyageai?label=npm)](https://www.npmjs.com/package/@tekmemo/voyageai)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![Types](https://img.shields.io/badge/types-included-blue)](./dist/index.d.mts)
+[![npm](https://img.shields.io/npm/v/@tekmemo/voyageai?label=npm)](https://www.npmjs.com/package/@tekmemo%2Fvoyageai)
+[![npm downloads](https://img.shields.io/npm/dm/@tekmemo/voyageai)](https://www.npmjs.com/package/@tekmemo%2Fvoyageai)
 [![CI](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml/badge.svg)](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml)
-[![Status](https://img.shields.io/badge/status-active-brightgreen)](../../README.md)
+[![Docs](https://img.shields.io/badge/docs-online-blue)](https://docs.tekmemo.dev)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)
 
-Production-ready Voyage AI embedding adapter for TekMemo.
+## Purpose
 
-This package is intentionally **provider-specific** and **BYOK-ready**. It accepts a Voyage API key from the host application and does not store secrets.
+**Voyage AI embeddings.** Voyage AI embedding adapter for TekMemo recall pipelines.
 
 ## Install
 
@@ -16,67 +17,56 @@ This package is intentionally **provider-specific** and **BYOK-ready**. It accep
 pnpm add @tekmemo/voyageai
 ```
 
-## Quickstart
+## Quick start
 
 ```ts
 import { createVoyageEmbedder } from "@tekmemo/voyageai";
 
-const embedder = createVoyageEmbedder({
-  apiKey: process.env.VOYAGE_API_KEY!,
-  model: "voyage-4-lite",
-  outputDimension: 1024
-});
-
-const result = await embedder.embedTexts({
-  texts: ["TekMemo is file-first memory infrastructure."],
-  inputType: "document"
-});
-
-console.log(result.embeddings[0]?.embedding);
+const embedder = createVoyageEmbedder({ apiKey: process.env.VOYAGE_API_KEY! });
 ```
 
-## Query vs document embeddings
+## Boundary
 
-Use `inputType: "document"` when embedding memory chunks.
+This package owns its package-level contract only. It does not own TekMemo Cloud billing, dashboards, tenancy, hosted database storage, or provider secrets unless explicitly stated by its package name.
 
-Use `inputType: "query"` when embedding a user query for recall.
+For hosted memory, use `@tekmemo/cloud-client`. For local file-backed memory, use `tekmemo` with `@tekmemo/fs`. For MCP tools, use `@tekmemo/mcp-server`.
 
-```ts
-await embedder.embedTexts({
-  texts: ["What did we decide about memory?"],
-  inputType: "query"
-});
+## Scripts
+
+```bash
+pnpm --filter @tekmemo/voyageai typecheck
+pnpm --filter @tekmemo/voyageai test:run
+pnpm --filter @tekmemo/voyageai build
+pnpm --filter @tekmemo/voyageai lint:package
 ```
 
-## BYOK
+## Docs
 
-```ts
-createVoyageEmbedder({
-  apiKey: userProvidedVoyageKey,
-  model: "voyage-4-lite"
-});
+- Package docs: https://docs.tekmemo.dev/packages/
+- Examples: https://docs.tekmemo.dev/examples/
+- Repository: https://github.com/tekbreed/tekmemo
+
+## Publishing metadata
+
+- npm package: `@tekmemo/voyageai`
+- publish visibility: public
+- runtime format: dual ESM/CJS
+- ESM output: `dist/**/*.mjs` + `dist/**/*.d.mts`
+- CJS output: `dist/**/*.cjs` + `dist/**/*.d.cts`
+- package contents: `dist` and `README.md`
+- package boundary: hosted cloud calls must go through `@tekmemo/cloud-client` unless this package is `@tekmemo/cloud-client` itself.
+
+
+## Publish readiness
+
+Before publishing this package, run:
+
+```bash
+pnpm --filter @tekmemo/voyageai release:check
 ```
 
-The package does not persist or log keys.
+The package-level check builds `dist/`, runs TypeScript and tests, runs `publint`, and performs `npm pack --dry-run`. Publish from CI with Changesets and npm trusted publishing/provenance after the root release preflight passes.
 
-## Production features
+## License
 
-- REST client for `POST /v1/embeddings`
-- BYOK-ready config
-- model and output dimension validation
-- batch splitting
-- retry with exponential backoff and optional jitter
-- timeout handling
-- response shape validation
-- embedding count validation
-- finite-number vector validation
-- fake Voyage client for tests
-
-## What this package does not own
-
-- vector storage
-- recall store contracts
-- Upstash/Turso/Qdrant/Pinecone integrations
-- reranking
-- billing
-- cloud BYOK encryption
+MIT.

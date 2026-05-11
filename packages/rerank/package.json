@@ -1,6 +1,6 @@
 {
 	"name": "@tekmemo/rerank",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "Provider-neutral reranking contracts and utilities for TekMemo.",
 	"license": "MIT",
 	"repository": {
@@ -8,7 +8,7 @@
 		"url": "git+https://github.com/tekbreed/tekmemo.git",
 		"directory": "packages/rerank"
 	},
-	"homepage": "https://github.com/tekbreed/tekmemo#readme",
+	"homepage": "https://docs.tekmemo.dev/packages/rerank",
 	"bugs": {
 		"url": "https://github.com/tekbreed/tekmemo/issues"
 	},
@@ -41,11 +41,11 @@
 	},
 	"files": [
 		"dist",
-		"README.md",
-		"LICENSE"
+		"README.md"
 	],
 	"publishConfig": {
-		"access": "public"
+		"access": "public",
+		"registry": "https://registry.npmjs.org/"
 	},
 	"scripts": {
 		"build": "tsdown",
@@ -57,21 +57,32 @@
 		"test:watch": "vitest",
 		"test:coverage": "vitest run --coverage",
 		"clean": "rm -rf dist coverage .turbo",
-		"lint:package": "publint"
+		"lint:package": "publint",
+		"prepack": "pnpm build",
+		"pack:dry-run": "pnpm build && npm pack --dry-run",
+		"release:check": "pnpm build && pnpm typecheck && pnpm test:run && pnpm lint:package && npm pack --dry-run"
 	},
 	"keywords": [
-		"ai",
-		"memory",
 		"agents",
+		"ai",
 		"llm",
+		"memory",
 		"recall",
-		"typescript",
+		"rerank",
 		"tekmemo",
-		"rerank"
+		"typescript"
 	],
 	"devDependencies": {
 		"@repo/test-utils": "workspace:*",
 		"@repo/tsdown-config": "workspace:*",
 		"@repo/typescript-config": "workspace:*"
+	},
+	"private": false,
+	"engines": {
+		"node": ">=22"
+	},
+	"funding": {
+		"type": "github",
+		"url": "https://github.com/sponsors/christophersesugh"
 	}
 }

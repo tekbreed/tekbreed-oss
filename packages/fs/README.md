@@ -1,90 +1,73 @@
-# @tekmemo/fs
+# `@tekmemo/fs`
 
-[![npm](https://img.shields.io/npm/v/%40tekmemo%2Ffs?label=npm)](https://www.npmjs.com/package/@tekmemo/fs)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![Types](https://img.shields.io/badge/types-included-blue)](./dist/index.d.mts)
+[![npm](https://img.shields.io/npm/v/@tekmemo/fs?label=npm)](https://www.npmjs.com/package/@tekmemo%2Ffs)
+[![npm downloads](https://img.shields.io/npm/dm/@tekmemo/fs)](https://www.npmjs.com/package/@tekmemo%2Ffs)
 [![CI](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml/badge.svg)](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml)
-[![Status](https://img.shields.io/badge/status-active-brightgreen)](../../README.md)
+[![Docs](https://img.shields.io/badge/docs-online-blue)](https://docs.tekmemo.dev)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)
 
-Node.js filesystem adapter for TekMemo's canonical `.tekmemo/` local memory protocol.
+## Purpose
 
-This package implements the core `MemoryStore` interface from `tekmemo` using the local filesystem.
+**Filesystem adapter.** Node.js adapter for the canonical `.tekmemo/` directory layout.
 
-## Canonical layout
+## Install
 
-When used with `bootstrapMemoryStore`, this adapter writes:
-
-```txt
-.tekmemo/
-  manifest.json
-  memory/
-    core.md
-    notes.md
-  events/
-    memory-events.jsonl
-    conversations.jsonl
-  indexes/
-    chunks.jsonl
-  graph/
-    nodes.jsonl
-    edges.jsonl
-  snapshots/
-    snapshots.jsonl
+```bash
+pnpm add @tekmemo/fs
 ```
 
-## Quickstart
+## Quick start
 
 ```ts
-import { bootstrapMemoryStore, writeCoreMemory } from "tekmemo";
-import { createNodeFsMemoryStore } from "@tekmemo/fs";
+import { createFileSystemMemoryStore } from "@tekmemo/fs";
 
-const store = createNodeFsMemoryStore({
-  rootDir: process.cwd()
-});
-
-await bootstrapMemoryStore(store);
-await writeCoreMemory(store, "# Core Memory\n\n- Local-first memory is enabled.\n");
+const store = createFileSystemMemoryStore({ rootDir: process.cwd() });
+const core = await store.readCoreMemory();
 ```
 
-## Options
+## Boundary
 
-| Option | Default | Description |
-|---|---:|---|
-| `rootDir` | required | Project directory where `.tekmemo/` will live |
-| `createRoot` | `true` | Create the root directory if missing |
-| `missingFileBehavior` | `"throw"` | Throw or return empty string when reading missing files |
-| `disallowSymlinks` | `true` | Reject symlinked paths under `.tekmemo/` |
-| `directoryMode` | `0o700` | Directory mode for created directories |
-| `fileMode` | `0o600` | File mode for created files |
+This package owns its package-level contract only. It does not own TekMemo Cloud billing, dashboards, tenancy, hosted database storage, or provider secrets unless explicitly stated by its package name.
 
-## Safety behavior
+For hosted memory, use `@tekmemo/cloud-client`. For local file-backed memory, use `tekmemo` with `@tekmemo/fs`. For MCP tools, use `@tekmemo/mcp-server`.
 
-This adapter provides:
+## Scripts
 
-- safe path resolution under `rootDir`
-- canonical `.tekmemo/` path validation through `tekmemo`
-- parent directory creation
-- atomic writes
-- same-instance append serialization
-- symlink rejection by default
-- missing-file behavior control
-
-## Missing files
-
-Strict mode:
-
-```ts
-const store = createNodeFsMemoryStore({ rootDir });
-await store.read(".tekmemo/memory/core.md"); // throws if missing
+```bash
+pnpm --filter @tekmemo/fs typecheck
+pnpm --filter @tekmemo/fs test:run
+pnpm --filter @tekmemo/fs build
+pnpm --filter @tekmemo/fs lint:package
 ```
 
-Relaxed mode:
+## Docs
 
-```ts
-const store = createNodeFsMemoryStore({
-  rootDir,
-  missingFileBehavior: "empty"
-});
+- Package docs: https://docs.tekmemo.dev/packages/
+- Examples: https://docs.tekmemo.dev/examples/
+- Repository: https://github.com/tekbreed/tekmemo
 
-await store.read(".tekmemo/memory/core.md"); // "" if missing
+## Publishing metadata
+
+- npm package: `@tekmemo/fs`
+- publish visibility: public
+- runtime format: dual ESM/CJS
+- ESM output: `dist/**/*.mjs` + `dist/**/*.d.mts`
+- CJS output: `dist/**/*.cjs` + `dist/**/*.d.cts`
+- package contents: `dist` and `README.md`
+- package boundary: hosted cloud calls must go through `@tekmemo/cloud-client` unless this package is `@tekmemo/cloud-client` itself.
+
+
+## Publish readiness
+
+Before publishing this package, run:
+
+```bash
+pnpm --filter @tekmemo/fs release:check
 ```
+
+The package-level check builds `dist/`, runs TypeScript and tests, runs `publint`, and performs `npm pack --dry-run`. Publish from CI with Changesets and npm trusted publishing/provenance after the root release preflight passes.
+
+## License
+
+MIT.

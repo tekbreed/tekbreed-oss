@@ -1,64 +1,169 @@
-# @tekmemo/ai-sdk
+# `@tekmemo/ai-sdk`
 
-[![npm](https://img.shields.io/npm/v/%40tekmemo%2Fai-sdk?label=npm)](https://www.npmjs.com/package/@tekmemo/ai-sdk)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![Types](https://img.shields.io/badge/types-included-blue)](./dist/index.d.mts)
+[![npm](https://img.shields.io/npm/v/@tekmemo/ai-sdk?label=npm)](https://www.npmjs.com/package/@tekmemo%2Fai-sdk)
+[![npm downloads](https://img.shields.io/npm/dm/@tekmemo/ai-sdk)](https://www.npmjs.com/package/@tekmemo%2Fai-sdk)
 [![CI](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml/badge.svg)](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml)
-[![Status](https://img.shields.io/badge/status-active-brightgreen)](../../README.md)
+[![Docs](https://img.shields.io/badge/docs-online-blue)](https://docs.tekmemo.dev)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)
 
-Vercel AI SDK integration for **TekMemo**. This package enables AI agents to interact with their own memory through structured tools and automated context injection.
+## Purpose
 
-## Features
+`@tekmemo/ai-sdk` makes TekMemo usable as a Vercel AI SDK tool with minimal glue code. It exposes helpers for:
 
-- **Context Building**: Automatically assemble Core, Archival, and Recall memory into a prompt-ready string.
-- **Structured Tools**: Ready-to-use `memoryTool` for the AI SDK `generateText` and `streamText` functions.
-- **Retrieval Planning**: Configurable retrieval logic to decide which memory layers to read for a given call.
+- creating an AI SDK-compatible memory tool
+- defining a ready-to-spread `tools` object
+- building a memory-aware `system` prompt
+- using local, cloud, or hybrid TekMemo runtimes behind the same API
+- enforcing project, user, conversation, and participant scope boundaries before memory is returned to the model
+- generating AgentFS session instructions for Codex, Claude Code, and AI SDK agents
 
-## Installation
+## AgentFS session instructions
+
+Use this when an AI SDK-powered agent is working inside an AgentFS session created by `@tekmemo/agentfs`:
+
+```ts
+import { createTekMemoAgentSession } from "@tekmemo/agentfs";
+import { buildAgentSessionInstructions } from "@tekmemo/ai-sdk";
+
+const session = createTekMemoAgentSession({
+  client: agentfsClient,
+  memory: tekmemoStore,
+  task: "Refactor auth middleware",
+});
+
+await session.prepare();
+
+const system = buildAgentSessionInstructions({
+  sessionId: session.sessionId,
+  task: "Refactor auth middleware",
+  paths: session.paths,
+});
+```
+
+## Install
 
 ```bash
-# pnpm
-pnpm add @tekmemo/ai-sdk tekmemo
-
-# npm
-npm install @tekmemo/ai-sdk tekmemo
-
-# yarn
-yarn add @tekmemo/ai-sdk tekmemo
+pnpm add @tekmemo/ai-sdk ai tekmemo @tekmemo/fs
 ```
 
-## Usage
+For hosted memory, also install `@tekmemo/cloud-client` and create a cloud runtime there.
 
-### Using the Memory Tool
+## Plug-and-play AI SDK usage
 
-```typescript
+```ts
 import { generateText } from "ai";
-import { buildMemoryToolDefinition } from "@tekmemo/ai-sdk";
-import { store } from "./my-store";
+import { openai } from "@ai-sdk/openai";
+import { createNodeFsMemoryStore } from "@tekmemo/fs";
+import {
+  buildTekMemoSystemPrompt,
+  createLocalAiSdkRuntime,
+  defineTekMemoTools,
+} from "@tekmemo/ai-sdk";
 
-const { text } = await generateText({
-  model: openai("gpt-4o"),
-  tools: {
-    manage_memory: buildMemoryToolDefinition({ store })
-  },
-  prompt: "Remember that my birthday is tomorrow."
+const workspace = createNodeFsMemoryStore({
+  rootDir: process.cwd(),
+  createRoot: true,
+  missingFileBehavior: "empty",
+});
+
+const access = {
+  projectId: "my-project",
+  userId: "user_123",
+  conversationId: "thread_456",
+  actorId: "assistant:web",
+};
+
+const runtime = createLocalAiSdkRuntime({ workspace, access });
+const { system } = await buildTekMemoSystemPrompt({
+  runtime,
+  access,
+  query: "What should I remember before answering this request?",
+  system: "You are a helpful product engineering assistant.",
+});
+
+const result = await generateText({
+  model: openai("gpt-4.1-mini"),
+  system,
+  prompt: "Summarize the current implementation risks.",
+  tools: defineTekMemoTools({
+    runtime,
+    access,
+    allowWrites: true,
+    allowCoreUpdates: false,
+  }),
+});
+
+console.log(result.text);
+```
+
+The exported tool name is `tekmemo_memory`. To control the tool key yourself, use `createTekMemoTool()` directly:
+
+```ts
+import { createTekMemoTool } from "@tekmemo/ai-sdk";
+
+const tools = {
+  memory: createTekMemoTool({ runtime, access, allowWrites: true }),
+};
+```
+
+## Local convenience helpers
+
+For local file-backed apps, `createLocalTekMemoTool()` and `defineLocalTekMemoTools()` create the local runtime and AI SDK tool in one call.
+
+```ts
+import { defineLocalTekMemoTools } from "@tekmemo/ai-sdk";
+
+const tools = defineLocalTekMemoTools({
+  workspace,
+  access: { projectId: "my-project", userId: "user_123" },
+  allowWrites: true,
 });
 ```
 
-### Injecting Memory Context
+Use the explicit `runtime + defineTekMemoTools()` form when you also need to call `buildTekMemoSystemPrompt()` with the same runtime.
 
-```typescript
-import { buildPrepareCallMemoryText } from "@tekmemo/ai-sdk";
+## Safety defaults
 
-const context = await buildPrepareCallMemoryText({
-  stores: { workspace: store },
-  retrievalPlan: { readUserMemory: true, readArchivalMemory: true },
-  baseInstructions: "You are a helpful assistant with access to the following memory:"
-});
+Writes are disabled unless `allowWrites: true` is passed. Core memory updates are disabled unless `allowCoreUpdates: true` is passed. Indexing is disabled unless `allowIndexing: true` is passed. Likely API keys and private keys are rejected by default unless `allowSecrets: true` is intentionally enabled.
 
-// Pass `context` to your system prompt
+Scope filtering is applied using the `access` object. User memory requires `userId`, conversation memory requires `conversationId`, and participant-shared memory requires `participantIds`.
+
+## Boundary
+
+This package owns the AI SDK integration layer only. It does not own TekMemo Cloud billing, dashboards, tenancy, hosted database storage, or provider secrets.
+
+For hosted memory, use `@tekmemo/cloud-client`. For local file-backed memory, use `tekmemo` with `@tekmemo/fs`. For MCP tools, use `@tekmemo/mcp-server`.
+
+## Scripts
+
+```bash
+pnpm --filter @tekmemo/ai-sdk typecheck
+pnpm --filter @tekmemo/ai-sdk test:run
+pnpm --filter @tekmemo/ai-sdk build
+pnpm --filter @tekmemo/ai-sdk lint:package
 ```
 
-## Related Packages
+## Publishing metadata
 
-- [`tekmemo`](../tekmemo): Core memory models and logic.
+- npm package: `@tekmemo/ai-sdk`
+- publish visibility: public
+- runtime format: dual ESM/CJS
+- ESM output: `dist/**/*.mjs` + `dist/**/*.d.mts`
+- CJS output: `dist/**/*.cjs` + `dist/**/*.d.cts`
+- package contents: `dist` and `README.md`
+- package boundary: hosted cloud calls must go through `@tekmemo/cloud-client`
+
+## Publish readiness
+
+Before publishing this package, run:
+
+```bash
+pnpm --filter @tekmemo/ai-sdk release:check
+```
+
+The package-level check builds `dist/`, runs TypeScript and tests, runs `publint`, and performs `npm pack --dry-run`. Publish from CI with Changesets and npm trusted publishing/provenance after the root release preflight passes.
+
+## License
+
+MIT.

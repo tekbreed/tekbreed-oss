@@ -3,16 +3,16 @@
 	"private": true,
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/tekmemo/tekmemo.git"
+		"url": "git+https://github.com/tekbreed/tekmemo.git"
 	},
 	"scripts": {
 		"build": "turbo run build",
 		"build:watch": "turbo run build:watch",
-		"check": "pnpm format-and-lint",
+		"check": "biome check packages apps",
 		"format-and-lint": "biome check .",
 		"format-and-lint:fix": "biome check . --write",
 		"format-and-lint:fix:unsafe": "biome check . --write --unsafe",
-		"typecheck": "turbo run typecheck",
+		"typecheck": "turbo run typecheck --filter=./packages/* --filter=./apps/*",
 		"test": "turbo run test:run",
 		"test:watch": "turbo run test:watch",
 		"test:coverage": "turbo run test:coverage",
@@ -21,11 +21,34 @@
 		"benchmark:release": "turbo run benchmark:release --filter=@tekmemo/benchmarks",
 		"benchmark:full": "turbo run benchmark:full --filter=@tekmemo/benchmarks",
 		"benchmark:compare": "turbo run benchmark:compare --filter=@tekmemo/benchmarks",
-		"release:check": "pnpm check && pnpm typecheck && pnpm test && pnpm build && pnpm lint:package",
+		"release:check": "pnpm run ci",
 		"changeset": "changeset",
 		"version-packages": "changeset version",
 		"release": "changeset publish",
-		"ci": "pnpm check && pnpm typecheck && pnpm test && pnpm build"
+		"ci": "pnpm check && pnpm typecheck && pnpm test && pnpm build && pnpm lint:package && pnpm docs:build",
+		"docs:dev": "pnpm --filter @tekmemo/docs dev",
+		"docs:build": "pnpm --filter @tekmemo/docs build",
+		"docs:preview": "pnpm --filter @tekmemo/docs preview",
+		"examples:check": "node examples/scripts/check-examples.mjs && turbo run typecheck --filter=./examples/*",
+		"packages:build": "turbo run build --filter=./packages/*",
+		"packages:test": "turbo run test:run --filter=./packages/*",
+		"release:dry-run": "changeset publish --dry-run",
+		"validate:workspace": "pnpm check && pnpm typecheck && pnpm test && pnpm build && pnpm lint:package && pnpm docs:build",
+		"validate:packages": "pnpm lint:package && pnpm packages:build",
+		"validate:docs": "pnpm docs:check && pnpm docs:build",
+		"validate:examples": "pnpm examples:check",
+		"validate:release": "pnpm validate:workspace && pnpm release:dry-run",
+		"docs:check": "pnpm --filter @tekmemo/docs check",
+		"examples:lint": "node examples/scripts/check-examples.mjs",
+		"pack:dry-run": "turbo run pack:dry-run --filter=./packages/*",
+		"release:package-check": "turbo run release:check --filter=./packages/*",
+		"release:preflight": "pnpm validate:workspace && pnpm release:package-check && pnpm release:dry-run",
+		"publish:docs": "pnpm docs:build",
+		"validate:publish": "pnpm release:preflight",
+		"selfhost:node:build": "pnpm --filter @tekmemo/server build && pnpm --filter @tekmemo/self-host-node build",
+		"selfhost:node:typecheck": "pnpm --filter @tekmemo/server typecheck && pnpm --filter @tekmemo/self-host-node typecheck",
+		"selfhost:docker:doctor": "pnpm --filter @tekmemo/self-host-docker doctor",
+		"validate:selfhost": "pnpm selfhost:node:typecheck && pnpm selfhost:node:build && pnpm --filter @tekmemo/self-host-docker typecheck && pnpm --filter @tekmemo/self-host-cloudflare typecheck"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.4.14",
@@ -45,6 +68,16 @@
 	"packageManager": "pnpm@9.0.0",
 	"engines": {
 		"node": ">=22",
-		"pnpm": ">=9"
+		"pnpm": ">=9.0.0"
+	},
+	"description": "Open-source TekMemo packages, examples, benchmarks, and developer documentation.",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/tekbreed/tekmemo/issues"
+	},
+	"homepage": "https://docs.tekmemo.dev",
+	"funding": {
+		"type": "github",
+		"url": "https://github.com/sponsors/christophersesugh"
 	}
 }

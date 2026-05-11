@@ -1,63 +1,21 @@
 # TekMemo
 
-**File-first memory infrastructure for AI apps and agents.**
+<p align="center">
+  <img src="./assets/architecture.svg" alt="TekMemo Architecture" width="100%" />
+</p>
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![npm](https://img.shields.io/npm/v/tekmemo?label=npm)](https://www.npmjs.com/package/tekmemo)
+[![npm](https://img.shields.io/npm/v/tekmemo?label=tekmemo)](https://www.npmjs.com/package/tekmemo)
 [![CI](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml/badge.svg)](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml)
-[![Docs](https://github.com/tekbreed/tekmemo/actions/workflows/deploy-docs.yml/badge.svg)](https://github.com/tekbreed/tekmemo/actions/workflows/deploy-docs.yml)
-[![Sponsor](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-ff69b4)](https://github.com/sponsors/christophersesugh)
+[![Docs](https://img.shields.io/badge/docs-online-blue)](https://docs.tekmemo.dev)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
+[![Sponsor](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-ff69b4)](https://github.com/sponsors/christophersesugh)
 
-TekMemo is an open-source memory runtime for AI applications. It gives agents, chat apps, coding tools, copilots, workflow systems, and developer platforms a structured way to store, organize, recall, sync, and inspect long-lived context.
+**Inspectable, file-first memory infrastructure for AI apps, agents, coding tools, and MCP clients.**
 
-TekMemo is built around a simple idea:
+TekMemo is an open-source memory layer for AI software. It gives apps and agents a structured way to store durable memory, inspect what was saved, recall context for a task, sync local and cloud memory, expose memory through MCP, and integrate with the Vercel AI SDK.
 
-> AI apps should not depend only on short chat history. They need durable, inspectable, portable memory.
-
-TekMemo provides the open-source packages for that memory layer.
-
-TekMemo Cloud is a separate hosted product that adds team workspaces, hosted sync, MCP access, production observability, billing, usage controls, and managed infrastructure.
-
----
-
-## What TekMemo solves
-
-Most AI apps lose useful context because memory is scattered across:
-
-- chat history
-- local files
-- vector databases
-- logs
-- prompts
-- user preferences
-- project documents
-- embeddings
-- tool calls
-- disconnected app-specific storage
-
-TekMemo gives you a consistent memory layer for these concerns.
-
-It helps you answer questions like:
-
-- What should this AI assistant remember?
-- Where is memory stored?
-- How is memory recalled?
-- Which source produced this memory?
-- Can I inspect or export it?
-- Can I sync it?
-- Can another agent or MCP client use it?
-- Can I evaluate whether recall is working?
-
----
-
-## Core idea
-
-TekMemo is **file-first**.
-
-That means memory can be represented as structured, portable files before it is pushed into vector stores, cloud systems, or external tools.
-
-A typical local memory workspace may look like this:
+TekMemo is deliberately **file-first**. Local memory starts in a readable `.tekmemo/` directory, then can be indexed, synced, queried, benchmarked, or exposed through cloud/client adapters.
 
 ```txt
 .tekmemo/
@@ -66,8 +24,7 @@ A typical local memory workspace may look like this:
 │   ├── core.md
 │   └── notes.md
 ├── events/
-│   ├── memory-events.jsonl
-│   └── conversations.jsonl
+│   └── memory-events.jsonl
 ├── indexes/
 │   └── chunks.jsonl
 ├── graph/
@@ -77,449 +34,241 @@ A typical local memory workspace may look like this:
     └── snapshots.jsonl
 ```
 
-Behind the scenes, this makes TekMemo:
+## Install
 
-- portable
-- inspectable
-- testable
-- source-controlled when needed
-- local-first when needed
-- cloud-syncable later
-- easier to debug than hidden memory stores
+For local file-backed memory:
 
----
+```bash
+pnpm add tekmemo @tekmemo/fs
+```
 
-## Sponsor TekMemo
+For the CLI:
 
-TekMemo is open-source memory infrastructure for AI apps and agents.
+```bash
+pnpm add -D @tekmemo/cli
+pnpm exec tekmemo init
+pnpm exec tekmemo remember "Use local-first memory for development" --kind decision
+pnpm exec tekmemo context --query "current task" --json
+```
 
-If TekMemo helps your work, you can support ongoing development, maintenance, documentation, benchmarks, examples, and new integrations through GitHub Sponsors.
+For MCP:
 
-[💖 Sponsor TekMemo](https://github.com/sponsors/christophersesugh)
+```bash
+pnpm add @tekmemo/mcp-server @tekmemo/cloud-client tekmemo @tekmemo/fs
+```
 
-Sponsorship helps fund:
+For Vercel AI SDK tools:
 
-- package maintenance
-- documentation
-- examples
-- benchmarks
-- provider integrations
-- MCP support
-- memory tooling
-- open-source issue triage
+```bash
+pnpm add @tekmemo/ai-sdk ai tekmemo @tekmemo/fs
+```
 
----
+For the adapters convenience package:
 
-## Repository status
+```bash
+pnpm add @tekmemo/adapters
+# Then import implementation APIs from subpaths, for example:
+# @tekmemo/adapters/ai-sdk
+# @tekmemo/adapters/voyageai
+```
 
-TekMemo is under active development.
+## AI SDK quick start
 
-The public OSS repository contains the open-source runtime, adapters, docs, examples, and package infrastructure.
+```ts
+import { generateText } from "ai";
+import { openai } from "@ai-sdk/openai";
+import { createNodeFsMemoryStore } from "@tekmemo/fs";
+import {
+  buildTekMemoSystemPrompt,
+  createLocalAiSdkRuntime,
+  defineTekMemoTools,
+} from "@tekmemo/adapters/ai-sdk";
 
-The private TekMemo Cloud repository contains hosted cloud functionality such as:
+const workspace = createNodeFsMemoryStore({
+  rootDir: process.cwd(),
+  createRoot: true,
+  missingFileBehavior: "empty",
+});
 
-- tenant routing
-- billing
-- usage enforcement
-- encrypted BYOK storage
-- hosted dashboards
-- internal admin tooling
-- managed cloud APIs
+const access = {
+  projectId: "my-project",
+  userId: "user_123",
+  conversationId: "thread_456",
+};
 
-This repo intentionally does **not** contain private TekMemo Cloud implementation details.
+const runtime = createLocalAiSdkRuntime({ workspace, access });
+const { system } = await buildTekMemoSystemPrompt({
+  runtime,
+  access,
+  query: "current task",
+  system: "You are a helpful engineering assistant.",
+});
 
----
+const result = await generateText({
+  model: openai("gpt-4.1-mini"),
+  system,
+  prompt: "Summarize the current implementation risks.",
+  tools: defineTekMemoTools({ runtime, access, allowWrites: true }),
+});
 
-## Packages
+console.log(result.text);
+```
 
-### Core runtime
+## Package map
 
-| Package            | Purpose                                                                          |
-| ------------------ | -------------------------------------------------------------------------------- |
-| `tekmemo`          | Core memory contracts, records, chunks, source refs, and `.tekmemo/` conventions |
-| `@tekmemo/fs`      | Local filesystem-backed memory store                                             |
-| `@tekmemo/agentfs` | AgentFS/Turso AgentFS-backed memory store and sync hooks                         |
-| `@tekmemo/ai-sdk`  | AI SDK tool definitions and memory tool bridge                                   |
+| Package | Purpose |
+| --- | --- |
+| `tekmemo` | Core memory contracts, records, source refs, chunks, and `.tekmemo/` protocol helpers. |
+| `@tekmemo/fs` | Node filesystem adapter for local `.tekmemo/` memory. |
+| `@tekmemo/graph` | Graph-memory primitives: nodes, edges, relationships, and traversal contracts. |
+| `@tekmemo/cloud-client` | Project-scoped TekMemo Cloud API client. Used by CLI, MCP, AI SDK, and custom apps. |
+| `@tekmemo/cli` | Local, cloud, and hybrid command-line workflows. |
+| `@tekmemo/mcp-server` | MCP server/runtime adapter exposing TekMemo tools, resources, and prompts. |
+| `@tekmemo/ai-sdk` | Vercel AI SDK tool bridge for reading and writing memory. |
+| `@tekmemo/adapters` | Convenience subpath reexports for AgentFS, AI SDK, cloud, provider, vector, and rerank adapters. |
+| `@tekmemo/server` | Hono-based self-host memory server package for Node, Docker, and Cloudflare wrappers. |
+| `@tekmemo/recall` | Provider-neutral recall contracts. |
+| `@tekmemo/upstash-vector` | Upstash Vector recall adapter. |
+| `@tekmemo/rerank` | Provider-neutral reranking contracts. |
+| `@tekmemo/rerank-voyage` | Voyage AI reranking adapter. |
+| `@tekmemo/voyageai` | Voyage AI embedding adapter. |
+| `@tekmemo/openai` | OpenAI embedding adapter. |
+| `@tekmemo/benchmark-kit` | Benchmark runner and performance test helpers. |
 
-### Embeddings
+## Adapter imports
 
-| Package             | Purpose                    |
-| ------------------- | -------------------------- |
-| `@tekmemo/voyageai` | Voyage AI embedding adapter |
-| `@tekmemo/openai`   | OpenAI embedding adapter    |
+`tekmemo` stays solo and provider-neutral. Applications can either install direct adapter packages or use `@tekmemo/adapters` as a convenience entrypoint. Implementation APIs are exposed through subpaths so the root package does not load optional peer dependencies.
 
-### Vector recall
+```ts
+import { defineTekMemoTools } from "@tekmemo/adapters/ai-sdk";
+import { createTekMemoAgentSession } from "@tekmemo/adapters/agentfs";
+import { createVoyageEmbedder } from "@tekmemo/adapters/voyageai";
+import { createOpenAIEmbedder } from "@tekmemo/adapters/openai";
+import { createUpstashRecallStore } from "@tekmemo/adapters/upstash-vector";
+import { createVoyageReranker } from "@tekmemo/adapters/rerank-voyage";
+import { createTekMemoCloudClient } from "@tekmemo/adapters/cloud-client";
+```
 
-| Package                   | Purpose                                  |
-| ------------------------- | ---------------------------------------- |
-| `@tekmemo/recall`         | Provider-neutral vector recall contracts |
-| `@tekmemo/upstash-vector` | Upstash Vector recall adapter            |
+## Runtime choices
 
-### Reranking
-
-| Package                  | Purpose                              |
-| ------------------------ | ------------------------------------ |
-| `@tekmemo/rerank`        | Provider-neutral reranking contracts |
-| `@tekmemo/rerank-voyage` | Voyage reranking adapter             |
-
-### Advanced memory and ingestion
-
-| Package                  | Purpose                                             |
-| ------------------------ | --------------------------------------------------- |
-| `@tekmemo/benchmark-kit` | Benchmark runner and reproducible performance tests |
-| `@repo/test-utils`       | Testing utilities for TekMemo packages              |
-
----
+| Runtime | Use it when |
+| --- | --- |
+| Local | You want inspectable `.tekmemo/` files and no hosted dependency. |
+| Cloud | You want hosted project memory, API keys, sync, and team/cloud workflows. |
+| Hybrid | You want local files plus cloud recall/sync. |
+| MCP | You want Claude Code, Codex, Cursor, OpenCode-style tools, or other MCP clients to use TekMemo memory. |
+| AI SDK | You want `generateText`, `streamText`, or agent workflows to use scoped TekMemo memory. |
+| Self-host Node | You want a portable Hono memory server for Dockerfile hosts such as Railway, Fly.io, Render, Coolify, or VPS deployments. |
+| Docker Compose | You want local/private-server packaging with API, worker, Postgres/pgvector, and MinIO. |
 
 ## Repository structure
 
 ```txt
 tekmemo/
 ├── apps/
-│   ├── docs/
-│   └── slides/
-│
-├── packages/
-│   ├── tekmemo/                # Core memory model, types, and utilities
-│   ├── ai-sdk/                 # Vercel AI SDK integration
-│   ├── fs/                     # Local filesystem adapter
-│   ├── agentfs/                # AgentFS adapter
-│   ├── openai/                 # OpenAI embedding adapter
-│   ├── upstash-vector/         # Upstash Vector adapter
-│   ├── voyageai/               # Voyage AI embedding adapter
-│   ├── recall/                 # Semantic recall memory
-│   ├── rerank/                 # Provider-neutral reranking
-│   ├── rerank-voyage/          # Voyage reranking adapter
-│   ├── benchmark-kit/          # Benchmarking tools
-│   ├── test-utils/             # Testing utilities
-│   ├── tsdown-config/          # Shared tsdown config (internal)
-│   ├── typescript-config/      # Shared tsconfig bases (internal)
-│   └── utils/                  # Shared utility helpers (internal)
-│
-├── benchmarks/                 # Private benchmark suites and release gates
-├── examples/                   # Runnable example projects
-│
-├── .github/
-├── README.md
-├── CONTRIBUTING.md
-├── SECURITY.md
-├── CODE_OF_CONDUCT.md
-├── LICENSE
+│   ├── docs/                  # Developer docs app
+│   ├── self-host-node/        # Portable Node self-host runtime
+│   ├── self-host-docker/      # Docker Compose packaging
+│   └── self-host-cloudflare/  # Cloudflare Workers wrapper
+├── benchmarks/                # Benchmark suites and release gates
+├── examples/                  # Runnable integration examples
+├── packages/                  # Published packages and internal workspace packages
+├── .github/                   # CI, docs deploy, release, and benchmark workflows
 ├── package.json
+├── pnpm-lock.yaml
 ├── pnpm-workspace.yaml
-├── turbo.json
-└── biome.json
+└── turbo.json
 ```
 
----
+## Self-host memory server
 
-## Requirements
-
-Use the following versions or newer:
-
-```txt
-Node.js >= 22
-pnpm >= 9
-```
-
-Recommended:
+TekMemo self-hosting is built around `@tekmemo/server`, not the full TekMemo Cloud SaaS app. The current Node/Docker baseline uses Hono, Postgres, a Postgres-backed queue, and S3-compatible object storage. Docker Compose packages the same Node runtime with Postgres/pgvector and MinIO.
 
 ```bash
-corepack enable
-corepack prepare pnpm@9 --activate
+cp apps/self-host-docker/.env.example apps/self-host-docker/.env
+docker compose -f apps/self-host-docker/docker-compose.yml up --build
 ```
 
----
+Railway/Fly/Render-style hosts should deploy `apps/self-host-node/Dockerfile` directly and run the API and worker as separate processes from the same image.
 
-## Getting started
+## Developer docs
 
-Clone the repository:
-
-```bash
-git clone https://github.com/tekmemo/tekmemo.git
-cd tekmemo
-```
-
-Install dependencies:
+The VitePress docs app in `apps/docs` is developer-facing only. Marketing pages, blog, changelog, tutorials/demos, pricing, compare, legal, and cloud-product pages belong in the TekMemo Cloud app/CMS.
 
 ```bash
 pnpm install
+pnpm docs:dev
+pnpm docs:build
 ```
-
-Build all packages:
-
-```bash
-pnpm build
-```
-
-Run tests:
-
-```bash
-pnpm test
-```
-
-Run type checks:
-
-```bash
-pnpm typecheck
-```
-
-Run lint/checks:
-
-```bash
-pnpm format-and-lint
-```
-
-Start the docs app:
-
-```bash
-pnpm --filter docs dev
-```
-
-Start the slides app:
-
-```bash
-pnpm --filter slides dev
-```
-
----
-
-## Common commands
-
-```bash
-pnpm build
-```
-
-Build all packages and apps.
-
-```bash
-pnpm test
-```
-
-Run all tests.
-
-```bash
-pnpm typecheck
-```
-
-Run TypeScript checks.
-
-```bash
-pnpm format-and-lint
-```
-
-Run formatting and lint checks.
-
-```bash
-pnpm format-and-lint:fix
-```
-
-Auto-fix formatting and lint issues.
-
----
-
-## Basic usage
-
-Install the core package:
-
-```bash
-pnpm add tekmemo
-```
-
-Install a local filesystem store:
-
-```bash
-pnpm add @tekmemo/fs
-```
-
-Install recall packages:
-
-```bash
-pnpm add @tekmemo/recall @tekmemo/upstash-vector @tekmemo/openai
-```
-
-Example:
-
-```ts
-import {
-	bootstrapMemoryStore,
-	readCoreMemory,
-	writeCoreMemory,
-} from "tekmemo";
-import { createNodeFsMemoryStore } from "@tekmemo/fs";
-
-const store = createNodeFsMemoryStore({
-	rootDir: ".tekmemo",
-});
-
-await bootstrapMemoryStore(store, { projectId: "local-app" });
-
-await writeCoreMemory(
-	store,
-	"# Core Memory\n\n- TekMemo provides file-first memory for AI apps and agents.\n",
-);
-
-const coreMemory = await readCoreMemory(store);
-```
-
----
-
-## Design principles
-
-TekMemo packages follow these principles:
-
-### 1. File-first
-
-Memory should be inspectable and portable.
-
-### 2. Provider-neutral
-
-Core packages should not depend on a specific AI provider, vector database, cloud vendor, or hosted service.
-
-### 3. Adapter-driven
-
-External systems should be integrated through adapters.
-
-### 4. BYOK-friendly
-
-Provider adapters should allow users to bring their own keys.
-
-### 5. Cloud-optional
-
-Open-source packages must work without TekMemo Cloud.
-
-### 6. Testable with fake clients
-
-Adapters should support fake clients, mock transports, and deterministic tests.
-
-### 7. Clear package boundaries
-
-Each package should own one concern.
-
-### 8. Production safety
-
-Packages should handle malformed input, unsafe metadata, cancellation, timeouts, retries, limits, and edge cases.
-
----
-
-## Package boundary rules
-
-A package should not reach into unrelated concerns.
-
-For example:
-
-```txt
-tekmemo
-  owns core memory contracts and records
-
-@tekmemo/fs
-  owns filesystem-backed storage
-
-@tekmemo/recall
-  owns provider-neutral recall contracts
-
-@tekmemo/upstash-vector
-  owns Upstash Vector adapter
-```
-
-A package should not silently own:
-
-- billing
-- tenancy
-- usage limits
-- hosted API keys
-- dashboards
-- private cloud deployment logic
-- admin tooling
-
-Those belong outside this public OSS repo.
-
----
-
-## Documentation
-
-Public docs are hosted at:
-
-```txt
-yet to be determined
-```
-
-The docs app lives in:
-
-```txt
-apps/docs
-```
-
-Slides live in:
-
-```txt
-apps/slides
-```
-
-Public architecture docs live in:
-
-```txt
-apps/docs/architecture/
-```
-
----
 
 ## Examples
 
-Examples live in:
+The `examples/` folder contains beginner-readable examples for:
 
-```txt
-examples/
-```
+- local-only memory
+- graph memory
+- CLI workflows
+- MCP local/cloud/hybrid setup
+- `@tekmemo/cloud-client`
+- AI SDK tools
+- Next.js
+- React Router
+- Express
+- Hono
+- Cloudflare Workers
+- TanStack Start-style routing
+- Node HTTP
+- Fastify
+- NestJS
+- Astro
+- SvelteKit
+- Nuxt
+- Vite React
 
-Current runnable examples include:
-
-```txt
-local-only
-```
-
-Each example should be runnable and should explain what it demonstrates.
-
----
-
-## Releases
-
-TekMemo uses Changesets for package versioning.
-
-Before publishing, make sure:
+## Workspace commands
 
 ```bash
-pnpm release:check
+pnpm check
+pnpm typecheck
+pnpm test
+pnpm build
+pnpm lint:package
+pnpm docs:build
+pnpm validate:workspace
 ```
 
-all pass.
+## Release readiness
 
----
+Before publishing packages, run:
 
-## Contributing
+```bash
+pnpm install --frozen-lockfile
+pnpm validate:workspace
+pnpm release:package-check
+pnpm release:dry-run
+pnpm docs:build
+```
 
-Contributions are welcome.
+Public packages include package-level release checks:
 
-Please read:
+```bash
+pnpm --filter @tekmemo/cloud-client release:check
+pnpm --filter @tekmemo/mcp-server release:check
+pnpm --filter @tekmemo/cli release:check
+pnpm --filter @tekmemo/ai-sdk release:check
+pnpm --filter @tekmemo/adapters release:check
+```
 
-[CONTRIBUTING](./CONTRIBUTING.md)
+Publish from CI using Changesets and npm trusted publishing/provenance. Do not publish from an unverified local build unless you are doing an emergency manual release and have inspected the tarballs.
 
-[CODE_OF_CONDUCT](./CODE_OF_CONDUCT.md)
+## Repository boundaries
 
-[SECURITY](./SECURITY.md)
+This OSS repo owns packages, examples, benchmarks, and developer docs.
 
-before opening issues or pull requests.
-
----
-
-## Security
-
-Please do not report security issues through public GitHub issues.
-
-See [SECURITY.md](./SECURITY.md) for responsible disclosure instructions.
-
----
+TekMemo Cloud owns hosted dashboards, billing, pricing pages, legal pages, blog/changelog/tutorial CMS content, connector installs, hosted sync, observability, and managed API deployment.
 
 ## License
 
-[MIT License](./LICENSE)
+MIT.
+
+See [`SELF_HOSTING.md`](./SELF_HOSTING.md) for the current self-host server architecture.

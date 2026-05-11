@@ -24,6 +24,7 @@ test("buildPrepareCallMemoryText includes workspace core memory", async () => {
 		retrievalPlan: {
 			allowedScopes: ["workspace"],
 			readUserMemory: false,
+			readArchivalMemory: false,
 			includeRecall: true,
 			precedence: ["workspace"],
 		},

@@ -1,102 +1,72 @@
 # `@tekmemo/benchmark-kit`
 
-[![npm](https://img.shields.io/npm/v/%40tekmemo%2Fbenchmark-kit?label=npm)](https://www.npmjs.com/package/@tekmemo/benchmark-kit)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![Types](https://img.shields.io/badge/types-included-blue)](./dist/index.d.mts)
+[![npm](https://img.shields.io/npm/v/@tekmemo/benchmark-kit?label=npm)](https://www.npmjs.com/package/@tekmemo%2Fbenchmark-kit)
+[![npm downloads](https://img.shields.io/npm/dm/@tekmemo/benchmark-kit)](https://www.npmjs.com/package/@tekmemo%2Fbenchmark-kit)
 [![CI](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml/badge.svg)](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml)
-[![Status](https://img.shields.io/badge/status-experimental-yellow)](../../README.md)
+[![Docs](https://img.shields.io/badge/docs-online-blue)](https://docs.tekmemo.dev)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)
 
-Provider-neutral benchmarking toolkit for TekMemo packages and adapters.
+## Purpose
 
-This package helps benchmark:
-
-- memory stores
-- embedder adapters
-- recall stores
-- rerankers
-- package-level workflows
-- future provider adapters
-
-It does **not** own production product behavior. It only measures it.
+**Benchmark kit.** Provider-neutral benchmarking toolkit for package, provider, recall, and rerank performance tests.
 
 ## Install
 
 ```bash
-pnpm add -D @tekmemo/benchmark-kit
+pnpm add @tekmemo/benchmark-kit
 ```
 
-## Basic usage
+## Quick start
 
 ```ts
-import {
-  BenchmarkRunner,
-  createBenchmarkSuite,
-  markdownBenchmarkReport
-} from "@tekmemo/benchmark-kit";
+import { createBenchmarkSuite } from "@tekmemo/benchmark-kit";
 
-const suite = createBenchmarkSuite({
-  name: "local-memory",
-  cases: [
-    {
-      name: "write-core-memory",
-      iterations: 100,
-      warmupIterations: 10,
-      async run() {
-        await store.write("memory/core.md", "# Core Memory");
-      }
-    }
-  ]
-});
-
-const runner = new BenchmarkRunner();
-const result = await runner.runSuite(suite);
-
-console.log(markdownBenchmarkReport(result));
+const suite = createBenchmarkSuite({ name: "recall-smoke" });
 ```
 
-## Recall benchmark
+## Boundary
 
-```ts
-import { createRecallQueryBenchmarkCase } from "@tekmemo/benchmark-kit";
+This package owns its package-level contract only. It does not own TekMemo Cloud billing, dashboards, tenancy, hosted database storage, or provider secrets unless explicitly stated by its package name.
 
-const benchmarkCase = createRecallQueryBenchmarkCase({
-  name: "upstash-query-top-10",
-  store,
-  query,
-  iterations: 100,
-  warmupIterations: 10
-});
+For hosted memory, use `@tekmemo/cloud-client`. For local file-backed memory, use `tekmemo` with `@tekmemo/fs`. For MCP tools, use `@tekmemo/mcp-server`.
+
+## Scripts
+
+```bash
+pnpm --filter @tekmemo/benchmark-kit typecheck
+pnpm --filter @tekmemo/benchmark-kit test:run
+pnpm --filter @tekmemo/benchmark-kit build
+pnpm --filter @tekmemo/benchmark-kit lint:package
 ```
 
-## Thresholds
+## Docs
 
-```ts
-import { evaluateBenchmarkThresholds } from "@tekmemo/benchmark-kit";
+- Package docs: https://docs.tekmemo.dev/packages/
+- Examples: https://docs.tekmemo.dev/examples/
+- Repository: https://github.com/tekbreed/tekmemo
 
-const verdict = evaluateBenchmarkThresholds(result, {
-  maxP95Ms: 200,
-  maxErrorRate: 0.01
-});
+## Publishing metadata
+
+- npm package: `@tekmemo/benchmark-kit`
+- publish visibility: public
+- runtime format: dual ESM/CJS
+- ESM output: `dist/**/*.mjs` + `dist/**/*.d.mts`
+- CJS output: `dist/**/*.cjs` + `dist/**/*.d.cts`
+- package contents: `dist` and `README.md`
+- package boundary: hosted cloud calls must go through `@tekmemo/cloud-client` unless this package is `@tekmemo/cloud-client` itself.
+
+
+## Publish readiness
+
+Before publishing this package, run:
+
+```bash
+pnpm --filter @tekmemo/benchmark-kit release:check
 ```
 
-## Package boundary
+The package-level check builds `dist/`, runs TypeScript and tests, runs `publint`, and performs `npm pack --dry-run`. Publish from CI with Changesets and npm trusted publishing/provenance after the root release preflight passes.
 
-This package owns:
+## License
 
-- benchmark runner
-- latency measurement
-- throughput calculation
-- error-rate calculation
-- threshold evaluation
-- JSON/Markdown reporters
-- fake targets for tests
-- provider-neutral benchmark helpers
-
-It does not own:
-
-- `.tekmemo/` protocol
-- vector recall implementation
-- embeddings implementation
-- reranking implementation
-- cloud quotas
-- billing
+MIT.

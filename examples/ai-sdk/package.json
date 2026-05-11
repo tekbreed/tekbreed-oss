@@ -1,0 +1,21 @@
+{
+	"name": "@tekmemo/example-ai-sdk",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "tsx src/index.ts",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@tekmemo/adapters": "workspace:^",
+		"@tekmemo/fs": "workspace:^",
+		"tekmemo": "workspace:^",
+		"ai": "^6.0.174",
+		"zod": "^4.4.2"
+	},
+	"devDependencies": {
+		"tsx": "^4.21.0",
+		"typescript": "5.9.2",
+		"@types/node": "^22.15.3"
+	}
+}

@@ -46,7 +46,13 @@ test("buildPrepareCallMemoryText assembles context correctly", async () => {
 	const text = await buildPrepareCallMemoryText({
 		baseInstructions: "Be helpful.",
 		stores: { workspace: store },
-		retrievalPlan: { readUserMemory: false, readArchivalMemory: true },
+		retrievalPlan: {
+			allowedScopes: ["workspace"],
+			readUserMemory: false,
+			readArchivalMemory: true,
+			includeRecall: false,
+			precedence: ["workspace"],
+		},
 	});
 	expect(text).toContain("core content");
 	expect(text).toContain("notes content");

@@ -1,113 +1,76 @@
-# TekMemo Core
+# `tekmemo`
 
 [![npm](https://img.shields.io/npm/v/tekmemo?label=npm)](https://www.npmjs.com/package/tekmemo)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![Types](https://img.shields.io/badge/types-included-blue)](./dist/index.d.mts)
+[![npm downloads](https://img.shields.io/npm/dm/tekmemo)](https://www.npmjs.com/package/tekmemo)
 [![CI](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml/badge.svg)](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml)
-[![Status](https://img.shields.io/badge/status-preview-orange)](../../README.md)
+[![Docs](https://img.shields.io/badge/docs-online-blue)](https://docs.tekmemo.dev)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)
 
-Provider-neutral, file-first memory runtime for AI apps and agents.
+## Purpose
 
-TekMemo core owns the local memory protocol. It does **not** talk to the filesystem, cloud, vector databases, embedding providers, rerankers, billing, or hosted tenancy.
+**Core runtime.** Core memory contracts, records, chunks, source references, manifest validation, local protocol helpers, and provider-neutral runtime primitives.
 
-## Canonical local protocol
+## Install
 
-TekMemo memory starts as inspectable files that developers own:
-
-```txt
-.tekmemo/
-  manifest.json
-  memory/
-    core.md
-    notes.md
-  events/
-    memory-events.jsonl
-    conversations.jsonl
-  indexes/
-    chunks.jsonl
-  graph/
-    nodes.jsonl
-    edges.jsonl
-  snapshots/
-    snapshots.jsonl
-  tmp/
+```bash
+pnpm add tekmemo
 ```
 
-## What this package provides
-
-- canonical `.tekmemo/` paths
-- manifest helpers
-- memory store contract
-- in-memory test store
-- bootstrap helpers
-- core memory helpers
-- notes helpers
-- conversation JSONL helpers
-- memory event log helpers
-- chunk index helpers
-- snapshot index helpers
-- search helpers
-- chunking helpers
-- typed error classes
-
-## Quickstart
+## Quick start
 
 ```ts
-import {
-  InMemoryMemoryStore,
-  bootstrapMemoryStore,
-  writeCoreMemory,
-  readCoreMemory,
-  appendMemoryEvent,
-  createMemoryEvent
-} from "tekmemo";
+import { createMemoryRecord } from "tekmemo";
 
-const store = new InMemoryMemoryStore();
-await bootstrapMemoryStore(store, { projectId: "local-app" });
-
-await writeCoreMemory(store, "# Core Memory\n\n- The user prefers file-first memory.\n");
-
-await appendMemoryEvent(
-  store,
-  createMemoryEvent({
-    type: "memory.updated",
-    sourcePath: ".tekmemo/memory/core.md",
-    summary: "Updated core memory"
-  })
-);
-
-const coreMemory = await readCoreMemory(store);
+const record = createMemoryRecord({
+  kind: "decision",
+  content: "Use local-first memory for development.",
+  source: { type: "manual" },
+});
 ```
 
-## Package boundary
+## Boundary
 
-This package is intentionally provider-neutral.
+This package owns its package-level contract only. It does not own TekMemo Cloud billing, dashboards, tenancy, hosted database storage, or provider secrets unless explicitly stated by its package name.
 
-Use these packages for integrations:
+For hosted memory, use `@tekmemo/cloud-client`. For local file-backed memory, use `tekmemo` with `@tekmemo/fs`. For MCP tools, use `@tekmemo/mcp-server`.
 
-- `@tekmemo/fs` for Node filesystem storage
-- `@tekmemo/agentfs` for AgentFS/Turso AgentFS-backed storage
-- `@tekmemo/recall` for vector recall contracts
-- `@tekmemo/upstash-vector` for Upstash Vector recall
-- `@tekmemo/voyageai` and `@tekmemo/openai` for embeddings
-- `@tekmemo/rerank` and provider packages for reranking
+## Scripts
 
-## Production safety
+```bash
+pnpm --filter tekmemo typecheck
+pnpm --filter tekmemo test:run
+pnpm --filter tekmemo build
+pnpm --filter tekmemo lint:package
+```
 
-The core package rejects:
+## Docs
 
-- non-string memory paths
-- null-byte paths
-- absolute paths
-- backslash paths
-- parent directory traversal
-- paths outside `.tekmemo/`
-- unsupported protocol files
-- malformed JSONL when strict mode is used
-- invalid manifest/event/chunk/snapshot records
-- non-canonical manifest paths
-- snapshot records whose safe path does not match their ID
-- invalid note kinds
-- non-object source references
-- metadata values that are not true JSON values, including circular references,
-  `undefined`, functions, symbols, bigint, and non-finite numbers
+- Package docs: https://docs.tekmemo.dev/packages/
+- Examples: https://docs.tekmemo.dev/examples/
+- Repository: https://github.com/tekbreed/tekmemo
+
+## Publishing metadata
+
+- npm package: `tekmemo`
+- publish visibility: public
+- runtime format: dual ESM/CJS
+- ESM output: `dist/**/*.mjs` + `dist/**/*.d.mts`
+- CJS output: `dist/**/*.cjs` + `dist/**/*.d.cts`
+- package contents: `dist` and `README.md`
+- package boundary: hosted cloud calls must go through `@tekmemo/cloud-client` unless this package is `@tekmemo/cloud-client` itself.
+
+
+## Publish readiness
+
+Before publishing this package, run:
+
+```bash
+pnpm --filter tekmemo release:check
+```
+
+The package-level check builds `dist/`, runs TypeScript and tests, runs `publint`, and performs `npm pack --dry-run`. Publish from CI with Changesets and npm trusted publishing/provenance after the root release preflight passes.
+
+## License
+
+MIT.

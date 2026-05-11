@@ -1,6 +1,6 @@
 {
 	"name": "tekmemo",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"private": false,
 	"description": "Provider-neutral core memory runtime for AI apps and agents.",
 	"license": "MIT",
@@ -9,7 +9,7 @@
 		"url": "git+https://github.com/tekbreed/tekmemo.git",
 		"directory": "packages/tekmemo"
 	},
-	"homepage": "https://github.com/tekbreed/tekmemo#readme",
+	"homepage": "https://docs.tekmemo.dev/packages/core",
 	"bugs": {
 		"url": "https://github.com/tekbreed/tekmemo/issues"
 	},
@@ -32,11 +32,11 @@
 	},
 	"files": [
 		"dist",
-		"README.md",
-		"LICENSE"
+		"README.md"
 	],
 	"publishConfig": {
-		"access": "public"
+		"access": "public",
+		"registry": "https://registry.npmjs.org/"
 	},
 	"scripts": {
 		"build": "tsdown",
@@ -46,21 +46,31 @@
 		"test:run": "vitest run",
 		"test:coverage": "vitest run --coverage",
 		"clean": "rm -rf dist coverage .turbo",
-		"lint:package": "publint"
+		"lint:package": "publint",
+		"prepack": "pnpm build",
+		"pack:dry-run": "pnpm build && npm pack --dry-run",
+		"release:check": "pnpm build && pnpm typecheck && pnpm test:run && pnpm lint:package && npm pack --dry-run"
 	},
 	"keywords": [
-		"ai",
-		"memory",
 		"agents",
+		"ai",
 		"llm",
+		"memory",
 		"recall",
-		"typescript",
-		"tekmemo"
+		"tekmemo",
+		"typescript"
 	],
 	"devDependencies": {
 		"@repo/test-utils": "workspace:*",
 		"@repo/tsdown-config": "workspace:*",
 		"@repo/typescript-config": "workspace:*",
 		"@repo/utils": "workspace:*"
+	},
+	"engines": {
+		"node": ">=22"
+	},
+	"funding": {
+		"type": "github",
+		"url": "https://github.com/sponsors/christophersesugh"
 	}
 }

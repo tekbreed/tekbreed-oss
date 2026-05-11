@@ -1,50 +1,72 @@
 # `@tekmemo/rerank-voyage`
 
-[![npm](https://img.shields.io/npm/v/%40tekmemo%2Frerank-voyage?label=npm)](https://www.npmjs.com/package/@tekmemo/rerank-voyage)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![Types](https://img.shields.io/badge/types-included-blue)](./dist/index.d.mts)
+[![npm](https://img.shields.io/npm/v/@tekmemo/rerank-voyage?label=npm)](https://www.npmjs.com/package/@tekmemo%2Frerank-voyage)
+[![npm downloads](https://img.shields.io/npm/dm/@tekmemo/rerank-voyage)](https://www.npmjs.com/package/@tekmemo%2Frerank-voyage)
 [![CI](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml/badge.svg)](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml)
-[![Status](https://img.shields.io/badge/status-preview-orange)](../../README.md)
+[![Docs](https://img.shields.io/badge/docs-online-blue)](https://docs.tekmemo.dev)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)
 
-Voyage AI reranking adapter for TekMemo.
+## Purpose
 
-This package implements the provider-neutral `Reranker` interface from `@tekmemo/rerank`.
+**Voyage reranker.** Voyage AI reranking adapter implementing TekMemo rerank contracts.
 
 ## Install
 
 ```bash
-pnpm add @tekmemo/rerank @tekmemo/rerank-voyage
+pnpm add @tekmemo/rerank-voyage
 ```
 
-## Usage
+## Quick start
 
 ```ts
 import { createVoyageReranker } from "@tekmemo/rerank-voyage";
 
-const reranker = createVoyageReranker({
-  apiKey: process.env.VOYAGE_API_KEY!,
-  model: "rerank-2.5-lite"
-});
-
-const results = await reranker.rerank({
-  query: "memory architecture",
-  documents: [
-    { id: "doc_1", text: "TekMemo starts from .tekmemo files." },
-    { id: "doc_2", text: "Billing is cloud-only." }
-  ],
-  topK: 1
-});
+const reranker = createVoyageReranker({ apiKey: process.env.VOYAGE_API_KEY! });
 ```
 
 ## Boundary
 
-This package only calls Voyage reranking.
+This package owns its package-level contract only. It does not own TekMemo Cloud billing, dashboards, tenancy, hosted database storage, or provider secrets unless explicitly stated by its package name.
 
-It does not own:
+For hosted memory, use `@tekmemo/cloud-client`. For local file-backed memory, use `tekmemo` with `@tekmemo/fs`. For MCP tools, use `@tekmemo/mcp-server`.
 
-- vector recall
-- embeddings
-- `.tekmemo/` protocol
-- billing
-- cloud BYOK encryption
-- tenant/provider routing
+## Scripts
+
+```bash
+pnpm --filter @tekmemo/rerank-voyage typecheck
+pnpm --filter @tekmemo/rerank-voyage test:run
+pnpm --filter @tekmemo/rerank-voyage build
+pnpm --filter @tekmemo/rerank-voyage lint:package
+```
+
+## Docs
+
+- Package docs: https://docs.tekmemo.dev/packages/
+- Examples: https://docs.tekmemo.dev/examples/
+- Repository: https://github.com/tekbreed/tekmemo
+
+## Publishing metadata
+
+- npm package: `@tekmemo/rerank-voyage`
+- publish visibility: public
+- runtime format: dual ESM/CJS
+- ESM output: `dist/**/*.mjs` + `dist/**/*.d.mts`
+- CJS output: `dist/**/*.cjs` + `dist/**/*.d.cts`
+- package contents: `dist` and `README.md`
+- package boundary: hosted cloud calls must go through `@tekmemo/cloud-client` unless this package is `@tekmemo/cloud-client` itself.
+
+
+## Publish readiness
+
+Before publishing this package, run:
+
+```bash
+pnpm --filter @tekmemo/rerank-voyage release:check
+```
+
+The package-level check builds `dist/`, runs TypeScript and tests, runs `publint`, and performs `npm pack --dry-run`. Publish from CI with Changesets and npm trusted publishing/provenance after the root release preflight passes.
+
+## License
+
+MIT.

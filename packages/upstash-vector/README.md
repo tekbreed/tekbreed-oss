@@ -1,177 +1,75 @@
 # `@tekmemo/upstash-vector`
 
-[![npm](https://img.shields.io/npm/v/%40tekmemo%2Fupstash-vector?label=npm)](https://www.npmjs.com/package/@tekmemo/upstash-vector)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![Types](https://img.shields.io/badge/types-included-blue)](./dist/index.d.mts)
+[![npm](https://img.shields.io/npm/v/@tekmemo/upstash-vector?label=npm)](https://www.npmjs.com/package/@tekmemo%2Fupstash-vector)
+[![npm downloads](https://img.shields.io/npm/dm/@tekmemo/upstash-vector)](https://www.npmjs.com/package/@tekmemo%2Fupstash-vector)
 [![CI](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml/badge.svg)](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml)
-[![Status](https://img.shields.io/badge/status-active-brightgreen)](../../README.md)
+[![Docs](https://img.shields.io/badge/docs-online-blue)](https://docs.tekmemo.dev)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../../LICENSE)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)
 
-Production-ready Upstash Vector adapter for TekMemo recall.
+## Purpose
 
-This package implements the provider-neutral `RecallStore` contract from `@tekmemo/recall`.
+**Upstash Vector adapter.** Upstash Vector adapter implementing TekMemo recall contracts.
 
-It is intentionally **not** the owner of TekMemo recall contracts. The contract lives in:
-
-```txt
-@tekmemo/recall
-```
-
-This package only translates that contract into Upstash Vector operations.
-
-The production target is the official `@upstash/vector` SDK. The adapter also accepts a minimal compatible index shape so tests and dependency-injected hosts can use fakes.
-
----
-
-## Installation
+## Install
 
 ```bash
-pnpm add @tekmemo/upstash-vector @tekmemo/recall @upstash/vector
+pnpm add @tekmemo/upstash-vector
 ```
 
----
-
-## Basic usage
+## Quick start
 
 ```ts
-import { Index } from "@upstash/vector";
-import { createUpstashRecallStore } from "@tekmemo/upstash-vector";
+import { createUpstashVectorRecallAdapter } from "@tekmemo/upstash-vector";
 
-const index = new Index({
+const recall = createUpstashVectorRecallAdapter({
   url: process.env.UPSTASH_VECTOR_REST_URL!,
-  token: process.env.UPSTASH_VECTOR_REST_TOKEN!
-});
-
-const recall = createUpstashRecallStore(index, {
-  environment: "prod",
-  tenantId: "ten_123",
-  projectId: "proj_123",
-  dimension: 1024
-});
-
-await recall.upsert([
-  {
-    id: "chunk_123",
-    text: "TekMemo uses file-first memory.",
-    embedding: [0.1, 0.2, 0.3],
-    metadata: {
-      tenantId: "ten_123",
-      projectId: "proj_123",
-      sourceType: "document",
-      sourceId: "core",
-      memoryType: "core",
-      sourcePath: ".tekmemo/memory/core.md"
-    }
-  }
-]);
-
-const results = await recall.query({
-  embedding: [0.1, 0.2, 0.3],
-  topK: 5,
-  filter: {
-    memoryType: "core"
-  }
+  token: process.env.UPSTASH_VECTOR_REST_TOKEN!,
 });
 ```
 
----
+## Boundary
 
-## Namespace strategy
+This package owns its package-level contract only. It does not own TekMemo Cloud billing, dashboards, tenancy, hosted database storage, or provider secrets unless explicitly stated by its package name.
 
-By default, namespaces are generated as:
+For hosted memory, use `@tekmemo/cloud-client`. For local file-backed memory, use `tekmemo` with `@tekmemo/fs`. For MCP tools, use `@tekmemo/mcp-server`.
 
-```txt
-tekmemo-<environment>-<tenantId>-<projectId>
-```
-
-Examples:
-
-```ts
-createUpstashRecallStore(index, {
-  environment: "prod",
-  tenantId: "ten_123",
-  projectId: "proj_123"
-});
-```
-
-produces:
-
-```txt
-tekmemo-prod-ten_123-proj_123
-```
-
-You can also pass an explicit namespace:
-
-```ts
-createUpstashRecallStore(index, {
-  namespace: "tenant/proj"
-});
-```
-
----
-
-## BYOK support
-
-This package is BYOK-ready.
-
-The host app supplies the Upstash client or credentials. This package never stores secrets.
-
-In TekMemo Cloud:
-
-- the closed-source cloud layer should decrypt and inject user-owned credentials
-- this package should only receive a configured Upstash-compatible index instance
-
----
-
-## Delete by source
-
-Upstash Vector does not expose a universal provider-neutral “delete all vectors by metadata” contract in this package.
-
-So `deleteBySource` requires a source-to-chunk resolver:
-
-```ts
-const recall = createUpstashRecallStore(index, {
-  environment: "prod",
-  resolveChunkIdsBySource: async ({ projectId, sourceType, sourceId }) => {
-    return chunkRegistry.findIdsBySource({ projectId, sourceType, sourceId });
-  }
-});
-```
-
-This matches TekMemo’s architecture: the chunk registry should know which chunks came from each `.tekmemo/` source.
-
----
-
-## Edge cases handled
-
-- invalid Upstash client shape
-- unsafe namespaces
-- unsafe tenant/project IDs
-- invalid batch sizes
-- invalid dimensions
-- missing embeddings
-- NaN / Infinity embeddings via `@tekmemo/recall`
-- duplicate document IDs in a batch
-- document-level namespace grouping
-- provider upsert failures
-- provider query failures
-- provider delete failures
-- non-array query responses
-- unsafe delete IDs
-- delete deduplication
-- delete batching
-- `deleteBySource` without resolver
-- source resolver failures
-- metadata normalization
-- reserved metadata keys
-- filter escaping
-- required tenant/project isolation filters
-
----
-
-## Testing
+## Scripts
 
 ```bash
 pnpm --filter @tekmemo/upstash-vector typecheck
 pnpm --filter @tekmemo/upstash-vector test:run
 pnpm --filter @tekmemo/upstash-vector build
+pnpm --filter @tekmemo/upstash-vector lint:package
 ```
+
+## Docs
+
+- Package docs: https://docs.tekmemo.dev/packages/
+- Examples: https://docs.tekmemo.dev/examples/
+- Repository: https://github.com/tekbreed/tekmemo
+
+## Publishing metadata
+
+- npm package: `@tekmemo/upstash-vector`
+- publish visibility: public
+- runtime format: dual ESM/CJS
+- ESM output: `dist/**/*.mjs` + `dist/**/*.d.mts`
+- CJS output: `dist/**/*.cjs` + `dist/**/*.d.cts`
+- package contents: `dist` and `README.md`
+- package boundary: hosted cloud calls must go through `@tekmemo/cloud-client` unless this package is `@tekmemo/cloud-client` itself.
+
+
+## Publish readiness
+
+Before publishing this package, run:
+
+```bash
+pnpm --filter @tekmemo/upstash-vector release:check
+```
+
+The package-level check builds `dist/`, runs TypeScript and tests, runs `publint`, and performs `npm pack --dry-run`. Publish from CI with Changesets and npm trusted publishing/provenance after the root release preflight passes.
+
+## License
+
+MIT.
