@@ -6,7 +6,7 @@
 
 [![npm](https://img.shields.io/npm/v/tekmemo?label=tekmemo)](https://www.npmjs.com/package/tekmemo)
 [![CI](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml/badge.svg)](https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml)
-[![Docs](https://img.shields.io/badge/docs-online-blue)](https://docs.tekmemo.dev)
+[![Docs](https://img.shields.io/badge/docs-online-blue)](https://docs.memo.tekbreed.com/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
 [![Sponsor](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-ff69b4)](https://github.com/sponsors/christophersesugh)
