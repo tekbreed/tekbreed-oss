@@ -59,7 +59,7 @@
 		"@tekmemo/fs": "workspace:^",
 		"commander": "^14.0.3",
 		"tekmemo": "workspace:^",
-		"zod": "^4.4.2"
+		"zod": "^4.4.3"
 	},
 	"license": "MIT",
 	"keywords": [

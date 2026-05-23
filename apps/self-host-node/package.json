@@ -17,14 +17,14 @@
 		"create-api-key": "tsx scripts/create-api-key.ts"
 	},
 	"dependencies": {
-		"@hono/node-server": "^1.13.7",
+		"@hono/node-server": "^2.0.3",
 		"@tekmemo/server": "workspace:*",
-		"hono": "^4.0.0"
+		"hono": "^4.12.22"
 	},
 	"devDependencies": {
 		"@repo/typescript-config": "workspace:*",
-		"tsdown": "^0.21.10",
-		"tsx": "^4.21.0",
-		"typescript": "5.9.2"
+		"tsdown": "^0.22.0",
+		"tsx": "^4.22.3",
+		"typescript": "6.0.3"
 	}
 }
