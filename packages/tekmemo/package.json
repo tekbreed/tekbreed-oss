@@ -1,17 +1,17 @@
 {
-	"name": "tekmemo",
+	"name": "@tekbreed/tekmemo",
 	"version": "0.2.0",
 	"private": false,
 	"description": "Provider-neutral core memory runtime for AI apps and agents.",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/tekbreed/tekmemo.git",
+		"url": "git+https://github.com/tekbreed/oss.git",
 		"directory": "packages/tekmemo"
 	},
-	"homepage": "https://docs.memo.tekbreed.com/packages/tekmemo",
+	"homepage": "https://oss.tekbreed.com/tekmemo/packages/tekmemo",
 	"bugs": {
-		"url": "https://github.com/tekbreed/tekmemo/issues"
+		"url": "https://github.com/tekbreed/oss/issues"
 	},
 	"type": "module",
 	"sideEffects": false,
@@ -57,7 +57,7 @@
 		"llm",
 		"memory",
 		"recall",
-		"tekmemo",
+		"@tekbreed/tekmemo",
 		"typescript"
 	],
 	"devDependencies": {

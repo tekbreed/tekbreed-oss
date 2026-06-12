@@ -3,7 +3,7 @@
  *
  * @remarks
  * This helper intentionally accepts a structural path object instead of
- * importing `@tekmemo/agentfs`, so `@tekmemo/ai-sdk` keeps AgentFS optional.
+ * importing `@tekbreed/tekmemo-agentfs`, so `@tekbreed/tekmemo-ai-sdk` keeps AgentFS optional.
  *
  * @packageDocumentation
  */

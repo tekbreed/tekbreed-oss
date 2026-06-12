@@ -1,5 +1,5 @@
 {
-	"name": "@tekmemo/example-fastify",
+	"name": "@tekbreed/example-tekmemo-fastify",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -7,7 +7,7 @@
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@tekmemo/cloud-client": "workspace:^",
+		"@tekbreed/tekmemo-cloud-client": "workspace:^",
 		"fastify": "^5.0.0"
 	},
 	"devDependencies": {

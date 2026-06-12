@@ -1,11 +1,11 @@
-# `@tekmemo/benchmark-kit`
+# `@tekbreed/tekmemo-benchmark-kit`
 
 A benchmarking toolkit for measuring the performance and quality of TekMemo memory operations.
 
 ## Install
 
 ```bash
-npm install -D @tekmemo/benchmark-kit
+npm install -D @tekbreed/tekmemo-benchmark-kit
 ```
 
 ## How it works
@@ -40,9 +40,9 @@ The primary class for executing benchmark cases.
 ## Example usage
 
 ```ts
-import { BenchmarkRunner, createRecallQueryBenchmarkCase } from "@tekmemo/benchmark-kit";
-import { createVoyageEmbedder } from "@tekmemo/voyageai";
-import { createInMemoryRecallStore } from "@tekmemo/recall";
+import { BenchmarkRunner, createRecallQueryBenchmarkCase } from "@tekbreed/tekmemo-benchmark-kit";
+import { createVoyageEmbedder } from "@tekbreed/tekmemo-voyageai";
+import { createInMemoryRecallStore } from "@tekbreed/tekmemo-recall";
 
 const embedder = createVoyageEmbedder({ apiKey: process.env.VOYAGE_API_KEY });
 const store = createInMemoryRecallStore();

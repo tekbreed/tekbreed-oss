@@ -169,7 +169,7 @@ export async function runRememberCommand(
 			confidence,
 			...(options.source ? { source: options.source } : {}),
 			...(metadata ? { userMetadata: metadata } : {}),
-			createdBy: "@tekmemo/cli",
+			createdBy: "@tekbreed/tekmemo-cli",
 		},
 	};
 	await options.fs.appendText(

@@ -1,5 +1,5 @@
 {
-	"name": "@tekmemo/self-host-docker",
+	"name": "@tekbreed/tekmemo-self-host-docker",
 	"version": "0.1.0",
 	"private": true,
 	"type": "module",

@@ -1,16 +1,16 @@
 {
-	"name": "@tekmemo/benchmark-kit",
+	"name": "@tekbreed/tekmemo-benchmark-kit",
 	"version": "0.2.0",
 	"description": "Provider-neutral benchmarking toolkit for TekMemo packages and adapters.",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/tekbreed/tekmemo.git",
+		"url": "git+https://github.com/tekbreed/oss.git",
 		"directory": "packages/benchmark-kit"
 	},
-	"homepage": "https://docs.memo.tekbreed.com/packages/benchmark-kit",
+	"homepage": "https://oss.tekbreed.com/tekmemo/packages/benchmark-kit",
 	"bugs": {
-		"url": "https://github.com/tekbreed/tekmemo/issues"
+		"url": "https://github.com/tekbreed/oss/issues"
 	},
 	"type": "module",
 	"sideEffects": false,
@@ -21,7 +21,7 @@
 		"llm",
 		"memory",
 		"recall",
-		"tekmemo",
+		"@tekbreed/tekmemo",
 		"typescript"
 	],
 	"exports": {

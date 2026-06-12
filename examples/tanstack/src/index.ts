@@ -1,4 +1,4 @@
-import { createTekMemoCloudClient } from "@tekmemo/cloud-client";
+import { createTekMemoCloudClient } from "@tekbreed/tekmemo-cloud-client";
 
 // Keep this in a server function/loader. Do not call it from browser code with a secret API key.
 export async function loadTekMemoContext(query = "current task") {

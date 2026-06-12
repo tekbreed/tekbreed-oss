@@ -2,7 +2,7 @@ import {
 	createInMemoryGraphStore,
 	stableEdgeId,
 	stableNodeId,
-} from "@tekmemo/graph";
+} from "@tekbreed/tekmemo-graph";
 
 const graph = createInMemoryGraphStore();
 

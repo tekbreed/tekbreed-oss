@@ -1,5 +1,5 @@
 /**
- * @file Public API entry point for @tekmemo/openai.
+ * @file Public API entry point for @tekbreed/tekmemo-openai.
  *
  * @remarks
  * This package provides OpenAI embedding integration for TekMemo's memory system.

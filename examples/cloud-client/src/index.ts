@@ -1,7 +1,7 @@
 import {
 	createTekMemoCloudClient,
 	isTekMemoCloudError,
-} from "@tekmemo/cloud-client";
+} from "@tekbreed/tekmemo-cloud-client";
 
 function requireEnv(name: string): string {
 	const value = process.env[name];
@@ -27,7 +27,7 @@ try {
 	await client.memory.createNote({
 		kind: "decision",
 		content:
-			"Use @tekmemo/cloud-client as the only package that talks to TekMemo Cloud.",
+			"Use @tekbreed/tekmemo-cloud-client as the only package that talks to TekMemo Cloud.",
 		tags: ["architecture", "cloud-client"],
 	});
 

@@ -1,5 +1,5 @@
 /**
- * @file Error classes for the @tekmemo/recall package.
+ * @file Error classes for the @tekbreed/tekmemo-recall package.
  *
  * @remarks
  * Provides a hierarchy of error classes for different failure modes

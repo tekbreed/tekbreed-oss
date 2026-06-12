@@ -2,8 +2,8 @@
  * Runtime and scope types for TekMemo AI SDK integration.
  *
  * These types are intentionally structural. A runtime returned by
- * `@tekmemo/cloud-client` can be passed here without this package importing
- * cloud-client directly. This keeps @tekmemo/ai-sdk cloud-optional while making
+ * `@tekbreed/tekmemo-cloud-client` can be passed here without this package importing
+ * cloud-client directly. This keeps @tekbreed/tekmemo-ai-sdk cloud-optional while making
  * cloud and hybrid usage plug-and-play.
  *
  * @public
@@ -45,7 +45,7 @@ export interface AiMemoryScopeMetadata extends JsonObject {
 	conversationId?: string;
 	participantIds?: string[];
 	actorId?: string;
-	createdByPackage?: "@tekmemo/ai-sdk";
+	createdByPackage?: "@tekbreed/tekmemo-ai-sdk";
 }
 
 export interface AiMemoryAccessContext {

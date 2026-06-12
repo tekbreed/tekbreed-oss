@@ -1,11 +1,11 @@
-# `@tekmemo/mcp-server`
+# `@tekbreed/tekmemo-mcp-server`
 
 The Model Context Protocol (MCP) server for TekMemo. This package exposes your project's memory as a set of tools, resources, and prompts that coding agents can use directly.
 
 ## Install
 
 ```bash
-npm install -D @tekmemo/mcp-server
+npm install -D @tekbreed/tekmemo-mcp-server
 ```
 
 ## How it works
@@ -53,9 +53,9 @@ To add TekMemo to an MCP-compatible IDE or tool, add the following to your confi
 ```json
 {
   "mcpServers": {
-    "tekmemo": {
+    "@tekbreed/tekmemo": {
       "command": "npx",
-      "args": ["-y", "@tekmemo/mcp-server", "--runtime", "local", "--root", "/path/to/project"]
+      "args": ["-y", "@tekbreed/tekmemo-mcp-server", "--runtime", "local", "--root", "/path/to/project"]
     }
   }
 }

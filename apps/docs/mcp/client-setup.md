@@ -11,9 +11,9 @@ Create or edit `.claude/mcp.json` in your project root (or `~/.claude/mcp.json` 
 ```json
 {
   "mcpServers": {
-    "tekmemo": {
+    "@tekbreed/tekmemo": {
       "command": "npx",
-      "args": ["-y", "@tekmemo/mcp-server", "--runtime", "local", "--root", "."]
+      "args": ["-y", "@tekbreed/tekmemo-mcp-server", "--runtime", "local", "--root", "."]
     }
   }
 }
@@ -24,9 +24,9 @@ Create or edit `.claude/mcp.json` in your project root (or `~/.claude/mcp.json` 
 ```json
 {
   "mcpServers": {
-    "tekmemo": {
+    "@tekbreed/tekmemo": {
       "command": "npx",
-      "args": ["-y", "@tekmemo/mcp-server", "--runtime", "cloud"],
+      "args": ["-y", "@tekbreed/tekmemo-mcp-server", "--runtime", "cloud"],
       "env": {
         "TEKMEMO_CLOUD_URL": "https://memo.tekbreed.com/api/v1",
         "TEKMEMO_API_KEY": "tk_live_...",
@@ -48,9 +48,9 @@ Create or edit `.codex/mcp.json` in your project root:
 ```json
 {
   "mcpServers": {
-    "tekmemo": {
+    "@tekbreed/tekmemo": {
       "command": "npx",
-      "args": ["-y", "@tekmemo/mcp-server", "--runtime", "local", "--root", "."]
+      "args": ["-y", "@tekbreed/tekmemo-mcp-server", "--runtime", "local", "--root", "."]
     }
   }
 }
@@ -61,9 +61,9 @@ Create or edit `.codex/mcp.json` in your project root:
 ```json
 {
   "mcpServers": {
-    "tekmemo": {
+    "@tekbreed/tekmemo": {
       "command": "npx",
-      "args": ["-y", "@tekmemo/mcp-server", "--runtime", "cloud"],
+      "args": ["-y", "@tekbreed/tekmemo-mcp-server", "--runtime", "cloud"],
       "env": {
         "TEKMEMO_CLOUD_URL": "https://memo.tekbreed.com/api/v1",
         "TEKMEMO_API_KEY": "tk_live_...",
@@ -85,9 +85,9 @@ Add to `opencode.json` in your project root:
 ```json
 {
   "mcp": {
-    "tekmemo": {
+    "@tekbreed/tekmemo": {
       "type": "local",
-      "command": ["npx", "-y", "@tekmemo/mcp-server", "--runtime", "local", "--root", "."],
+      "command": ["npx", "-y", "@tekbreed/tekmemo-mcp-server", "--runtime", "local", "--root", "."],
       "enabled": true
     }
   }
@@ -99,9 +99,9 @@ Add to `opencode.json` in your project root:
 ```json
 {
   "mcp": {
-    "tekmemo": {
+    "@tekbreed/tekmemo": {
       "type": "local",
-      "command": ["npx", "-y", "@tekmemo/mcp-server", "--runtime", "cloud"],
+      "command": ["npx", "-y", "@tekbreed/tekmemo-mcp-server", "--runtime", "cloud"],
       "enabled": true,
       "environment": {
         "TEKMEMO_CLOUD_URL": "https://memo.tekbreed.com/api/v1",
@@ -122,9 +122,9 @@ To enable TekMemo only for specific agents while keeping it disabled globally:
 ```json
 {
   "mcp": {
-    "tekmemo": {
+    "@tekbreed/tekmemo": {
       "type": "local",
-      "command": ["npx", "-y", "@tekmemo/mcp-server", "--runtime", "local", "--root", "."],
+      "command": ["npx", "-y", "@tekbreed/tekmemo-mcp-server", "--runtime", "local", "--root", "."],
       "enabled": true
     }
   },
@@ -150,9 +150,9 @@ Create or edit `.cursor/mcp.json` in your project root:
 ```json
 {
   "mcpServers": {
-    "tekmemo": {
+    "@tekbreed/tekmemo": {
       "command": "npx",
-      "args": ["-y", "@tekmemo/mcp-server", "--runtime", "local", "--root", "."]
+      "args": ["-y", "@tekbreed/tekmemo-mcp-server", "--runtime", "local", "--root", "."]
     }
   }
 }
@@ -163,9 +163,9 @@ Create or edit `.cursor/mcp.json` in your project root:
 ```json
 {
   "mcpServers": {
-    "tekmemo": {
+    "@tekbreed/tekmemo": {
       "command": "npx",
-      "args": ["-y", "@tekmemo/mcp-server", "--runtime", "cloud"],
+      "args": ["-y", "@tekbreed/tekmemo-mcp-server", "--runtime", "cloud"],
       "env": {
         "TEKMEMO_CLOUD_URL": "https://memo.tekbreed.com/api/v1",
         "TEKMEMO_API_KEY": "tk_live_...",
@@ -199,9 +199,9 @@ For untrusted clients or safety-first workflows, add `--read-only`:
 ```json
 {
   "mcpServers": {
-    "tekmemo": {
+    "@tekbreed/tekmemo": {
       "command": "npx",
-      "args": ["-y", "@tekmemo/mcp-server", "--runtime", "local", "--root", ".", "--read-only"]
+      "args": ["-y", "@tekbreed/tekmemo-mcp-server", "--runtime", "local", "--root", ".", "--read-only"]
     }
   }
 }
@@ -223,9 +223,9 @@ Control where reads come from with `--read-policy`:
 ```json
 {
   "mcpServers": {
-    "tekmemo": {
+    "@tekbreed/tekmemo": {
       "command": "npx",
-      "args": ["-y", "@tekmemo/mcp-server", "--runtime", "hybrid", "--root", ".", "--read-policy", "local-first"]
+      "args": ["-y", "@tekbreed/tekmemo-mcp-server", "--runtime", "hybrid", "--root", ".", "--read-policy", "local-first"]
     }
   }
 }

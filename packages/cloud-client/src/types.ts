@@ -1,5 +1,5 @@
 /**
- * Public types for @tekmemo/cloud-client.
+ * Public types for @tekbreed/tekmemo-cloud-client.
  *
  * The package is aligned with TekMemo Cloud's current project-scoped API:
  * /api/v1/projects/:projectId/...

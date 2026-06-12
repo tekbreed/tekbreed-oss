@@ -6,8 +6,8 @@ import {
 	createAgentWorkspacePaths,
 	createTekMemoAgentSession,
 	extractSessionMemory,
-} from "@tekmemo/agentfs";
-import { createNodeFsMemoryStore } from "@tekmemo/fs";
+} from "@tekbreed/tekmemo-agentfs";
+import { createNodeFsMemoryStore } from "@tekbreed/tekmemo-fs";
 import {
 	appendMemoryEvent,
 	appendSnapshotRecord,
@@ -23,7 +23,7 @@ import {
 	readSnapshotRecordsWithIssues,
 	searchMemoryText,
 	writeCoreMemory,
-} from "tekmemo";
+} from "@tekbreed/tekmemo";
 import type {
 	GraphEdgeInput,
 	GraphNeighborsInput,

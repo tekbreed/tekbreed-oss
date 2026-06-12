@@ -2,9 +2,9 @@
 
 | Mode | Purpose |
 | --- | --- |
-| `local` | Use local `.tekmemo/` through `tekmemo` and `@tekmemo/fs`. |
+| `local` | Use local `.tekmemo/` through `@tekbreed/tekmemo` and `@tekbreed/tekmemo-fs`. |
 | `memory` | In-memory runtime for tests and examples. |
-| `cloud` | Use `@tekmemo/cloud-client` and a TekMemo Cloud API key. |
+| `cloud` | Use `@tekbreed/tekmemo-cloud-client` and a TekMemo Cloud API key. |
 | `hybrid` | Combine local files and cloud calls. |
 
 ## Hybrid policies

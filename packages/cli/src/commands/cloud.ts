@@ -8,7 +8,7 @@ import type {
 	SyncConflictResolution,
 	SyncEventInput,
 	TekMemoCloudClient,
-} from "@tekmemo/cloud-client";
+} from "@tekbreed/tekmemo-cloud-client";
 import { type CloudConnectionOptions, createCliCloudClient } from "../cloud";
 import { CliUsageError } from "../errors/cli-errors";
 import type { CliOutput } from "../output/output";

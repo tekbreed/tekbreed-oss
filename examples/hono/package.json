@@ -1,5 +1,5 @@
 {
-	"name": "@tekmemo/example-hono",
+	"name": "@tekbreed/example-tekmemo-hono",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -7,7 +7,7 @@
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@tekmemo/cloud-client": "workspace:^",
+		"@tekbreed/tekmemo-cloud-client": "workspace:^",
 		"hono": "^4.0.0"
 	},
 	"devDependencies": {

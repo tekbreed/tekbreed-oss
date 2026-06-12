@@ -9,7 +9,7 @@
 
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { MemoryPathError } from "tekmemo";
+import { MemoryPathError } from "@tekbreed/tekmemo";
 
 /**
  * Normalizes a root directory path (string or URL).

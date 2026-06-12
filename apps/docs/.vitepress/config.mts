@@ -20,7 +20,7 @@ export default defineConfig({
 	},
 	themeConfig: {
 		logo: { light: "/tekmemo.svg", dark: "/tekmemo.svg", alt: "TekMemo" },
-		siteTitle: "tekmemo",
+		siteTitle: "@tekbreed/tekmemo",
 		nav,
 		sidebar,
 		search: { provider: "local" },

@@ -37,7 +37,7 @@ permissions:
 
 env:
   NODE_VERSION: 22
-  DOCS_PACKAGE: "@tekmemo/docs"
+  DOCS_PACKAGE: "@tekbreed/docs"
   DOCS_DIST_DIR: "apps/docs/.vitepress/dist"
 
 jobs:

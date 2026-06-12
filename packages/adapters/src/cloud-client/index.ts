@@ -1,2 +1,2 @@
-/** Reexports `@tekmemo/cloud-client` through the adapters convenience package. */
-export * from "@tekmemo/cloud-client";
+/** Reexports `@tekbreed/tekmemo-cloud-client` through the adapters convenience package. */
+export * from "@tekbreed/tekmemo-cloud-client";

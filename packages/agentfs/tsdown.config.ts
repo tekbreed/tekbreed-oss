@@ -2,5 +2,5 @@ import { pkgConfig } from "@repo/tsdown-config";
 
 export default pkgConfig({
 	entry: ["src/index.ts"],
-	deps: { neverBundle: ["tekmemo"] },
+	deps: { neverBundle: ["@tekbreed/tekmemo"] },
 });

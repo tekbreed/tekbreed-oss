@@ -1,4 +1,4 @@
-# @tekmemo/cloud-client
+# @tekbreed/tekmemo-cloud-client
 
 ## 0.1.1
 

@@ -1,4 +1,4 @@
-import { MemoryValidationError } from "tekmemo";
+import { MemoryValidationError } from "@tekbreed/tekmemo";
 
 export function assertString(
 	value: unknown,

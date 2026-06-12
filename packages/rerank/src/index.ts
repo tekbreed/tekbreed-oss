@@ -1,6 +1,6 @@
 /**
  * @packageDocumentation
- * @module @tekmemo/rerank
+ * @module @tekbreed/tekmemo-rerank
  *
  * A lightweight reranking package for scoring and sorting documents by relevance.
  *

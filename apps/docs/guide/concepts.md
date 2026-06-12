@@ -26,4 +26,4 @@ A context package is the structured payload sent to an AI model or tool. It can 
 
 ## Modular packages
 
-TekMemo is split into focused packages so you only install what you need. For example, `@tekmemo/cloud-client` handles Cloud API communication, while `@tekmemo/fs` handles local file storage. See the [Packages](/packages/) page for the full list.
+TekMemo is split into focused packages so you only install what you need. For example, `@tekbreed/tekmemo-cloud-client` handles Cloud API communication, while `@tekbreed/tekmemo-fs` handles local file storage. See the [Packages](/packages/) page for the full list.

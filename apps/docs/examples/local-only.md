@@ -1,6 +1,6 @@
 # Local only example
 
-Create, write, and read a temporary `.tekmemo/` workspace with `tekmemo` and `@tekmemo/fs`.
+Create, write, and read a temporary `.tekmemo/` workspace with `@tekbreed/tekmemo` and `@tekbreed/tekmemo-fs`.
 
 Source folder:
 

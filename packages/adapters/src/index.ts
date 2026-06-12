@@ -1,9 +1,9 @@
 /**
- * Metadata-only entry point for `@tekmemo/adapters`.
+ * Metadata-only entry point for `@tekbreed/tekmemo-adapters`.
  *
  * Runtime adapter implementations are intentionally exposed through subpath
- * exports such as `@tekmemo/adapters/ai-sdk` and
- * `@tekmemo/adapters/voyageai`.
+ * exports such as `@tekbreed/tekmemo-adapters/ai-sdk` and
+ * `@tekbreed/tekmemo-adapters/voyageai`.
  *
  * This root module does not import provider adapters, so installing the
  * convenience package does not force optional peers such as `ai`, `openai`, or
@@ -30,26 +30,26 @@ export interface TekMemoAdapterDescriptor {
 }
 
 export const adapterPackages = {
-	agentfs: "@tekmemo/agentfs",
-	aiSdk: "@tekmemo/ai-sdk",
-	cloudClient: "@tekmemo/cloud-client",
-	openai: "@tekmemo/openai",
-	rerankVoyage: "@tekmemo/rerank-voyage",
-	upstashVector: "@tekmemo/upstash-vector",
-	voyageai: "@tekmemo/voyageai",
+	agentfs: "@tekbreed/tekmemo-agentfs",
+	aiSdk: "@tekbreed/tekmemo-ai-sdk",
+	cloudClient: "@tekbreed/tekmemo-cloud-client",
+	openai: "@tekbreed/tekmemo-openai",
+	rerankVoyage: "@tekbreed/tekmemo-rerank-voyage",
+	upstashVector: "@tekbreed/tekmemo-upstash-vector",
+	voyageai: "@tekbreed/tekmemo-voyageai",
 } as const;
 
 export const adapterImportPaths = {
-	agentfs: "@tekmemo/adapters/agentfs",
-	aiSdk: "@tekmemo/adapters/ai-sdk",
-	cloudClient: "@tekmemo/adapters/cloud-client",
-	openai: "@tekmemo/adapters/openai",
-	openaiTesting: "@tekmemo/adapters/openai/testing",
-	rerankVoyage: "@tekmemo/adapters/rerank-voyage",
-	rerankVoyageTesting: "@tekmemo/adapters/rerank-voyage/testing",
-	upstashVector: "@tekmemo/adapters/upstash-vector",
-	voyageai: "@tekmemo/adapters/voyageai",
-	voyageaiTesting: "@tekmemo/adapters/voyageai/testing",
+	agentfs: "@tekbreed/tekmemo-adapters/agentfs",
+	aiSdk: "@tekbreed/tekmemo-adapters/ai-sdk",
+	cloudClient: "@tekbreed/tekmemo-adapters/cloud-client",
+	openai: "@tekbreed/tekmemo-adapters/openai",
+	openaiTesting: "@tekbreed/tekmemo-adapters/openai/testing",
+	rerankVoyage: "@tekbreed/tekmemo-adapters/rerank-voyage",
+	rerankVoyageTesting: "@tekbreed/tekmemo-adapters/rerank-voyage/testing",
+	upstashVector: "@tekbreed/tekmemo-adapters/upstash-vector",
+	voyageai: "@tekbreed/tekmemo-adapters/voyageai",
+	voyageaiTesting: "@tekbreed/tekmemo-adapters/voyageai/testing",
 } as const;
 
 export type TekMemoAdapterName = keyof typeof adapterPackages;

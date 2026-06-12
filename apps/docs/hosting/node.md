@@ -5,14 +5,14 @@ Use Node for Express, Fastify, NestJS, CLI tools, MCP servers, and background jo
 ## Setup
 
 ```bash
-npm install @tekmemo/cloud-client
+npm install @tekbreed/tekmemo-cloud-client
 ```
 
 ## Express example
 
 ```ts
 import express from "express";
-import { createTekMemoCloudClient } from "@tekmemo/cloud-client";
+import { createTekMemoCloudClient } from "@tekbreed/tekmemo-cloud-client";
 
 const app = express();
 const client = createTekMemoCloudClient({
@@ -33,7 +33,7 @@ app.listen(3000);
 
 ```ts
 import Fastify from "fastify";
-import { createTekMemoCloudClient } from "@tekmemo/cloud-client";
+import { createTekMemoCloudClient } from "@tekbreed/tekmemo-cloud-client";
 
 const fastify = Fastify();
 const client = createTekMemoCloudClient({
@@ -54,7 +54,7 @@ fastify.listen({ port: 3000 });
 
 ```ts
 import { Injectable, Module, Controller, Get, Query } from "@nestjs/common";
-import { createTekMemoCloudClient, type TekMemoCloudClient } from "@tekmemo/cloud-client";
+import { createTekMemoCloudClient, type TekMemoCloudClient } from "@tekbreed/tekmemo-cloud-client";
 
 @Injectable()
 export class MemoryService {
@@ -94,10 +94,10 @@ export class MemoryModule {}
 TEKMEMO_CLOUD_URL=https://memo.tekbreed.com/api/v1 \
 TEKMEMO_API_KEY=tk_live_... \
 TEKMEMO_PROJECT_ID=proj_... \
-npx @tekmemo/cli context compose --query "auth middleware"
+npx @tekbreed/tekmemo-cli context compose --query "auth middleware"
 
 # MCP server
-npx @tekmemo/mcp-server --runtime cloud
+npx @tekbreed/tekmemo-mcp-server --runtime cloud
 ```
 
 ## Production checklist

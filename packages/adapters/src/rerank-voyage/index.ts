@@ -1,2 +1,2 @@
-/** Reexports `@tekmemo/rerank-voyage` through the adapters convenience package. */
-export * from "@tekmemo/rerank-voyage";
+/** Reexports `@tekbreed/tekmemo-rerank-voyage` through the adapters convenience package. */
+export * from "@tekbreed/tekmemo-rerank-voyage";

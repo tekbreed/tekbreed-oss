@@ -1,5 +1,5 @@
 {
-	"name": "@tekmemo/self-host-node",
+	"name": "@tekbreed/tekmemo-self-host-node",
 	"version": "0.1.0",
 	"private": true,
 	"type": "module",
@@ -18,7 +18,7 @@
 	},
 	"dependencies": {
 		"@hono/node-server": "^1.13.7",
-		"@tekmemo/server": "workspace:*",
+		"@tekbreed/tekmemo-server": "workspace:*",
 		"hono": "^4.0.0"
 	},
 	"devDependencies": {

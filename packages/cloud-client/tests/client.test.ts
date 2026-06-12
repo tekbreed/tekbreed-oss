@@ -22,7 +22,7 @@ function jsonResponse(
 	};
 }
 
-describe("@tekmemo/cloud-client", () => {
+describe("@tekbreed/tekmemo-cloud-client", () => {
 	it("calls current project-scoped core memory route", async () => {
 		const calls: Array<{ url: string; init?: RequestInit }> = [];
 		const fetch: TekMemoCloudFetch = async (url, init) => {

@@ -5,7 +5,7 @@ import {
 	type RecallMetadata,
 	RecallValidationError,
 	validateMetadata,
-} from "@tekmemo/recall";
+} from "@tekbreed/tekmemo-recall";
 import { UpstashRecallValidationError } from "../errors/upstash-errors.js";
 
 /**

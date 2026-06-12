@@ -10,13 +10,13 @@
  */
 
 import { randomUUID } from "node:crypto";
-import type { MemoryStore } from "tekmemo";
+import type { MemoryStore } from "@tekbreed/tekmemo";
 import {
 	CORE_MEMORY_PATH,
 	MANIFEST_PATH,
 	type MemoryPath,
 	NOTES_MEMORY_PATH,
-} from "tekmemo";
+} from "@tekbreed/tekmemo";
 import type { AgentfsLikeClient } from "../client/agentfs-like.js";
 import { AgentfsClientError } from "../errors/agentfs-error.js";
 import type { SyncAfterSessionResult } from "../sync/sync-after-session.js";

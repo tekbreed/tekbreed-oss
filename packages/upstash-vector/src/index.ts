@@ -1,5 +1,5 @@
 /**
- * @file Public API for @tekmemo/upstash-vector.
+ * @file Public API for @tekbreed/tekmemo-upstash-vector.
  *
  * @remarks
  * This package provides a TekMemo RecallStore backed by Upstash Vector.

@@ -1,4 +1,4 @@
-import { createTekMemoCloudClient } from "@tekmemo/cloud-client";
+import { createTekMemoCloudClient } from "@tekbreed/tekmemo-cloud-client";
 
 // Put this in src/pages/api/tekmemo/context.ts in a real Astro app.
 export async function GET({ request }: { request: Request }) {

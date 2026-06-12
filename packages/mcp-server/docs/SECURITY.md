@@ -1,6 +1,6 @@
 # Security Model
 
-`@tekmemo/mcp-server` assumes MCP tools may be invoked by an LLM client. Every write operation must be protected by host-side policy.
+`@tekbreed/tekmemo-mcp-server` assumes MCP tools may be invoked by an LLM client. Every write operation must be protected by host-side policy.
 
 ## Runtime modes
 
@@ -8,7 +8,7 @@
 | --- | --- |
 | `local` | Reads/writes local `.tekmemo/` files under the configured root |
 | `memory` | Test/demo only; no durable writes |
-| `cloud` | Requires `@tekmemo/cloud-client` and API-key policy |
+| `cloud` | Requires `@tekbreed/tekmemo-cloud-client` and API-key policy |
 | `hybrid` | Requires local policy plus cloud API-key policy |
 
 ## Required host responsibilities
@@ -52,7 +52,7 @@ Use environment variables or OS secret storage:
 TEKMEMO_API_KEY=tk_live_...
 ```
 
-`@tekmemo/mcp-server` should receive a cloud client instance. `@tekmemo/cloud-client` should own auth headers, response parsing, retries, rate limits, and secret masking.
+`@tekbreed/tekmemo-mcp-server` should receive a cloud client instance. `@tekbreed/tekmemo-cloud-client` should own auth headers, response parsing, retries, rate limits, and secret masking.
 
 ## Non-goals
 

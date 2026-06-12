@@ -1,14 +1,14 @@
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { createNodeFsMemoryStore } from "@tekmemo/fs";
+import { createNodeFsMemoryStore } from "@tekbreed/tekmemo-fs";
 import {
 	bootstrapMemoryStore,
 	CORE_MEMORY_PATH,
 	NOTES_MEMORY_PATH,
 	readCoreMemory,
 	writeCoreMemory,
-} from "tekmemo";
+} from "@tekbreed/tekmemo";
 
 const rootDir = await mkdtemp(join(tmpdir(), "tekmemo-local-"));
 

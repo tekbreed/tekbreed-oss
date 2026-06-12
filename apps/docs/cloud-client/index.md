@@ -1,19 +1,19 @@
 # Cloud Client
 
-`@tekmemo/cloud-client` is the official client for connecting to the TekMemo Cloud API.
+`@tekbreed/tekmemo-cloud-client` is the official client for connecting to the TekMemo Cloud API.
 
 Use it to access hosted project memory, sync, recall, graph APIs, and more from any JavaScript server runtime.
 
 ## Install
 
 ```bash
-npm install @tekmemo/cloud-client
+npm install @tekbreed/tekmemo-cloud-client
 ```
 
 ## Create a client
 
 ```ts
-import { createTekMemoCloudClient } from "@tekmemo/cloud-client";
+import { createTekMemoCloudClient } from "@tekbreed/tekmemo-cloud-client";
 
 const client = createTekMemoCloudClient({
   baseUrl: "https://memo.tekbreed.com/api/v1",

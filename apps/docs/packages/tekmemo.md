@@ -1,11 +1,11 @@
-# `tekmemo`
+# `@tekbreed/tekmemo`
 
-`tekmemo` is the core package that defines the memory model, document types, and canonical file path conventions used throughout the ecosystem.
+`@tekbreed/tekmemo` is the core package that defines the memory model, document types, and canonical file path conventions used throughout the ecosystem.
 
 ## Install
 
 ```bash
-npm install tekmemo
+npm install @tekbreed/tekmemo
 ```
 
 ## Core concepts
@@ -39,8 +39,8 @@ This package provides the logic for working with TekMemo's primary memory primit
 ## Example: Working with Core Memory
 
 ```ts
-import { InMemoryMemoryStore } from "tekmemo";
-import { readCoreMemory, writeCoreMemory } from "tekmemo";
+import { InMemoryMemoryStore } from "@tekbreed/tekmemo";
+import { readCoreMemory, writeCoreMemory } from "@tekbreed/tekmemo";
 
 const store = new InMemoryMemoryStore();
 
@@ -55,7 +55,7 @@ console.log(core.content);
 ## Example: Chunking Text
 
 ```ts
-import { chunkText } from "tekmemo";
+import { chunkText } from "@tekbreed/tekmemo";
 
 const text = "A long document that needs to be indexed for recall...";
 const chunks = chunkText(text, {

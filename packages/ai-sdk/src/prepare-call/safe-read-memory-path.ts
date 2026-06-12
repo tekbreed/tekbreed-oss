@@ -8,7 +8,7 @@
  * @internal
  */
 
-import type { MemoryPath, MemoryStore } from "tekmemo";
+import type { MemoryPath, MemoryStore } from "@tekbreed/tekmemo";
 
 export async function safeReadMemoryPath(
 	store: MemoryStore,

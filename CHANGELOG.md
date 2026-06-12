@@ -2,21 +2,21 @@
 
 ## 0.2.1
 
-### @tekmemo/ai-sdk
+### @tekbreed/tekmemo-ai-sdk
 
 **Patch Changes**
 - Replace `any` types with proper TypeScript types across runtime helpers
 - Updated dependencies
-  - @tekmemo/cloud-client@0.1.1
+  - @tekbreed/tekmemo-cloud-client@0.1.1
 
-### @tekmemo/graph
+### @tekbreed/tekmemo-graph
 
 **Patch Changes**
 - Replace `any` types with proper TypeScript types across runtime helpers
 
 ## 0.2.0
 
-### @tekmemo/agentfs
+### @tekbreed/tekmemo-agentfs
 
 **Minor Changes**
   - Fix error handling imports in README
@@ -28,7 +28,7 @@
 - Updated dependencies
   - tekmemo@0.2.0
 
-### @tekmemo/ai-sdk
+### @tekbreed/tekmemo-ai-sdk
 
 **Minor Changes**
   - Add agent session instructions and prepare-call memory helpers
@@ -39,12 +39,12 @@
 - Updated dependencies
   - tekmemo@0.2.0
 
-### @tekmemo/benchmark-kit
+### @tekbreed/tekmemo-benchmark-kit
 
 **Minor Changes**
   - Require Node.js >=22
 
-### @tekmemo/fs
+### @tekbreed/tekmemo-fs
 
 **Minor Changes**
   - Require Node.js >=22
@@ -53,37 +53,37 @@
 - Updated dependencies
   - tekmemo@0.2.0
 
-### @tekmemo/graph
+### @tekbreed/tekmemo-graph
 
 **Minor Changes**
   - Fix non-null assertion safety in temporal validity checks
   - Require Node.js >=22
 
-### @tekmemo/openai
+### @tekbreed/tekmemo-openai
 
 **Minor Changes**
   - Require Node.js >=22
 
-### @tekmemo/recall
+### @tekbreed/tekmemo-recall
 
 **Minor Changes**
   - Require Node.js >=22
 
-### @tekmemo/rerank
+### @tekbreed/tekmemo-rerank
 
 **Minor Changes**
   - Require Node.js >=22
 
-### @tekmemo/rerank-voyage
+### @tekbreed/tekmemo-rerank-voyage
 
 **Minor Changes**
   - Require Node.js >=22
 
 **Patch Changes**
 - Updated dependencies
-  - @tekmemo/rerank@0.2.0
+  - @tekbreed/tekmemo-rerank@0.2.0
 
-### @tekmemo/upstash-vector
+### @tekbreed/tekmemo-upstash-vector
 
 **Minor Changes**
   - Remove deprecated `external` tsdown option, use `deps.neverBundle`
@@ -91,9 +91,9 @@
 
 **Patch Changes**
 - Updated dependencies
-  - @tekmemo/recall@0.2.0
+  - @tekbreed/tekmemo-recall@0.2.0
 
-### @tekmemo/voyageai
+### @tekbreed/tekmemo-voyageai
 
 **Minor Changes**
   - Require Node.js >=22
@@ -108,35 +108,35 @@
 
 ## 0.1.1
 
-### @tekmemo/cli
+### @tekbreed/tekmemo-cli
 
 **Patch Changes**
 - Replace `any` types with proper TypeScript types across runtime helpers
 - Updated dependencies
-  - @tekmemo/cloud-client@0.1.1
+  - @tekbreed/tekmemo-cloud-client@0.1.1
 
-### @tekmemo/cloud-client
+### @tekbreed/tekmemo-cloud-client
 
 **Patch Changes**
 - Replace `any` types with proper TypeScript types across runtime helpers
 
-### @tekmemo/mcp-server
+### @tekbreed/tekmemo-mcp-server
 
 **Patch Changes**
 - Replace `any` types with proper TypeScript types across runtime helpers
 - Updated dependencies
-  - @tekmemo/cloud-client@0.1.1
+  - @tekbreed/tekmemo-cloud-client@0.1.1
 
 ## 0.1.0
 
-### @tekmemo/adapters
+### @tekbreed/tekmemo-adapters
 Initial release.
 - Convenience umbrella package with subpath re-exports for all TekMemo adapter packages
 - Adapter registry with categories, descriptors, and import path maps
 - Subpath exports: `agentfs`, `ai-sdk`, `cloud-client`, `openai`, `openai/testing`, `rerank-voyage`, `rerank-voyage/testing`, `upstash-vector`, `voyageai`, `voyageai/testing`
 - Optional peer dependencies for `@upstash/vector`, `ai`, and `openai`
 
-### @tekmemo/cli
+### @tekbreed/tekmemo-cli
 Initial release.
 - Production-grade CLI for TekMemo local and cloud memory management
 - Local commands: `init`, `inspect`, `read`, `edit`, `remember`, `recall`, `diff`, `snapshot`, `validate`, `doctor`
@@ -146,7 +146,7 @@ Initial release.
 - JSON output mode with `--json` flag
 - Buffered output with color support and `--no-color` option
 
-### @tekmemo/cloud-client
+### @tekbreed/tekmemo-cloud-client
 Initial release.
 - Project-scoped TekMemo Cloud API client with typed HTTP methods
 - Memory CRUD: read core, update core, list notes, create notes
@@ -155,7 +155,7 @@ Initial release.
 - Hybrid runtime with local-first, cloud-first, and cloud-only policies
 - Structured error types with secret redaction
 
-### @tekmemo/mcp-server
+### @tekbreed/tekmemo-mcp-server
 Initial release.
 - Model Context Protocol (MCP) boundary adapter for local, cloud, and hybrid TekMemo runtimes
 - 28+ tool definitions covering memory, recall, sync, graph, extraction, and agent sessions
@@ -165,7 +165,7 @@ Initial release.
 - STDIO transport for CLI integration via `@modelcontextprotocol/sdk` (optional peer dependency)
 - In-memory runtime for testing and development
 
-### @tekmemo/server
+### @tekbreed/tekmemo-server
 Initial release.
 - Hono-based self-hostable TekMemo memory server
 - Node.js subpath export with PostgreSQL job queue, S3 object storage, and local storage backends

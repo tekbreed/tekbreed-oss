@@ -10,7 +10,7 @@ import {
 	type RecallStoreCapabilities,
 	validateRecallDocuments,
 	validateRecallQuery,
-} from "@tekmemo/recall";
+} from "@tekbreed/tekmemo-recall";
 import {
 	assertUpstashLikeIndex,
 	type UpstashLikeIndex,

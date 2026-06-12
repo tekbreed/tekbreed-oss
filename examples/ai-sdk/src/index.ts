@@ -5,9 +5,9 @@ import {
 	buildRuntimeMemoryContext,
 	buildRuntimeMemoryToolDefinition,
 	createLocalAiSdkRuntime,
-} from "@tekmemo/adapters/ai-sdk";
-import { createNodeFsMemoryStore } from "@tekmemo/fs";
-import { bootstrapMemoryStore, writeCoreMemory } from "tekmemo";
+} from "@tekbreed/tekmemo-adapters/ai-sdk";
+import { createNodeFsMemoryStore } from "@tekbreed/tekmemo-fs";
+import { bootstrapMemoryStore, writeCoreMemory } from "@tekbreed/tekmemo";
 
 const rootDir = await mkdtemp(join(tmpdir(), "tekmemo-ai-sdk-"));
 

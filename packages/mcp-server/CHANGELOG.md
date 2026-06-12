@@ -1,4 +1,4 @@
-# @tekmemo/mcp-server
+# @tekbreed/tekmemo-mcp-server
 
 ## 0.1.1
 
@@ -6,7 +6,7 @@
 
 - Replace `any` types with proper TypeScript types across runtime helpers
 - Updated dependencies
-  - @tekmemo/cloud-client@0.1.1
+  - @tekbreed/tekmemo-cloud-client@0.1.1
 
 ## 0.1.0
 

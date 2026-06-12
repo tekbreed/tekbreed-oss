@@ -2,7 +2,7 @@ import {
 	createNodeTekMemoQueue,
 	createNodeTekMemoStore,
 	readTekMemoNodeRuntimeConfig,
-} from "@tekmemo/server/node";
+} from "@tekbreed/tekmemo-server/node";
 
 const config = readTekMemoNodeRuntimeConfig();
 const store = createNodeTekMemoStore(config);

@@ -2,7 +2,7 @@ import {
 	RecallDimensionError,
 	RecallProviderError,
 	RecallValidationError,
-} from "@tekmemo/recall";
+} from "@tekbreed/tekmemo-recall";
 import { describe, expect, test } from "vitest";
 import {
 	createUpstashRecallStore,

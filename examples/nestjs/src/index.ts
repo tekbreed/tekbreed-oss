@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { createTekMemoCloudClient } from "@tekmemo/cloud-client";
+import { createTekMemoCloudClient } from "@tekbreed/tekmemo-cloud-client";
 
 @Injectable()
 export class TekMemoService {

@@ -231,19 +231,19 @@ Examples:
 tekmemo
   Core contracts and memory records.
 
-@tekmemo/fs
+@tekbreed/tekmemo-fs
   Filesystem-backed storage.
 
-@tekmemo/recall
+@tekbreed/tekmemo-recall
   Provider-neutral recall contracts.
 
-@tekmemo/upstash-vector
+@tekbreed/tekmemo-upstash-vector
   Upstash Vector adapter.
 
-@tekmemo/agentfs
+@tekbreed/tekmemo-agentfs
   AgentFS adapter.
 
-@tekmemo/ai-sdk
+@tekbreed/tekmemo-ai-sdk
   AI SDK integration.
 ```
 
@@ -307,7 +307,7 @@ src/index.ts
 Avoid deep imports like:
 
 ```ts
-import { something } from "@tekmemo/recall/dist/internal/something";
+import { something } from "@tekbreed/tekmemo-recall/dist/internal/something";
 ```
 
 If something is public, export it intentionally.
@@ -388,7 +388,7 @@ pnpm test
 Run tests for a package:
 
 ```bash
-pnpm --filter @tekmemo/package-name test
+pnpm --filter @tekbreed/tekmemo-package-name test
 ```
 
 ---
@@ -595,7 +595,7 @@ When opening an issue, include:
 Good title:
 
 ```txt
-@tekmemo/fs: JSONL parser skips valid line after malformed object
+@tekbreed/tekmemo-fs: JSONL parser skips valid line after malformed object
 ```
 
 Bad title:

@@ -57,7 +57,7 @@ Use `prepare` when changesets need to update versions and changelogs. Use `publi
 Publish from GitHub Actions when possible. The publish workflow expects:
 
 - `NPM_TOKEN` configured in repository secrets.
-- npm publishing permissions for the `tekmemo` and `@tekmemo/*` packages.
+- npm publishing permissions for the `@tekbreed/tekmemo` and `@tekbreed/tekmemo-*` packages.
 - release branch contents already reviewed and merged.
 
 For local emergency publishing, verify npm auth first:
@@ -74,8 +74,8 @@ Before a major or first public release, inspect at least the core package conten
 
 ```bash
 pnpm --filter tekmemo pack --dry-run
-pnpm --filter @tekmemo/fs pack --dry-run
-pnpm --filter @tekmemo/recall pack --dry-run
+pnpm --filter @tekbreed/tekmemo-fs pack --dry-run
+pnpm --filter @tekbreed/tekmemo-recall pack --dry-run
 ```
 
 The package tarballs should contain `dist`, `README.md`, and `LICENSE`, and should not contain source-only tests, local docs, credentials, or generated benchmark results.

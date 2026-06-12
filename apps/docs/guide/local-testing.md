@@ -13,7 +13,7 @@ tekmemo validate --root .
 Use the in-memory runtime for package tests and documentation examples.
 
 ```ts
-import { createMemoryRuntime } from "tekmemo";
+import { createMemoryRuntime } from "@tekbreed/tekmemo";
 
 const runtime = createMemoryRuntime();
 ```

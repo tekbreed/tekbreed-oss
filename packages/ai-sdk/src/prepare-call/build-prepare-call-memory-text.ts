@@ -7,7 +7,7 @@
  * @internal
  */
 
-import { buildCoreMemoryText, NOTES_MEMORY_PATH } from "tekmemo";
+import { buildCoreMemoryText, NOTES_MEMORY_PATH } from "@tekbreed/tekmemo";
 import type { BuildPrepareCallMemoryTextInput } from "../types/ai-sdk-memory";
 import { safeReadMemoryPath } from "./safe-read-memory-path";
 

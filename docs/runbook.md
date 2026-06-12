@@ -4,7 +4,7 @@
 
 TekMemo is a **pnpm monorepo** with **21 packages** organized around two product surfaces:
 
-- **Public OSS packages** (`tekmemo`, `@tekmemo/*`) — file-first memory runtime and adapters
+- **Public OSS packages** (`@tekbreed/tekmemo`, `@tekbreed/tekmemo-*`) — file-first memory runtime and adapters
 - **Private tooling** (`@repo/*`) — internal build, test, and config packages
 
 ### Workspace Layout
@@ -29,33 +29,33 @@ tekmemo/
   packages/rerank-voyage/  VoyageAI reranking adapter
   packages/adapters/   Convenience reexport aggregation
   packages/benchmark-kit/  Benchmarking toolkit
-  packages/utils/      Shared internal utilities
-  packages/test-utils/ Contract tests, fakes, fixtures
-  packages/tsdown-config/    Shared tsdown build config
-  packages/typescript-config/ Shared TypeScript config
+  tooling/utils/      Shared internal utilities
+  tooling/test-utils/ Contract tests, fakes, fixtures
+  tooling/tsdown-config/    Shared tsdown build config
+  tooling/typescript-config/ Shared TypeScript config
 ```
 
 ### Package Map by Layer
 
 | Layer | Package | Scope | Role |
 |---|---|---|---|
-| **Core** | `tekmemo` | oss | Memory contracts, paths, types, in-memory store |
-| **Storage** | `@tekmemo/fs` | `@tekmemo` | Local filesystem memory adapter |
-| **Storage** | `@tekmemo/agentfs` | `@tekmemo` | AgentFS workspace + remote adapter |
-| **Storage** | `@tekmemo/server` | `@tekmemo` | Hono-based self-host memory server |
-| **Transport** | `@tekmemo/cloud-client` | `@tekmemo` | TekMemo Cloud HTTP client |
-| **Agent** | `@tekmemo/cli` | `@tekmemo` | CLI tooling (init, search, cloud, agent) |
-| **Agent** | `@tekmemo/mcp-server` | `@tekmemo` | MCP boundary for agent tools |
-| **SDK** | `@tekmemo/ai-sdk` | `@tekmemo` | Vercel AI SDK tools and prompts |
-| **Graph** | `@tekmemo/graph` | `@tekmemo` | Standalone graph memory contracts |
-| **Recall** | `@tekmemo/recall` | `@tekmemo` | Vector recall contracts and in-memory store |
-| **Recall** | `@tekmemo/upstash-vector` | `@tekmemo` | Upstash Vector recall adapter |
-| **Embedding** | `@tekmemo/openai` | `@tekmemo` | OpenAI embedding adapter |
-| **Embedding** | `@tekmemo/voyageai` | `@tekmemo` | VoyageAI embedding adapter |
-| **Rerank** | `@tekmemo/rerank` | `@tekmemo` | Reranking contracts and fallback |
-| **Rerank** | `@tekmemo/rerank-voyage` | `@tekmemo` | VoyageAI reranking adapter |
-| **Meta** | `@tekmemo/adapters` | `@tekmemo` | Convenience reexport aggregation |
-| **Testing** | `@tekmemo/benchmark-kit` | `@tekmemo` | Benchmark runners and reporters |
+| **Core** | `@tekbreed/tekmemo` | oss | Memory contracts, paths, types, in-memory store |
+| **Storage** | `@tekbreed/tekmemo-fs` | `@tekmemo` | Local filesystem memory adapter |
+| **Storage** | `@tekbreed/tekmemo-agentfs` | `@tekmemo` | AgentFS workspace + remote adapter |
+| **Storage** | `@tekbreed/tekmemo-server` | `@tekmemo` | Hono-based self-host memory server |
+| **Transport** | `@tekbreed/tekmemo-cloud-client` | `@tekmemo` | TekMemo Cloud HTTP client |
+| **Agent** | `@tekbreed/tekmemo-cli` | `@tekmemo` | CLI tooling (init, search, cloud, agent) |
+| **Agent** | `@tekbreed/tekmemo-mcp-server` | `@tekmemo` | MCP boundary for agent tools |
+| **SDK** | `@tekbreed/tekmemo-ai-sdk` | `@tekmemo` | Vercel AI SDK tools and prompts |
+| **Graph** | `@tekbreed/tekmemo-graph` | `@tekmemo` | Standalone graph memory contracts |
+| **Recall** | `@tekbreed/tekmemo-recall` | `@tekmemo` | Vector recall contracts and in-memory store |
+| **Recall** | `@tekbreed/tekmemo-upstash-vector` | `@tekmemo` | Upstash Vector recall adapter |
+| **Embedding** | `@tekbreed/tekmemo-openai` | `@tekmemo` | OpenAI embedding adapter |
+| **Embedding** | `@tekbreed/tekmemo-voyageai` | `@tekmemo` | VoyageAI embedding adapter |
+| **Rerank** | `@tekbreed/tekmemo-rerank` | `@tekmemo` | Reranking contracts and fallback |
+| **Rerank** | `@tekbreed/tekmemo-rerank-voyage` | `@tekmemo` | VoyageAI reranking adapter |
+| **Meta** | `@tekbreed/tekmemo-adapters` | `@tekmemo` | Convenience reexport aggregation |
+| **Testing** | `@tekbreed/tekmemo-benchmark-kit` | `@tekmemo` | Benchmark runners and reporters |
 | **Tooling** | `@repo/tsdown-config` | internal | Shared tsdown build config |
 | **Tooling** | `@repo/typescript-config` | internal | Shared TypeScript base config |
 | **Tooling** | `@repo/utils` | internal | Shared utilities (retry, validation, locking) |
@@ -67,35 +67,35 @@ tekmemo/
 
 ```
                     tekmemo (core — zero deps)
-                    ├── @tekmemo/fs .................. MemoryStore implementation for Node fs
-                    ├── @tekmemo/agentfs ............. MemoryStore impl for AgentFS remote
-                    ├── @tekmemo/cli ................. Local memory commands
-                    ├── @tekmemo/mcp-server .......... Local runtime mode
-                    └── @tekmemo/ai-sdk .............. Memory tools for AI SDK
+                    ├── @tekbreed/tekmemo-fs .................. MemoryStore implementation for Node fs
+                    ├── @tekbreed/tekmemo-agentfs ............. MemoryStore impl for AgentFS remote
+                    ├── @tekbreed/tekmemo-cli ................. Local memory commands
+                    ├── @tekbreed/tekmemo-mcp-server .......... Local runtime mode
+                    └── @tekbreed/tekmemo-ai-sdk .............. Memory tools for AI SDK
 
-                    @tekmemo/graph (standalone — zero deps)
+                    @tekbreed/tekmemo-graph (standalone — zero deps)
 
-                    @tekmemo/recall (standalone — zero deps)
-                    └── @tekmemo/upstash-vector ...... RecallStore backed by Upstash
+                    @tekbreed/tekmemo-recall (standalone — zero deps)
+                    └── @tekbreed/tekmemo-upstash-vector ...... RecallStore backed by Upstash
 
-                    @tekmemo/rerank (standalone — zero deps)
-                    └── @tekmemo/rerank-voyage ....... Reranker backed by VoyageAI
+                    @tekbreed/tekmemo-rerank (standalone — zero deps)
+                    └── @tekbreed/tekmemo-rerank-voyage ....... Reranker backed by VoyageAI
 
-                    @tekmemo/cloud-client (standalone — zero deps)
-                    ├── @tekmemo/cli ................. Cloud commands
-                    └── @tekmemo/mcp-server .......... Cloud runtime mode
+                    @tekbreed/tekmemo-cloud-client (standalone — zero deps)
+                    ├── @tekbreed/tekmemo-cli ................. Cloud commands
+                    └── @tekbreed/tekmemo-mcp-server .......... Cloud runtime mode
 
-                    @tekmemo/openai (standalone — optional `openai` peer)
+                    @tekbreed/tekmemo-openai (standalone — optional `openai` peer)
 
-                    @tekmemo/voyageai (standalone — zero npm deps)
+                    @tekbreed/tekmemo-voyageai (standalone — zero npm deps)
 
-                    @tekmemo/server (standalone — hono, pg, S3 SDK)
+                    @tekbreed/tekmemo-server (standalone — hono, pg, S3 SDK)
 
-                    @tekmemo/ai-sdk (tekmemo + optional `ai` peer)
+                    @tekbreed/tekmemo-ai-sdk (tekmemo + optional `ai` peer)
 
-                    @tekmemo/adapters (aggregates all @tekmemo/* adapters)
+                    @tekbreed/tekmemo-adapters (aggregates all @tekbreed/tekmemo-* adapters)
 
-                    @tekmemo/benchmark-kit (standalone — zero deps)
+                    @tekbreed/tekmemo-benchmark-kit (standalone — zero deps)
 
                     @repo/utils (standalone — always bundled into consumers)
                     └── Used by: EVERY package (tsdown deps.alwaysBundle)
@@ -111,33 +111,33 @@ tekmemo/
 
 | Package directory | Published name | Scope |
 |---|---|---|
-| `packages/tekmemo` | `tekmemo` | none — the OSS core package |
-| `packages/fs` | `@tekmemo/fs` | `@tekmemo` |
-| `packages/agentfs` | `@tekmemo/agentfs` | `@tekmemo` |
-| `packages/graph` | `@tekmemo/graph` | `@tekmemo` |
-| `packages/recall` | `@tekmemo/recall` | `@tekmemo` |
-| `packages/rerank` | `@tekmemo/rerank` | `@tekmemo` |
-| `packages/rerank-voyage` | `@tekmemo/rerank-voyage` | `@tekmemo` |
-| `packages/cloud-client` | `@tekmemo/cloud-client` | `@tekmemo` |
-| `packages/ai-sdk` | `@tekmemo/ai-sdk` | `@tekmemo` |
-| `packages/cli` | `@tekmemo/cli` | `@tekmemo` |
-| `packages/mcp-server` | `@tekmemo/mcp-server` | `@tekmemo` |
-| `packages/server` | `@tekmemo/server` | `@tekmemo` |
-| `packages/openai` | `@tekmemo/openai` | `@tekmemo` |
-| `packages/voyageai` | `@tekmemo/voyageai` | `@tekmemo` |
-| `packages/upstash-vector` | `@tekmemo/upstash-vector` | `@tekmemo` |
-| `packages/adapters` | `@tekmemo/adapters` | `@tekmemo` |
-| `packages/benchmark-kit` | `@tekmemo/benchmark-kit` | `@tekmemo` |
-| `packages/tsdown-config` | `@repo/tsdown-config` | `@repo` — internal tooling only |
-| `packages/typescript-config` | `@repo/typescript-config` | `@repo` — internal tooling only |
-| `packages/utils` | `@repo/utils` | `@repo` — internal tooling only |
-| `packages/test-utils` | `@repo/test-utils` | `@repo` — internal tooling only |
+| `packages/tekmemo` | `@tekbreed/tekmemo` | none — the OSS core package |
+| `packages/fs` | `@tekbreed/tekmemo-fs` | `@tekmemo` |
+| `packages/agentfs` | `@tekbreed/tekmemo-agentfs` | `@tekmemo` |
+| `packages/graph` | `@tekbreed/tekmemo-graph` | `@tekmemo` |
+| `packages/recall` | `@tekbreed/tekmemo-recall` | `@tekmemo` |
+| `packages/rerank` | `@tekbreed/tekmemo-rerank` | `@tekmemo` |
+| `packages/rerank-voyage` | `@tekbreed/tekmemo-rerank-voyage` | `@tekmemo` |
+| `packages/cloud-client` | `@tekbreed/tekmemo-cloud-client` | `@tekmemo` |
+| `packages/ai-sdk` | `@tekbreed/tekmemo-ai-sdk` | `@tekmemo` |
+| `packages/cli` | `@tekbreed/tekmemo-cli` | `@tekmemo` |
+| `packages/mcp-server` | `@tekbreed/tekmemo-mcp-server` | `@tekmemo` |
+| `packages/server` | `@tekbreed/tekmemo-server` | `@tekmemo` |
+| `packages/openai` | `@tekbreed/tekmemo-openai` | `@tekmemo` |
+| `packages/voyageai` | `@tekbreed/tekmemo-voyageai` | `@tekmemo` |
+| `packages/upstash-vector` | `@tekbreed/tekmemo-upstash-vector` | `@tekmemo` |
+| `packages/adapters` | `@tekbreed/tekmemo-adapters` | `@tekmemo` |
+| `packages/benchmark-kit` | `@tekbreed/tekmemo-benchmark-kit` | `@tekmemo` |
+| `tooling/tsdown-config` | `@repo/tsdown-config` | `@repo` — internal tooling only |
+| `tooling/typescript-config` | `@repo/typescript-config` | `@repo` — internal tooling only |
+| `tooling/utils` | `@repo/utils` | `@repo` — internal tooling only |
+| `tooling/test-utils` | `@repo/test-utils` | `@repo` — internal tooling only |
 
 ---
 
 ## Package-by-Package Deep Dive
 
-### 1. `tekmemo` — Core Memory Runtime
+### 1. `@tekbreed/tekmemo` — Core Memory Runtime
 
 **Version**: 0.1.0 | **Zero runtime deps** | **MIT**
 
@@ -217,13 +217,13 @@ types/           memory-store.ts, memory-documents.ts, memory-commands.ts
 validation/      assertions.ts, jsonl.ts
 ```
 
-**Used by**: `@tekmemo/fs`, `@tekmemo/agentfs`, `@tekmemo/ai-sdk`, `@tekmemo/cli`, `@tekmemo/mcp-server`
+**Used by**: `@tekbreed/tekmemo-fs`, `@tekbreed/tekmemo-agentfs`, `@tekbreed/tekmemo-ai-sdk`, `@tekbreed/tekmemo-cli`, `@tekbreed/tekmemo-mcp-server`
 
 ---
 
-### 2. `@tekmemo/fs` — Local Filesystem Adapter
+### 2. `@tekbreed/tekmemo-fs` — Local Filesystem Adapter
 
-**Version**: 0.1.0 | **Depends on**: `tekmemo` | **MIT**
+**Version**: 0.1.0 | **Depends on**: `@tekbreed/tekmemo` | **MIT**
 
 Implements `MemoryStore` on top of Node.js `fs`, persisting `.tekmemo/` files to disk.
 
@@ -253,13 +253,13 @@ utils/                          assert-no-symlink, ensure-parent/root-dir,
 - `NodeFsMemoryStore` — class implementing `MemoryStore`
 - `FsMemoryStoreError` — error class
 
-**Used by**: `@tekmemo/cli`, `@tekmemo/mcp-server` (for local runtime mode)
+**Used by**: `@tekbreed/tekmemo-cli`, `@tekbreed/tekmemo-mcp-server` (for local runtime mode)
 
 ---
 
-### 3. `@tekmemo/agentfs` — AgentFS Session Workspace
+### 3. `@tekbreed/tekmemo-agentfs` — AgentFS Session Workspace
 
-**Version**: 0.1.0 | **Depends on**: `tekmemo` | **MIT**
+**Version**: 0.1.0 | **Depends on**: `@tekbreed/tekmemo` | **MIT**
 
 Dual-purpose package providing an agent session workspace and a MemoryStore adapter for remote AgentFS.
 
@@ -311,15 +311,15 @@ utils/          String assertions, not-found detection, safe segments
 
 **Key exports**: ~60 public exports spanning store, session, lease, sync, and config APIs.
 
-**Used by**: `@tekmemo/cli`, `@tekmemo/mcp-server`, reexported via `@tekmemo/adapters/agentfs`
+**Used by**: `@tekbreed/tekmemo-cli`, `@tekbreed/tekmemo-mcp-server`, reexported via `@tekbreed/tekmemo-adapters/agentfs`
 
 ---
 
-### 4. `@tekmemo/graph` — Graph Memory Contracts
+### 4. `@tekbreed/tekmemo-graph` — Graph Memory Contracts
 
 **Version**: 0.1.0 | **Zero deps** — fully standalone | **MIT**
 
-Defines the graph memory layer independently of core `tekmemo`. This is its own contract ecosystem.
+Defines the graph memory layer independently of core `@tekbreed/tekmemo`. This is its own contract ecosystem.
 
 **`GraphStore` interface** — 15 methods:
 
@@ -382,7 +382,7 @@ utils/            Clone, IDs, metadata, source-refs, time, validation
 
 ---
 
-### 5. `@tekmemo/recall` — Semantic Recall Contracts
+### 5. `@tekbreed/tekmemo-recall` — Semantic Recall Contracts
 
 **Version**: 0.1.0 | **Zero deps** | **MIT**
 
@@ -440,11 +440,11 @@ utils/            JSON deep-clone utilities, namespace helpers
 validation/       Comprehensive input validation and assertions
 ```
 
-**Used by**: `@tekmemo/upstash-vector` (implements RecallStore), `@tekmemo/cloud-client` (recall API types), `@tekmemo/ai-sdk` (recall tools)
+**Used by**: `@tekbreed/tekmemo-upstash-vector` (implements RecallStore), `@tekbreed/tekmemo-cloud-client` (recall API types), `@tekbreed/tekmemo-ai-sdk` (recall tools)
 
 ---
 
-### 6. `@tekmemo/openai` — OpenAI Embedding Adapter
+### 6. `@tekbreed/tekmemo-openai` — OpenAI Embedding Adapter
 
 **Version**: 0.1.0 | **Peer**: `openai` (^6.10.0, optional) | **MIT**
 
@@ -489,7 +489,7 @@ testing/          Fake client for tests
 
 ---
 
-### 7. `@tekmemo/voyageai` — VoyageAI Embedding Adapter
+### 7. `@tekbreed/tekmemo-voyageai` — VoyageAI Embedding Adapter
 
 **Version**: 0.1.0 | **Zero npm deps** (uses `fetch`) | **MIT**
 
@@ -521,9 +521,9 @@ testing/          Fake client for tests
 
 ---
 
-### 8. `@tekmemo/upstash-vector` — Upstash Vector Recall Adapter
+### 8. `@tekbreed/tekmemo-upstash-vector` — Upstash Vector Recall Adapter
 
-**Version**: 0.1.0 | **Depends on**: `@tekmemo/recall` | **Peer**: `@upstash/vector` (^1.2.0, optional) | **MIT**
+**Version**: 0.1.0 | **Depends on**: `@tekbreed/tekmemo-recall` | **Peer**: `@upstash/vector` (^1.2.0, optional) | **MIT**
 
 Implements `RecallStore` backed by an Upstash Vector index.
 
@@ -561,7 +561,7 @@ utils/            Object helpers
 
 ---
 
-### 9. `@tekmemo/rerank` — Reranking Contracts
+### 9. `@tekbreed/tekmemo-rerank` — Reranking Contracts
 
 **Version**: 0.1.0 | **Zero deps** | **MIT**
 
@@ -598,9 +598,9 @@ testing/          FakeReranker for tests
 
 ---
 
-### 10. `@tekmemo/rerank-voyage` — VoyageAI Reranking Adapter
+### 10. `@tekbreed/tekmemo-rerank-voyage` — VoyageAI Reranking Adapter
 
-**Version**: 0.1.0 | **Depends on**: `@tekmemo/rerank` | **Zero npm deps** | **MIT**
+**Version**: 0.1.0 | **Depends on**: `@tekbreed/tekmemo-rerank` | **Zero npm deps** | **MIT**
 
 Implements `Reranker` using VoyageAI's `/v1/rerank` endpoint.
 
@@ -628,11 +628,11 @@ utils/            Retry logic, validation
 
 ---
 
-### 11. `@tekmemo/cloud-client` — Cloud API Client
+### 11. `@tekbreed/tekmemo-cloud-client` — Cloud API Client
 
 **Version**: 0.1.0 | **Zero deps** — fully self-contained | **MIT**
 
-TekMemo Cloud API transport client. Has NO dependency on `tekmemo` or any other `@tekmemo/*` package. Self-contained HTTP client using standard `fetch`.
+TekMemo Cloud API transport client. Has NO dependency on `@tekbreed/tekmemo` or any other `@tekbreed/tekmemo-*` package. Self-contained HTTP client using standard `fetch`.
 
 **Client surfaces** (all accessed through a single `TekMemoCloudClient`):
 
@@ -686,15 +686,15 @@ types.ts          300+ type definitions (80+ exported)
 validation.ts     Comprehensive input validation (504 lines)
 ```
 
-**Used by**: `@tekmemo/cli`, `@tekmemo/mcp-server`
+**Used by**: `@tekbreed/tekmemo-cli`, `@tekbreed/tekmemo-mcp-server`
 
 ---
 
-### 12. `@tekmemo/cli` — Command-Line Interface
+### 12. `@tekbreed/tekmemo-cli` — Command-Line Interface
 
-**Version**: 0.1.0 | **Depends on**: `tekmemo`, `@tekmemo/fs`, `@tekmemo/agentfs`, `@tekmemo/cloud-client` | **MIT**
+**Version**: 0.1.0 | **Depends on**: `@tekbreed/tekmemo`, `@tekbreed/tekmemo-fs`, `@tekbreed/tekmemo-agentfs`, `@tekbreed/tekmemo-cloud-client` | **MIT**
 
-Binary: `tekmemo`. Commander-based CLI with local, cloud, and agent commands (~1568-line runner).
+Binary: `@tekbreed/tekmemo`. Commander-based CLI with local, cloud, and agent commands (~1568-line runner).
 
 **Local commands:**
 - `tekmemo init` — bootstrap `.tekmemo/` in current directory
@@ -755,9 +755,9 @@ utils/             Content, labels, metadata, numbers, secret scanning
 
 ---
 
-### 13. `@tekmemo/mcp-server` — MCP Server
+### 13. `@tekbreed/tekmemo-mcp-server` — MCP Server
 
-**Version**: 0.1.0 | **Depends on**: `tekmemo`, `@tekmemo/fs`, `@tekmemo/agentfs`, `@tekmemo/cloud-client` | **Peer**: `@modelcontextprotocol/sdk` (>=1.29.0, optional) | **MIT**
+**Version**: 0.1.0 | **Depends on**: `@tekbreed/tekmemo`, `@tekbreed/tekmemo-fs`, `@tekbreed/tekmemo-agentfs`, `@tekbreed/tekmemo-cloud-client` | **Peer**: `@modelcontextprotocol/sdk` (>=1.29.0, optional) | **MIT**
 
 Binary: `tekmemo-mcp-server`. Exposes TekMemo memory as MCP tools, resources, and prompts.
 
@@ -777,8 +777,8 @@ Binary: `tekmemo-mcp-server`. Exposes TekMemo memory as MCP tools, resources, an
 **2 MCP prompts** — `tekmemo-recall-context`, `tekmemo-memory-review`
 
 **Runtime modes:**
-- `--runtime local` — local filesystem via `@tekmemo/fs`
-- `--runtime cloud` — TekMemo Cloud API via `@tekmemo/cloud-client`
+- `--runtime local` — local filesystem via `@tekbreed/tekmemo-fs`
+- `--runtime cloud` — TekMemo Cloud API via `@tekbreed/tekmemo-cloud-client`
 - `--runtime hybrid` — combined local + cloud with read/write policies
 - `--runtime in-memory` — in-memory store (testing)
 
@@ -818,11 +818,11 @@ utils/              JSON, limits, pagination, timeout, validation
 
 ---
 
-### 14. `@tekmemo/server` — Hono Self-Host Server
+### 14. `@tekbreed/tekmemo-server` — Hono Self-Host Server
 
 **Version**: 0.1.0 | **External deps**: `hono`, `@aws-sdk/client-s3`, `@aws-sdk/s3-request-presigner`, `pg` | **MIT**
 
-Self-hostable TekMemo memory server. Exposes a TekMemo-compatible `/api/v1` HTTP API that works with `@tekmemo/cloud-client`. Intentionally separate from cloud billing, marketing, CMS, and SaaS features.
+Self-hostable TekMemo memory server. Exposes a TekMemo-compatible `/api/v1` HTTP API that works with `@tekbreed/tekmemo-cloud-client`. Intentionally separate from cloud billing, marketing, CMS, and SaaS features.
 
 **Architecture:**
 - **`app.ts`** — Hono app factory: `createTekMemoServer(app)`, `createInMemoryTekMemoServer()`
@@ -854,9 +854,9 @@ storage/           Job queue interface
 
 ---
 
-### 15. `@tekmemo/ai-sdk` — Vercel AI SDK Integration
+### 15. `@tekbreed/tekmemo-ai-sdk` — Vercel AI SDK Integration
 
-**Version**: 0.1.0 | **Depends on**: `tekmemo` | **Peer**: `ai` (>=5.0.0 <7.0.0, optional), `@tekmemo/cloud-client` (optional) | **MIT**
+**Version**: 0.1.0 | **Depends on**: `@tekbreed/tekmemo` | **Peer**: `ai` (>=5.0.0 <7.0.0, optional), `@tekbreed/tekmemo-cloud-client` (optional) | **MIT**
 
 Plug-and-play Vercel AI SDK tools for TekMemo memory.
 
@@ -897,7 +897,7 @@ types/             AI SDK memory types, retrieval, runtime types
 
 ---
 
-### 16. `@tekmemo/adapters` — Adapter Aggregation
+### 16. `@tekbreed/tekmemo-adapters` — Adapter Aggregation
 
 **Version**: 0.1.0 | **Depends on**: all @tekmemo adapter packages | **MIT**
 
@@ -905,28 +905,28 @@ Convenience reexport package. Root import is metadata-only — optional peers ar
 
 ```ts
 // Root import — types only, no runtime loading
-import { tekMemoAdapters } from "@tekmemo/adapters";
+import { tekMemoAdapters } from "@tekbreed/tekmemo-adapters";
 
 // Subpath imports — load specific adapters
-import { createAgentfsMemoryStore } from "@tekmemo/adapters/agentfs";
-import { defineTekMemoTools } from "@tekmemo/adapters/ai-sdk";
-import { createOpenAIEmbedder } from "@tekmemo/adapters/openai";
-import { FakeOpenAIEmbeddingsClient } from "@tekmemo/adapters/openai/testing";
+import { createAgentfsMemoryStore } from "@tekbreed/tekmemo-adapters/agentfs";
+import { defineTekMemoTools } from "@tekbreed/tekmemo-adapters/ai-sdk";
+import { createOpenAIEmbedder } from "@tekbreed/tekmemo-adapters/openai";
+import { FakeOpenAIEmbeddingsClient } from "@tekbreed/tekmemo-adapters/openai/testing";
 ```
 
 **Subpath exports** (each is a single-line `export *`):
 | Subpath | Reexports from |
 |---|---|
-| `./agentfs` | `@tekmemo/agentfs` |
-| `./ai-sdk` | `@tekmemo/ai-sdk` |
-| `./cloud-client` | `@tekmemo/cloud-client` |
-| `./openai` | `@tekmemo/openai` |
-| `./openai/testing` | `@tekmemo/openai/testing` |
-| `./upstash-vector` | `@tekmemo/upstash-vector` |
-| `./voyageai` | `@tekmemo/voyageai` |
-| `./voyageai/testing` | `@tekmemo/voyageai/testing` |
-| `./rerank-voyage` | `@tekmemo/rerank-voyage` |
-| `./rerank-voyage/testing` | `@tekmemo/rerank-voyage/testing` |
+| `./agentfs` | `@tekbreed/tekmemo-agentfs` |
+| `./ai-sdk` | `@tekbreed/tekmemo-ai-sdk` |
+| `./cloud-client` | `@tekbreed/tekmemo-cloud-client` |
+| `./openai` | `@tekbreed/tekmemo-openai` |
+| `./openai/testing` | `@tekbreed/tekmemo-openai/testing` |
+| `./upstash-vector` | `@tekbreed/tekmemo-upstash-vector` |
+| `./voyageai` | `@tekbreed/tekmemo-voyageai` |
+| `./voyageai/testing` | `@tekbreed/tekmemo-voyageai/testing` |
+| `./rerank-voyage` | `@tekbreed/tekmemo-rerank-voyage` |
+| `./rerank-voyage/testing` | `@tekbreed/tekmemo-rerank-voyage/testing` |
 
 **Adapter catalog** (7 descriptors):
 1. AgentFS — agent workspace, category: `agent-workspace`
@@ -941,21 +941,21 @@ import { FakeOpenAIEmbeddingsClient } from "@tekmemo/adapters/openai/testing";
 
 ```
 index.ts               Metadata catalog (types, adapterPackages, import paths, descriptors)
-agentfs/index.ts       export * from "@tekmemo/agentfs"
-ai-sdk/index.ts        export * from "@tekmemo/ai-sdk"
-cloud-client/index.ts  export * from "@tekmemo/cloud-client"
-openai/index.ts        export * from "@tekmemo/openai"
-openai/testing/        export * from "@tekmemo/openai/testing"
-rerank-voyage/index.ts export * from "@tekmemo/rerank-voyage"
-rerank-voyage/testing/ export * from "@tekmemo/rerank-voyage/testing"
-upstash-vector/index.ts export * from "@tekmemo/upstash-vector"
-voyageai/index.ts      export * from "@tekmemo/voyageai"
-voyageai/testing/      export * from "@tekmemo/voyageai/testing"
+agentfs/index.ts       export * from "@tekbreed/tekmemo-agentfs"
+ai-sdk/index.ts        export * from "@tekbreed/tekmemo-ai-sdk"
+cloud-client/index.ts  export * from "@tekbreed/tekmemo-cloud-client"
+openai/index.ts        export * from "@tekbreed/tekmemo-openai"
+openai/testing/        export * from "@tekbreed/tekmemo-openai/testing"
+rerank-voyage/index.ts export * from "@tekbreed/tekmemo-rerank-voyage"
+rerank-voyage/testing/ export * from "@tekbreed/tekmemo-rerank-voyage/testing"
+upstash-vector/index.ts export * from "@tekbreed/tekmemo-upstash-vector"
+voyageai/index.ts      export * from "@tekbreed/tekmemo-voyageai"
+voyageai/testing/      export * from "@tekbreed/tekmemo-voyageai/testing"
 ```
 
 ---
 
-### 17. `@tekmemo/benchmark-kit` — Benchmarking Toolkit
+### 17. `@tekbreed/tekmemo-benchmark-kit` — Benchmarking Toolkit
 
 **Version**: 0.1.0 | **Zero deps** | **MIT**
 
@@ -1099,22 +1099,22 @@ pnpm build → turbo build
   └── @repo/utils:build (no deps)
   └── @repo/test-utils:build (depends on: @repo/utils)
   └── tekmemo:build (depends on: @repo/utils)
-  └── @tekmemo/graph:build (standalone)
-  └── @tekmemo/recall:build (standalone)
-  └── @tekmemo/rerank:build (standalone)
-  └── @tekmemo/openai:build (standalone)
-  └── @tekmemo/voyageai:build (standalone)
-  └── @tekmemo/cloud-client:build (standalone)
-  └── @tekmemo/server:build (standalone)
-  └── @tekmemo/benchmark-kit:build (depends on: @repo/test-utils)
-  └── @tekmemo/fs:build (depends on: tekmemo)
-  └── @tekmemo/agentfs:build (depends on: tekmemo)
-  └── @tekmemo/upstash-vector:build (depends on: @tekmemo/recall)
-  └── @tekmemo/rerank-voyage:build (depends on: @tekmemo/rerank)
-  └── @tekmemo/ai-sdk:build (depends on: tekmemo)
-  └── @tekmemo/cli:build (depends on: tekmemo, fs, agentfs, cloud-client)
-  └── @tekmemo/mcp-server:build (depends on: tekmemo, fs, agentfs, cloud-client)
-  └── @tekmemo/adapters:build (depends on: all 7 adapters)
+  └── @tekbreed/tekmemo-graph:build (standalone)
+  └── @tekbreed/tekmemo-recall:build (standalone)
+  └── @tekbreed/tekmemo-rerank:build (standalone)
+  └── @tekbreed/tekmemo-openai:build (standalone)
+  └── @tekbreed/tekmemo-voyageai:build (standalone)
+  └── @tekbreed/tekmemo-cloud-client:build (standalone)
+  └── @tekbreed/tekmemo-server:build (standalone)
+  └── @tekbreed/tekmemo-benchmark-kit:build (depends on: @repo/test-utils)
+  └── @tekbreed/tekmemo-fs:build (depends on: tekmemo)
+  └── @tekbreed/tekmemo-agentfs:build (depends on: tekmemo)
+  └── @tekbreed/tekmemo-upstash-vector:build (depends on: @tekbreed/tekmemo-recall)
+  └── @tekbreed/tekmemo-rerank-voyage:build (depends on: @tekbreed/tekmemo-rerank)
+  └── @tekbreed/tekmemo-ai-sdk:build (depends on: tekmemo)
+  └── @tekbreed/tekmemo-cli:build (depends on: tekmemo, fs, agentfs, cloud-client)
+  └── @tekbreed/tekmemo-mcp-server:build (depends on: tekmemo, fs, agentfs, cloud-client)
+  └── @tekbreed/tekmemo-adapters:build (depends on: all 7 adapters)
 ```
 
 All packages output **dual ESM + CJS** via tsdown with `dts: true`, `sourcemap: true`, `fixedExtension: true`.
@@ -1145,12 +1145,12 @@ pnpm lint:package          # Publint export validation
 pnpm format-and-lint:fix   # Biome format + lint (auto-fix safe)
 
 # Single package
-pnpm --filter @tekmemo/agentfs build
-pnpm --filter @tekmemo/agentfs test:run
-pnpm --filter @tekmemo/agentfs typecheck
+pnpm --filter @tekbreed/tekmemo-agentfs build
+pnpm --filter @tekbreed/tekmemo-agentfs test:run
+pnpm --filter @tekbreed/tekmemo-agentfs typecheck
 
 # Release readiness
-pnpm --filter @tekmemo/agentfs release:check
+pnpm --filter @tekbreed/tekmemo-agentfs release:check
 ```
 
 ---
@@ -1158,7 +1158,7 @@ pnpm --filter @tekmemo/agentfs release:check
 ## Adding a New Package
 
 1. Create `packages/<name>/` directory
-2. Add `package.json` — use `@tekmemo/<name>` for public OSS, `@repo/<name>` for internal. Set `"type": "module"`, `"node": ">=22"`
+2. Add `package.json` — use `@tekbreed/tekmemo-<name>` for public OSS, `@repo/<name>` for internal. Set `"type": "module"`, `"node": ">=22"`
 3. Add `tsconfig.json` extending `@repo/typescript-config/base.json`
 4. Add `tsdown.config.ts` using the shared factory:
    ```ts

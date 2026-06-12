@@ -22,7 +22,7 @@ importers:
         version: 6.1.0
       '@repo/changelog-generator':
         specifier: workspace:*
-        version: link:packages/changelog-generator
+        version: link:tooling/changelog-generator
       '@types/node':
         specifier: ^22.15.3
         version: 22.15.3
@@ -65,7 +65,7 @@ importers:
 
   apps/self-host-cloudflare:
     dependencies:
-      '@tekmemo/server':
+      '@tekbreed/tekmemo-server':
         specifier: workspace:*
         version: link:../../packages/server
       hono:
@@ -77,7 +77,7 @@ importers:
         version: 4.20260511.1
       '@repo/typescript-config':
         specifier: workspace:*
-        version: link:../../packages/typescript-config
+        version: link:../../tooling/typescript-config
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -89,7 +89,7 @@ importers:
     devDependencies:
       '@repo/typescript-config':
         specifier: workspace:*
-        version: link:../../packages/typescript-config
+        version: link:../../tooling/typescript-config
       tsx:
         specifier: ^4.21.0
         version: 4.21.0
@@ -102,7 +102,7 @@ importers:
       '@hono/node-server':
         specifier: ^1.13.7
         version: 1.19.14(hono@4.12.18)
-      '@tekmemo/server':
+      '@tekbreed/tekmemo-server':
         specifier: workspace:*
         version: link:../../packages/server
       hono:
@@ -111,7 +111,7 @@ importers:
     devDependencies:
       '@repo/typescript-config':
         specifier: workspace:*
-        version: link:../../packages/typescript-config
+        version: link:../../tooling/typescript-config
       tsdown:
         specifier: ^0.21.10
         version: 0.21.10(publint@0.3.18)(typescript@5.9.2)
@@ -124,25 +124,25 @@ importers:
 
   benchmarks:
     dependencies:
-      '@tekmemo/benchmark-kit':
-        specifier: workspace:*
-        version: link:../packages/benchmark-kit
-      '@tekmemo/fs':
-        specifier: workspace:*
-        version: link:../packages/fs
-      '@tekmemo/recall':
-        specifier: workspace:*
-        version: link:../packages/recall
-      '@tekmemo/rerank':
-        specifier: workspace:*
-        version: link:../packages/rerank
-      tekmemo:
+      '@tekbreed/tekmemo':
         specifier: workspace:*
         version: link:../packages/tekmemo
+      '@tekbreed/tekmemo-benchmark-kit':
+        specifier: workspace:*
+        version: link:../packages/benchmark-kit
+      '@tekbreed/tekmemo-fs':
+        specifier: workspace:*
+        version: link:../packages/fs
+      '@tekbreed/tekmemo-recall':
+        specifier: workspace:*
+        version: link:../packages/recall
+      '@tekbreed/tekmemo-rerank':
+        specifier: workspace:*
+        version: link:../packages/rerank
     devDependencies:
       '@repo/typescript-config':
         specifier: workspace:*
-        version: link:../packages/typescript-config
+        version: link:../tooling/typescript-config
       tsx:
         specifier: ^4.21.0
         version: 4.21.0
@@ -152,18 +152,18 @@ importers:
 
   examples/ai-sdk:
     dependencies:
-      '@tekmemo/adapters':
+      '@tekbreed/tekmemo':
+        specifier: workspace:^
+        version: link:../../packages/tekmemo
+      '@tekbreed/tekmemo-adapters':
         specifier: workspace:^
         version: link:../../packages/adapters
-      '@tekmemo/fs':
+      '@tekbreed/tekmemo-fs':
         specifier: workspace:^
         version: link:../../packages/fs
       ai:
         specifier: ^6.0.174
         version: 6.0.174(zod@4.4.2)
-      tekmemo:
-        specifier: workspace:^
-        version: link:../../packages/tekmemo
       zod:
         specifier: ^4.4.2
         version: 4.4.2
@@ -180,7 +180,7 @@ importers:
 
   examples/astro:
     dependencies:
-      '@tekmemo/cloud-client':
+      '@tekbreed/tekmemo-cloud-client':
         specifier: workspace:^
         version: link:../../packages/cloud-client
       astro:
@@ -199,7 +199,7 @@ importers:
 
   examples/cli:
     dependencies:
-      '@tekmemo/cli':
+      '@tekbreed/tekmemo-cli':
         specifier: workspace:^
         version: link:../../packages/cli
     devDependencies:
@@ -215,7 +215,7 @@ importers:
 
   examples/cloud-client:
     dependencies:
-      '@tekmemo/cloud-client':
+      '@tekbreed/tekmemo-cloud-client':
         specifier: workspace:^
         version: link:../../packages/cloud-client
     devDependencies:
@@ -231,7 +231,7 @@ importers:
 
   examples/cloudflare-workers:
     dependencies:
-      '@tekmemo/cloud-client':
+      '@tekbreed/tekmemo-cloud-client':
         specifier: workspace:^
         version: link:../../packages/cloud-client
     devDependencies:
@@ -247,7 +247,7 @@ importers:
 
   examples/express:
     dependencies:
-      '@tekmemo/cloud-client':
+      '@tekbreed/tekmemo-cloud-client':
         specifier: workspace:^
         version: link:../../packages/cloud-client
       express:
@@ -266,7 +266,7 @@ importers:
 
   examples/fastify:
     dependencies:
-      '@tekmemo/cloud-client':
+      '@tekbreed/tekmemo-cloud-client':
         specifier: workspace:^
         version: link:../../packages/cloud-client
       fastify:
@@ -285,7 +285,7 @@ importers:
 
   examples/graph-memory:
     dependencies:
-      '@tekmemo/graph':
+      '@tekbreed/tekmemo-graph':
         specifier: workspace:^
         version: link:../../packages/graph
     devDependencies:
@@ -301,7 +301,7 @@ importers:
 
   examples/hono:
     dependencies:
-      '@tekmemo/cloud-client':
+      '@tekbreed/tekmemo-cloud-client':
         specifier: workspace:^
         version: link:../../packages/cloud-client
       hono:
@@ -320,12 +320,12 @@ importers:
 
   examples/local-only:
     dependencies:
-      '@tekmemo/fs':
-        specifier: workspace:^
-        version: link:../../packages/fs
-      tekmemo:
+      '@tekbreed/tekmemo':
         specifier: workspace:^
         version: link:../../packages/tekmemo
+      '@tekbreed/tekmemo-fs':
+        specifier: workspace:^
+        version: link:../../packages/fs
     devDependencies:
       '@types/node':
         specifier: ^22.15.3
@@ -339,18 +339,18 @@ importers:
 
   examples/mcp:
     dependencies:
-      '@tekmemo/cloud-client':
-        specifier: workspace:^
-        version: link:../../packages/cloud-client
-      '@tekmemo/fs':
-        specifier: workspace:^
-        version: link:../../packages/fs
-      '@tekmemo/mcp-server':
-        specifier: workspace:^
-        version: link:../../packages/mcp-server
-      tekmemo:
+      '@tekbreed/tekmemo':
         specifier: workspace:^
         version: link:../../packages/tekmemo
+      '@tekbreed/tekmemo-cloud-client':
+        specifier: workspace:^
+        version: link:../../packages/cloud-client
+      '@tekbreed/tekmemo-fs':
+        specifier: workspace:^
+        version: link:../../packages/fs
+      '@tekbreed/tekmemo-mcp-server':
+        specifier: workspace:^
+        version: link:../../packages/mcp-server
     devDependencies:
       '@types/node':
         specifier: ^22.15.3
@@ -370,7 +370,7 @@ importers:
       '@nestjs/core':
         specifier: ^11.0.0
         version: 11.1.19(@nestjs/common@11.1.19(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      '@tekmemo/cloud-client':
+      '@tekbreed/tekmemo-cloud-client':
         specifier: workspace:^
         version: link:../../packages/cloud-client
       reflect-metadata:
@@ -392,7 +392,7 @@ importers:
 
   examples/nextjs:
     dependencies:
-      '@tekmemo/cloud-client':
+      '@tekbreed/tekmemo-cloud-client':
         specifier: workspace:^
         version: link:../../packages/cloud-client
       next:
@@ -417,7 +417,7 @@ importers:
 
   examples/node-http:
     dependencies:
-      '@tekmemo/cloud-client':
+      '@tekbreed/tekmemo-cloud-client':
         specifier: workspace:^
         version: link:../../packages/cloud-client
     devDependencies:
@@ -433,7 +433,7 @@ importers:
 
   examples/nuxt:
     dependencies:
-      '@tekmemo/cloud-client':
+      '@tekbreed/tekmemo-cloud-client':
         specifier: workspace:^
         version: link:../../packages/cloud-client
       nuxt:
@@ -455,7 +455,7 @@ importers:
 
   examples/react-router:
     dependencies:
-      '@tekmemo/cloud-client':
+      '@tekbreed/tekmemo-cloud-client':
         specifier: workspace:^
         version: link:../../packages/cloud-client
       react:
@@ -483,7 +483,7 @@ importers:
       '@sveltejs/kit':
         specifier: ^2.0.0
         version: 2.59.1(@opentelemetry/api@1.9.0)(svelte@5.55.5)(typescript@5.9.2)(vite@7.3.2(@types/node@22.15.3)(jiti@2.7.0)(terser@5.47.1)(tsx@4.21.0)(yaml@2.9.0))
-      '@tekmemo/cloud-client':
+      '@tekbreed/tekmemo-cloud-client':
         specifier: workspace:^
         version: link:../../packages/cloud-client
       svelte:
@@ -505,7 +505,7 @@ importers:
       '@tanstack/react-router':
         specifier: ^1.0.0
         version: 1.169.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
-      '@tekmemo/cloud-client':
+      '@tekbreed/tekmemo-cloud-client':
         specifier: workspace:^
         version: link:../../packages/cloud-client
       react:
@@ -527,7 +527,7 @@ importers:
 
   examples/vite-react:
     dependencies:
-      '@tekmemo/cloud-client':
+      '@tekbreed/tekmemo-cloud-client':
         specifier: workspace:^
         version: link:../../packages/cloud-client
       '@vitejs/plugin-react':
@@ -555,37 +555,37 @@ importers:
 
   packages/adapters:
     dependencies:
-      '@tekmemo/agentfs':
+      '@tekbreed/tekmemo-agentfs':
         specifier: workspace:^
         version: link:../agentfs
-      '@tekmemo/ai-sdk':
+      '@tekbreed/tekmemo-ai-sdk':
         specifier: workspace:^
         version: link:../ai-sdk
-      '@tekmemo/cloud-client':
+      '@tekbreed/tekmemo-cloud-client':
         specifier: workspace:^
         version: link:../cloud-client
-      '@tekmemo/openai':
+      '@tekbreed/tekmemo-openai':
         specifier: workspace:^
         version: link:../openai
-      '@tekmemo/rerank-voyage':
+      '@tekbreed/tekmemo-rerank-voyage':
         specifier: workspace:^
         version: link:../rerank-voyage
-      '@tekmemo/upstash-vector':
+      '@tekbreed/tekmemo-upstash-vector':
         specifier: workspace:^
         version: link:../upstash-vector
-      '@tekmemo/voyageai':
+      '@tekbreed/tekmemo-voyageai':
         specifier: workspace:^
         version: link:../voyageai
     devDependencies:
       '@repo/tsdown-config':
         specifier: workspace:*
-        version: link:../tsdown-config
+        version: link:../../tooling/tsdown-config
       '@repo/typescript-config':
         specifier: workspace:*
-        version: link:../typescript-config
+        version: link:../../tooling/typescript-config
       '@repo/utils':
         specifier: workspace:*
-        version: link:../utils
+        version: link:../../tooling/utils
       '@vitest/coverage-v8':
         specifier: ^4.1.5
         version: 4.1.5(vitest@4.1.5)
@@ -595,26 +595,26 @@ importers:
 
   packages/agentfs:
     dependencies:
-      tekmemo:
+      '@tekbreed/tekmemo':
         specifier: workspace:^
         version: link:../tekmemo
     devDependencies:
       '@repo/test-utils':
         specifier: workspace:*
-        version: link:../test-utils
+        version: link:../../tooling/test-utils
       '@repo/tsdown-config':
         specifier: workspace:*
-        version: link:../tsdown-config
+        version: link:../../tooling/tsdown-config
       '@repo/typescript-config':
         specifier: workspace:*
-        version: link:../typescript-config
+        version: link:../../tooling/typescript-config
       '@repo/utils':
         specifier: workspace:*
-        version: link:../utils
+        version: link:../../tooling/utils
 
   packages/ai-sdk:
     dependencies:
-      tekmemo:
+      '@tekbreed/tekmemo':
         specifier: workspace:^
         version: link:../tekmemo
       zod:
@@ -623,16 +623,16 @@ importers:
     devDependencies:
       '@repo/test-utils':
         specifier: workspace:*
-        version: link:../test-utils
+        version: link:../../tooling/test-utils
       '@repo/tsdown-config':
         specifier: workspace:*
-        version: link:../tsdown-config
+        version: link:../../tooling/tsdown-config
       '@repo/typescript-config':
         specifier: workspace:*
-        version: link:../typescript-config
+        version: link:../../tooling/typescript-config
       '@repo/utils':
         specifier: workspace:*
-        version: link:../utils
+        version: link:../../tooling/utils
       ai:
         specifier: ^6.0.174
         version: 6.0.174(zod@4.4.2)
@@ -641,161 +641,142 @@ importers:
     devDependencies:
       '@repo/test-utils':
         specifier: workspace:*
-        version: link:../test-utils
+        version: link:../../tooling/test-utils
       '@repo/tsdown-config':
         specifier: workspace:*
-        version: link:../tsdown-config
+        version: link:../../tooling/tsdown-config
       '@repo/typescript-config':
         specifier: workspace:*
-        version: link:../typescript-config
+        version: link:../../tooling/typescript-config
       '@repo/utils':
         specifier: workspace:*
-        version: link:../utils
-
-  packages/changelog-generator:
-    dependencies:
-      '@changesets/changelog-github':
-        specifier: ^0.6.0
-        version: 0.6.0
-      '@changesets/get-github-info':
-        specifier: ^0.5.0
-        version: 0.5.2
-    devDependencies:
-      '@changesets/types':
-        specifier: ^6.1.0
-        version: 6.1.0
-      '@repo/tsdown-config':
-        specifier: workspace:*
-        version: link:../tsdown-config
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript-config
+        version: link:../../tooling/utils
 
   packages/cli:
     dependencies:
-      '@tekmemo/agentfs':
+      '@tekbreed/tekmemo':
+        specifier: workspace:^
+        version: link:../tekmemo
+      '@tekbreed/tekmemo-agentfs':
         specifier: workspace:^
         version: link:../agentfs
-      '@tekmemo/cloud-client':
+      '@tekbreed/tekmemo-cloud-client':
         specifier: workspace:^
         version: link:../cloud-client
-      '@tekmemo/fs':
+      '@tekbreed/tekmemo-fs':
         specifier: workspace:^
         version: link:../fs
       commander:
         specifier: ^14.0.3
         version: 14.0.3
-      tekmemo:
-        specifier: workspace:^
-        version: link:../tekmemo
       zod:
         specifier: ^4.4.2
         version: 4.4.2
     devDependencies:
       '@repo/test-utils':
         specifier: workspace:*
-        version: link:../test-utils
+        version: link:../../tooling/test-utils
       '@repo/tsdown-config':
         specifier: workspace:*
-        version: link:../tsdown-config
+        version: link:../../tooling/tsdown-config
       '@repo/typescript-config':
         specifier: workspace:*
-        version: link:../typescript-config
+        version: link:../../tooling/typescript-config
       '@repo/utils':
         specifier: workspace:*
-        version: link:../utils
+        version: link:../../tooling/utils
 
   packages/cloud-client:
     devDependencies:
       '@repo/test-utils':
         specifier: workspace:*
-        version: link:../test-utils
+        version: link:../../tooling/test-utils
       '@repo/tsdown-config':
         specifier: workspace:*
-        version: link:../tsdown-config
+        version: link:../../tooling/tsdown-config
       '@repo/typescript-config':
         specifier: workspace:*
-        version: link:../typescript-config
+        version: link:../../tooling/typescript-config
       '@repo/utils':
         specifier: workspace:*
-        version: link:../utils
+        version: link:../../tooling/utils
 
   packages/fs:
     dependencies:
-      tekmemo:
+      '@tekbreed/tekmemo':
         specifier: workspace:^
         version: link:../tekmemo
     devDependencies:
       '@repo/test-utils':
         specifier: workspace:*
-        version: link:../test-utils
+        version: link:../../tooling/test-utils
       '@repo/tsdown-config':
         specifier: workspace:*
-        version: link:../tsdown-config
+        version: link:../../tooling/tsdown-config
       '@repo/typescript-config':
         specifier: workspace:*
-        version: link:../typescript-config
+        version: link:../../tooling/typescript-config
       '@repo/utils':
         specifier: workspace:*
-        version: link:../utils
+        version: link:../../tooling/utils
 
   packages/graph:
     devDependencies:
       '@repo/test-utils':
         specifier: workspace:*
-        version: link:../test-utils
+        version: link:../../tooling/test-utils
       '@repo/tsdown-config':
         specifier: workspace:*
-        version: link:../tsdown-config
+        version: link:../../tooling/tsdown-config
       '@repo/typescript-config':
         specifier: workspace:*
-        version: link:../typescript-config
+        version: link:../../tooling/typescript-config
       '@repo/utils':
         specifier: workspace:*
-        version: link:../utils
+        version: link:../../tooling/utils
 
   packages/mcp-server:
     dependencies:
-      '@tekmemo/agentfs':
-        specifier: workspace:^
-        version: link:../agentfs
-      '@tekmemo/cloud-client':
-        specifier: workspace:^
-        version: link:../cloud-client
-      '@tekmemo/fs':
-        specifier: workspace:^
-        version: link:../fs
-      tekmemo:
+      '@tekbreed/tekmemo':
         specifier: workspace:^
         version: link:../tekmemo
+      '@tekbreed/tekmemo-agentfs':
+        specifier: workspace:^
+        version: link:../agentfs
+      '@tekbreed/tekmemo-cloud-client':
+        specifier: workspace:^
+        version: link:../cloud-client
+      '@tekbreed/tekmemo-fs':
+        specifier: workspace:^
+        version: link:../fs
     devDependencies:
       '@repo/test-utils':
         specifier: workspace:*
-        version: link:../test-utils
+        version: link:../../tooling/test-utils
       '@repo/tsdown-config':
         specifier: workspace:*
-        version: link:../tsdown-config
+        version: link:../../tooling/tsdown-config
       '@repo/typescript-config':
         specifier: workspace:*
-        version: link:../typescript-config
+        version: link:../../tooling/typescript-config
       '@repo/utils':
         specifier: workspace:*
-        version: link:../utils
+        version: link:../../tooling/utils
 
   packages/openai:
     devDependencies:
       '@repo/test-utils':
         specifier: workspace:*
-        version: link:../test-utils
+        version: link:../../tooling/test-utils
       '@repo/tsdown-config':
         specifier: workspace:*
-        version: link:../tsdown-config
+        version: link:../../tooling/tsdown-config
       '@repo/typescript-config':
         specifier: workspace:*
-        version: link:../typescript-config
+        version: link:../../tooling/typescript-config
       '@repo/utils':
         specifier: workspace:*
-        version: link:../utils
+        version: link:../../tooling/utils
       openai:
         specifier: ^6.10.0
         version: 6.36.0(ws@8.20.0)(zod@4.4.2)
@@ -804,47 +785,47 @@ importers:
     devDependencies:
       '@repo/test-utils':
         specifier: workspace:*
-        version: link:../test-utils
+        version: link:../../tooling/test-utils
       '@repo/tsdown-config':
         specifier: workspace:*
-        version: link:../tsdown-config
+        version: link:../../tooling/tsdown-config
       '@repo/typescript-config':
         specifier: workspace:*
-        version: link:../typescript-config
+        version: link:../../tooling/typescript-config
       '@repo/utils':
         specifier: workspace:*
-        version: link:../utils
+        version: link:../../tooling/utils
 
   packages/rerank:
     devDependencies:
       '@repo/test-utils':
         specifier: workspace:*
-        version: link:../test-utils
+        version: link:../../tooling/test-utils
       '@repo/tsdown-config':
         specifier: workspace:*
-        version: link:../tsdown-config
+        version: link:../../tooling/tsdown-config
       '@repo/typescript-config':
         specifier: workspace:*
-        version: link:../typescript-config
+        version: link:../../tooling/typescript-config
 
   packages/rerank-voyage:
     dependencies:
-      '@tekmemo/rerank':
+      '@tekbreed/tekmemo-rerank':
         specifier: workspace:*
         version: link:../rerank
     devDependencies:
       '@repo/test-utils':
         specifier: workspace:*
-        version: link:../test-utils
+        version: link:../../tooling/test-utils
       '@repo/tsdown-config':
         specifier: workspace:*
-        version: link:../tsdown-config
+        version: link:../../tooling/tsdown-config
       '@repo/typescript-config':
         specifier: workspace:*
-        version: link:../typescript-config
+        version: link:../../tooling/typescript-config
       '@repo/utils':
         specifier: workspace:*
-        version: link:../utils
+        version: link:../../tooling/utils
 
   packages/server:
     dependencies:
@@ -863,11 +844,11 @@ importers:
     devDependencies:
       '@repo/tsdown-config':
         specifier: workspace:*
-        version: link:../tsdown-config
+        version: link:../../tooling/tsdown-config
       '@repo/typescript-config':
         specifier: workspace:*
-        version: link:../typescript-config
-      '@tekmemo/cloud-client':
+        version: link:../../tooling/typescript-config
+      '@tekbreed/tekmemo-cloud-client':
         specifier: workspace:*
         version: link:../cloud-client
       '@types/pg':
@@ -887,72 +868,91 @@ importers:
     devDependencies:
       '@repo/test-utils':
         specifier: workspace:*
-        version: link:../test-utils
+        version: link:../../tooling/test-utils
       '@repo/tsdown-config':
         specifier: workspace:*
-        version: link:../tsdown-config
+        version: link:../../tooling/tsdown-config
       '@repo/typescript-config':
         specifier: workspace:*
-        version: link:../typescript-config
+        version: link:../../tooling/typescript-config
       '@repo/utils':
         specifier: workspace:*
-        version: link:../utils
-
-  packages/test-utils:
-    devDependencies:
-      '@repo/tsdown-config':
-        specifier: workspace:*
-        version: link:../tsdown-config
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript-config
-
-  packages/tsdown-config: {}
-
-  packages/typescript-config: {}
+        version: link:../../tooling/utils
 
   packages/upstash-vector:
     dependencies:
-      '@tekmemo/recall':
+      '@tekbreed/tekmemo-recall':
         specifier: workspace:^
         version: link:../recall
     devDependencies:
       '@repo/test-utils':
         specifier: workspace:*
-        version: link:../test-utils
+        version: link:../../tooling/test-utils
       '@repo/tsdown-config':
         specifier: workspace:*
-        version: link:../tsdown-config
+        version: link:../../tooling/tsdown-config
       '@repo/typescript-config':
         specifier: workspace:*
-        version: link:../typescript-config
+        version: link:../../tooling/typescript-config
       '@repo/utils':
         specifier: workspace:*
-        version: link:../utils
-
-  packages/utils:
-    devDependencies:
-      '@repo/tsdown-config':
-        specifier: workspace:*
-        version: link:../tsdown-config
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript-config
+        version: link:../../tooling/utils
 
   packages/voyageai:
     devDependencies:
       '@repo/test-utils':
         specifier: workspace:*
-        version: link:../test-utils
+        version: link:../../tooling/test-utils
+      '@repo/tsdown-config':
+        specifier: workspace:*
+        version: link:../../tooling/tsdown-config
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../../tooling/typescript-config
+      '@repo/utils':
+        specifier: workspace:*
+        version: link:../../tooling/utils
+
+  tooling/changelog-generator:
+    dependencies:
+      '@changesets/changelog-github':
+        specifier: ^0.6.0
+        version: 0.6.0
+      '@changesets/get-github-info':
+        specifier: ^0.5.0
+        version: 0.5.2
+    devDependencies:
+      '@changesets/types':
+        specifier: ^6.1.0
+        version: 6.1.0
       '@repo/tsdown-config':
         specifier: workspace:*
         version: link:../tsdown-config
       '@repo/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
-      '@repo/utils':
+
+  tooling/test-utils:
+    devDependencies:
+      '@repo/tsdown-config':
         specifier: workspace:*
-        version: link:../utils
+        version: link:../tsdown-config
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+
+  tooling/tsdown-config: {}
+
+  tooling/typescript-config: {}
+
+  tooling/utils:
+    devDependencies:
+      '@repo/tsdown-config':
+        specifier: workspace:*
+        version: link:../tsdown-config
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
 
 packages:
 

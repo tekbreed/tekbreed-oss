@@ -1,4 +1,4 @@
-# @tekmemo/rerank-voyage
+# @tekbreed/tekmemo-rerank-voyage
 
 ## 0.2.0
 
@@ -11,58 +11,58 @@
   - Require Node.js >=22
   - Dual CJS/ESM output via tsdown
 
-  #### @tekmemo/agentfs
+  #### @tekbreed/tekmemo-agentfs
 
   - Fix error handling imports in README
   - Remove deprecated `external` tsdown option, use `deps.neverBundle`
   - Add release scripts (prepack, pack:dry-run, release:check)
   - Require Node.js >=22
 
-  #### @tekmemo/ai-sdk
+  #### @tekbreed/tekmemo-ai-sdk
 
   - Add agent session instructions and prepare-call memory helpers
   - Improve scope policy validation and recall filter creation
   - Require Node.js >=22
 
-  #### @tekmemo/benchmark-kit
+  #### @tekbreed/tekmemo-benchmark-kit
 
   - Require Node.js >=22
 
-  #### @tekmemo/fs
+  #### @tekbreed/tekmemo-fs
 
   - Require Node.js >=22
 
-  #### @tekmemo/graph
+  #### @tekbreed/tekmemo-graph
 
   - Fix non-null assertion safety in temporal validity checks
   - Require Node.js >=22
 
-  #### @tekmemo/openai
+  #### @tekbreed/tekmemo-openai
 
   - Require Node.js >=22
 
-  #### @tekmemo/recall
+  #### @tekbreed/tekmemo-recall
 
   - Require Node.js >=22
 
-  #### @tekmemo/rerank
+  #### @tekbreed/tekmemo-rerank
 
   - Require Node.js >=22
 
-  #### @tekmemo/rerank-voyage
+  #### @tekbreed/tekmemo-rerank-voyage
 
   - Require Node.js >=22
 
-  #### @tekmemo/upstash-vector
+  #### @tekbreed/tekmemo-upstash-vector
 
   - Remove deprecated `external` tsdown option, use `deps.neverBundle`
   - Require Node.js >=22
 
-  #### @tekmemo/voyageai
+  #### @tekbreed/tekmemo-voyageai
 
   - Require Node.js >=22
 
 ### Patch Changes
 
 - Updated dependencies
-  - @tekmemo/rerank@0.2.0
+  - @tekbreed/tekmemo-rerank@0.2.0

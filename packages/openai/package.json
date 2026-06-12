@@ -1,16 +1,16 @@
 {
-	"name": "@tekmemo/openai",
+	"name": "@tekbreed/tekmemo-openai",
 	"version": "0.2.0",
 	"description": "Production-ready OpenAI embedding adapter for TekMemo.",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/tekbreed/tekmemo.git",
+		"url": "git+https://github.com/tekbreed/oss.git",
 		"directory": "packages/openai"
 	},
-	"homepage": "https://docs.memo.tekbreed.com/packages/openai",
+	"homepage": "https://oss.tekbreed.com/tekmemo/packages/openai",
 	"bugs": {
-		"url": "https://github.com/tekbreed/tekmemo/issues"
+		"url": "https://github.com/tekbreed/oss/issues"
 	},
 	"type": "module",
 	"sideEffects": false,
@@ -70,7 +70,7 @@
 		"memory",
 		"openai",
 		"recall",
-		"tekmemo",
+		"@tekbreed/tekmemo",
 		"typescript"
 	],
 	"peerDependencies": {

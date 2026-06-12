@@ -1,6 +1,6 @@
 # MCP Cloud API Alignment
 
-`@tekmemo/mcp-server` is aligned with the current TekMemo Cloud runbook.
+`@tekbreed/tekmemo-mcp-server` is aligned with the current TekMemo Cloud runbook.
 
 ## Source of truth
 
@@ -22,7 +22,7 @@ and:
 { "error": { "code": "unauthorized", "message": "..." }, "meta": { "requestId": "req_123" } }
 ```
 
-The MCP package does not parse these envelopes directly. It delegates all cloud HTTP behavior to `@tekmemo/cloud-client`.
+The MCP package does not parse these envelopes directly. It delegates all cloud HTTP behavior to `@tekbreed/tekmemo-cloud-client`.
 
 ## Implemented cloud-backed MCP tools
 
@@ -62,7 +62,7 @@ Reason:
 
 ```txt
 Cloud snapshots/exports depend on the R2 milestone.
-Cloud graph depends on publishing/installing @tekmemo/graph and wiring D1 graph tables/routes.
+Cloud graph depends on publishing/installing @tekbreed/tekmemo-graph and wiring D1 graph tables/routes.
 ```
 
 Local and in-memory runtimes can still support local graph/snapshot behavior.

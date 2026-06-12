@@ -1,17 +1,17 @@
 {
-	"name": "@tekmemo/fs",
+	"name": "@tekbreed/tekmemo-fs",
 	"version": "0.2.0",
 	"description": "Node.js filesystem adapter for TekMemo's canonical .tekmemo/ local memory protocol.",
 	"private": false,
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/tekbreed/tekmemo.git",
+		"url": "git+https://github.com/tekbreed/oss.git",
 		"directory": "packages/fs"
 	},
-	"homepage": "https://docs.memo.tekbreed.com/packages/fs",
+	"homepage": "https://oss.tekbreed.com/tekmemo/packages/fs",
 	"bugs": {
-		"url": "https://github.com/tekbreed/tekmemo/issues"
+		"url": "https://github.com/tekbreed/oss/issues"
 	},
 	"type": "module",
 	"sideEffects": false,
@@ -21,7 +21,7 @@
 		"llm",
 		"memory",
 		"recall",
-		"tekmemo",
+		"@tekbreed/tekmemo",
 		"typescript"
 	],
 	"main": "./dist/index.cjs",
@@ -60,7 +60,7 @@
 		"release:check": "pnpm build && pnpm typecheck && pnpm test:run && pnpm lint:package && npm pack --dry-run"
 	},
 	"dependencies": {
-		"tekmemo": "workspace:^"
+		"@tekbreed/tekmemo": "workspace:^"
 	},
 	"devDependencies": {
 		"@repo/test-utils": "workspace:*",

@@ -1,17 +1,17 @@
 {
-	"name": "@tekmemo/adapters",
+	"name": "@tekbreed/tekmemo-adapters",
 	"version": "0.1.0",
 	"description": "Convenience reexports for TekMemo AI SDK, provider, vector, rerank, and cloud adapters.",
 	"private": false,
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/tekbreed/tekmemo.git",
+		"url": "git+https://github.com/tekbreed/oss.git",
 		"directory": "packages/adapters"
 	},
-	"homepage": "https://docs.memo.tekbreed.com/packages/adapters",
+	"homepage": "https://oss.tekbreed.com/tekmemo/packages/adapters",
 	"bugs": {
-		"url": "https://github.com/tekbreed/tekmemo/issues"
+		"url": "https://github.com/tekbreed/oss/issues"
 	},
 	"type": "module",
 	"sideEffects": false,
@@ -162,19 +162,19 @@
 		"memory",
 		"openai",
 		"recall",
-		"tekmemo",
+		"@tekbreed/tekmemo",
 		"typescript",
 		"upstash",
 		"voyage"
 	],
 	"dependencies": {
-		"@tekmemo/agentfs": "workspace:^",
-		"@tekmemo/ai-sdk": "workspace:^",
-		"@tekmemo/cloud-client": "workspace:^",
-		"@tekmemo/openai": "workspace:^",
-		"@tekmemo/rerank-voyage": "workspace:^",
-		"@tekmemo/upstash-vector": "workspace:^",
-		"@tekmemo/voyageai": "workspace:^"
+		"@tekbreed/tekmemo-agentfs": "workspace:^",
+		"@tekbreed/tekmemo-ai-sdk": "workspace:^",
+		"@tekbreed/tekmemo-cloud-client": "workspace:^",
+		"@tekbreed/tekmemo-openai": "workspace:^",
+		"@tekbreed/tekmemo-rerank-voyage": "workspace:^",
+		"@tekbreed/tekmemo-upstash-vector": "workspace:^",
+		"@tekbreed/tekmemo-voyageai": "workspace:^"
 	},
 	"peerDependencies": {
 		"@upstash/vector": ">=1.2.0",

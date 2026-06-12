@@ -1,5 +1,5 @@
 /**
- * @file Public API entry point for @tekmemo/agentfs.
+ * @file Public API entry point for @tekbreed/tekmemo-agentfs.
  *
  * @remarks
  * This module exports the AgentFS memory store implementation, lease management utilities,

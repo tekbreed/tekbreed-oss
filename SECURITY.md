@@ -12,16 +12,16 @@ This policy applies to the public TekMemo open-source repository and the package
 
 ```txt
 tekmemo
-@tekmemo/fs
-@tekmemo/agentfs
-@tekmemo/ai-sdk
-@tekmemo/recall
-@tekmemo/upstash-vector
-@tekmemo/voyageai
-@tekmemo/openai
-@tekmemo/rerank
-@tekmemo/rerank-voyage
-@tekmemo/benchmark-kit
+@tekbreed/tekmemo-fs
+@tekbreed/tekmemo-agentfs
+@tekbreed/tekmemo-ai-sdk
+@tekbreed/tekmemo-recall
+@tekbreed/tekmemo-upstash-vector
+@tekbreed/tekmemo-voyageai
+@tekbreed/tekmemo-openai
+@tekbreed/tekmemo-rerank
+@tekbreed/tekmemo-rerank-voyage
+@tekbreed/tekmemo-benchmark-kit
 @repo/test-utils
 ```
 
@@ -121,7 +121,7 @@ TekMemo has several areas where security matters deeply.
 
 ### Filesystem access
 
-Packages such as `@tekmemo/fs` and future connectors must protect against:
+Packages such as `@tekbreed/tekmemo-fs` and future connectors must protect against:
 
 * path traversal
 * absolute path escape
@@ -303,5 +303,5 @@ support@tekbreed.com
 General issues:
 
 ```txt
-https://github.com/tekbreed/tekmemo/issues
+https://github.com/tekbreed/oss/issues
 ```

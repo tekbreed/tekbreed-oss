@@ -1,5 +1,5 @@
 {
-	"name": "@tekmemo/example-cli",
+	"name": "@tekbreed/example-tekmemo-cli",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -7,7 +7,7 @@
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@tekmemo/cli": "workspace:^"
+		"@tekbreed/tekmemo-cli": "workspace:^"
 	},
 	"devDependencies": {
 		"tsx": "^4.21.0",

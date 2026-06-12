@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import {
 	createTekMemoCloudClient,
 	type TekMemoCloudClientOptions,
-} from "@tekmemo/cloud-client";
+} from "@tekbreed/tekmemo-cloud-client";
 import type { TekMemoMcpRuntime, TekMemoRuntimeMode } from "../types.js";
 import type { TekMemoCloudClientLike } from "./cloud.js";
 import { createCloudTekMemoMcpRuntime } from "./cloud.js";
@@ -143,7 +143,7 @@ export function createCloudClientFromRuntimeOptions(
 		baseUrl,
 		...(apiKey === undefined ? {} : { apiKey }),
 		...(timeoutMs === undefined ? {} : { timeoutMs }),
-		userAgent: options.userAgent ?? "@tekmemo/mcp-server/0.1.0",
+		userAgent: options.userAgent ?? "@tekbreed/tekmemo-mcp-server/0.1.0",
 		...(workspaceId === undefined ? {} : { defaultWorkspaceId: workspaceId }),
 		...(projectId === undefined ? {} : { defaultProjectId: projectId }),
 		...(options.requireApiKey === undefined

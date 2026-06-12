@@ -6,7 +6,7 @@ describe("cloud commands", () => {
 		vi.unstubAllGlobals();
 	});
 
-	it("builds cloud context through project-scoped @tekmemo/cloud-client routes", async () => {
+	it("builds cloud context through project-scoped @tekbreed/tekmemo-cloud-client routes", async () => {
 		const calls: string[] = [];
 		const fetchMock = vi.fn(
 			async (input: RequestInfo | URL, init?: RequestInit) => {

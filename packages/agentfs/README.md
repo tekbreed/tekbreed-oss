@@ -1,11 +1,11 @@
-# @tekmemo/agentfs
+# @tekbreed/tekmemo-agentfs
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/@tekmemo/agentfs"><img src="https://img.shields.io/npm/v/@tekmemo%2Fagentfs?label=@tekmemo/agentfs&style=for-the-badge" alt="npm version" /></a> &nbsp; 
-  <a href="https://github.com/tekbreed/tekmemo"><img src="https://img.shields.io/badge/status-alpha-orange?style=for-the-badge" alt="Status: Alpha" /></a> &nbsp; 
-  <a href="https://www.npmjs.com/package/@tekmemo/agentfs"><img src="https://img.shields.io/npm/dm/@tekmemo%2Fagentfs?style=for-the-badge" alt="npm downloads" /></a> &nbsp; 
-  <a href="https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/tekbreed/tekmemo/ci.yml?branch=main&style=for-the-badge&label=CI" alt="CI" /></a> &nbsp; 
-  <a href="https://docs.memo.tekbreed.com/"><img src="https://img.shields.io/badge/docs-online-blue?style=for-the-badge" alt="Docs" /></a> &nbsp; 
+  <a href="https://www.npmjs.com/package/@tekbreed/tekmemo-agentfs"><img src="https://img.shields.io/npm/v/@tekbreed%2Ftekmemo-agentfs?label=@tekbreed/tekmemo-agentfs&style=for-the-badge" alt="npm version" /></a> &nbsp; 
+  <a href="https://github.com/tekbreed/oss"><img src="https://img.shields.io/badge/status-alpha-orange?style=for-the-badge" alt="Status: Alpha" /></a> &nbsp; 
+  <a href="https://www.npmjs.com/package/@tekbreed/tekmemo-agentfs"><img src="https://img.shields.io/npm/dm/@tekbreed%2Ftekmemo-agentfs?style=for-the-badge" alt="npm downloads" /></a> &nbsp; 
+  <a href="https://github.com/tekbreed/oss/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/tekbreed/oss/ci.yml?branch=main&style=for-the-badge&label=CI" alt="CI" /></a> &nbsp; 
+  <a href="https://oss.tekbreed.com/tekmemo/"><img src="https://img.shields.io/badge/docs-online-blue?style=for-the-badge" alt="Docs" /></a> &nbsp; 
   <a href="../../LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge" alt="MIT License" /></a>
 </p>
 
@@ -33,7 +33,7 @@ It can also expose an AgentFS-like remote file runtime as a TekMemo `MemoryStore
 ## Installation
 
 ```bash
-npm install tekmemo @tekmemo/agentfs
+npm install @tekbreed/tekmemo @tekbreed/tekmemo-agentfs
 ```
 
 ## Quickstart
@@ -41,7 +41,7 @@ npm install tekmemo @tekmemo/agentfs
 ### Agent session workspace
 
 ```ts
-import { createTekMemoAgentSession } from "@tekmemo/agentfs";
+import { createTekMemoAgentSession } from "@tekbreed/tekmemo-agentfs";
 
 const session = createTekMemoAgentSession({
   client: agentfsClient,
@@ -87,8 +87,8 @@ The generated workspace uses this shape:
 ### MemoryStore adapter
 
 ```ts
-import { bootstrapMemoryStore, CORE_MEMORY_PATH } from "tekmemo";
-import { createAgentfsMemoryStore } from "@tekmemo/agentfs";
+import { bootstrapMemoryStore, CORE_MEMORY_PATH } from "@tekbreed/tekmemo";
+import { createAgentfsMemoryStore } from "@tekbreed/tekmemo-agentfs";
 
 const store = createAgentfsMemoryStore(agentfsClient, {
   scope: "project",
@@ -132,7 +132,7 @@ await session.complete({ extractDurableMemory: true });
 Creates an AgentFS-backed memory store:
 
 ```ts
-import { createAgentfsMemoryStore } from "@tekmemo/agentfs";
+import { createAgentfsMemoryStore } from "@tekbreed/tekmemo-agentfs";
 
 const store = createAgentfsMemoryStore(client, {
   scope: "project",           // "project" | "user" | "session"
@@ -198,7 +198,7 @@ Behind the scenes, `CORE_MEMORY_PATH` resolves to:
 ## Sync hooks
 
 ```ts
-import { syncBeforeSession, syncAfterSession } from "@tekmemo/agentfs";
+import { syncBeforeSession, syncAfterSession } from "@tekbreed/tekmemo-agentfs";
 
 // Before agent session
 await syncBeforeSession(agentfsClient);
@@ -215,7 +215,7 @@ await syncAfterSession(agentfsClient, "after-agent-session");
 ## Lease management
 
 ```ts
-import { InMemoryLeaseManager, withMemoryLease } from "@tekmemo/agentfs";
+import { InMemoryLeaseManager, withMemoryLease } from "@tekbreed/tekmemo-agentfs";
 
 // Create lease manager (in-memory, for tests/single-process)
 const leaseManager = new InMemoryLeaseManager();
@@ -272,8 +272,8 @@ const content = await store.read(".tekmemo/memory/core.md"); // "" if missing
 ## Error handling
 
 ```ts
-import { AgentfsClientError, AgentfsValidationError } from "@tekmemo/agentfs";
-import { MemoryNotFoundError, MemoryStoreError } from "tekmemo";
+import { AgentfsClientError, AgentfsValidationError } from "@tekbreed/tekmemo-agentfs";
+import { MemoryNotFoundError, MemoryStoreError } from "@tekbreed/tekmemo";
 
 try {
   await store.read(".tekmemo/memory/core.md");
@@ -329,8 +329,8 @@ try {
 - Path resolution for AgentFS scopes
 
 **This package does NOT own:**
-- The `.tekmemo/` protocol itself (owned by `tekmemo` core)
-- Local filesystem storage (see `@tekmemo/fs`)
+- The `.tekmemo/` protocol itself (owned by `@tekbreed/tekmemo` core)
+- Local filesystem storage (see `@tekbreed/tekmemo-fs`)
 - Vector recall
 - Embeddings
 - Reranking
@@ -342,6 +342,6 @@ try {
 
 ## Related packages
 
-- `tekmemo` — Core memory contracts and types
-- `@tekmemo/fs` — Local filesystem adapter
-- `@tekmemo/recall` — Vector recall contracts
+- `@tekbreed/tekmemo` — Core memory contracts and types
+- `@tekbreed/tekmemo-fs` — Local filesystem adapter
+- `@tekbreed/tekmemo-recall` — Vector recall contracts

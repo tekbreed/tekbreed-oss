@@ -28,4 +28,4 @@ Graph tools:
 | `tekmemo.graph_neighbors` | Find neighbors. |
 | `tekmemo.graph_path` | Find a path. |
 
-Cloud and hybrid graph tools delegate through `@tekmemo/cloud-client` to TekMemo Cloud graph APIs.
+Cloud and hybrid graph tools delegate through `@tekbreed/tekmemo-cloud-client` to TekMemo Cloud graph APIs.

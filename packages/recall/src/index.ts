@@ -1,5 +1,5 @@
 /**
- * @file Main entry point for the @tekmemo/recall package.
+ * @file Main entry point for the @tekbreed/tekmemo-recall package.
  *
  * @remarks
  * This package provides semantic recall memory capabilities including:

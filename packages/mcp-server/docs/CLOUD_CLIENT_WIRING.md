@@ -1,22 +1,22 @@
 # MCP Cloud Client Wiring
 
-This package is now wired to `@tekmemo/cloud-client`.
+This package is now wired to `@tekbreed/tekmemo-cloud-client`.
 
 ## Boundary
 
-`@tekmemo/mcp-server` does not construct raw TekMemo Cloud URLs directly. It creates or accepts a typed `TekMemoCloudClient` and delegates all cloud work to that client.
+`@tekbreed/tekmemo-mcp-server` does not construct raw TekMemo Cloud URLs directly. It creates or accepts a typed `TekMemoCloudClient` and delegates all cloud work to that client.
 
 ```txt
 MCP client
-  → @tekmemo/mcp-server
-  → @tekmemo/cloud-client
+  → @tekbreed/tekmemo-mcp-server
+  → @tekbreed/tekmemo-cloud-client
   → TekMemo Cloud API
 ```
 
 ## Runtime modes
 
-- `local`: uses `tekmemo` + `@tekmemo/fs` against local `.tekmemo/` files.
-- `cloud`: uses `@tekmemo/cloud-client` with a Cloud API key.
+- `local`: uses `@tekbreed/tekmemo` + `@tekbreed/tekmemo-fs` against local `.tekmemo/` files.
+- `cloud`: uses `@tekbreed/tekmemo-cloud-client` with a Cloud API key.
 - `hybrid`: composes local runtime and cloud runtime.
 - `memory`: in-memory test/demo runtime.
 
@@ -61,11 +61,11 @@ TEKMEMO_MCP_READ_ONLY=true | false
 ## Programmatic cloud runtime
 
 ```ts
-import { createTekMemoCloudClient } from "@tekmemo/cloud-client";
+import { createTekMemoCloudClient } from "@tekbreed/tekmemo-cloud-client";
 import {
   createCloudTekMemoMcpRuntime,
   createTekMemoMcpProtocolServer,
-} from "@tekmemo/mcp-server";
+} from "@tekbreed/tekmemo-mcp-server";
 
 const client = createTekMemoCloudClient({
   baseUrl: process.env.TEKMEMO_CLOUD_URL!,
@@ -83,7 +83,7 @@ const server = createTekMemoMcpProtocolServer({ runtime });
 
 ## What changed
 
-- `@tekmemo/mcp-server` now depends on `@tekmemo/cloud-client`.
+- `@tekbreed/tekmemo-mcp-server` now depends on `@tekbreed/tekmemo-cloud-client`.
 - The cloud runtime type is now the real `TekMemoCloudClient` interface.
 - The runtime factory can create a cloud client from environment variables or explicit options.
 - The binary now supports `--runtime cloud` and `--runtime hybrid` directly.
@@ -101,11 +101,11 @@ MCP still does not own:
 - webhook handling
 - Cloud API route implementation
 
-Those remain in TekMemo Cloud. The public contract lives in `@tekmemo/cloud-client`.
+Those remain in TekMemo Cloud. The public contract lives in `@tekbreed/tekmemo-cloud-client`.
 
 ## Current project-scoped cloud contract
 
-`@tekmemo/mcp-server` now consumes the aligned project-scoped API through `@tekmemo/cloud-client`:
+`@tekbreed/tekmemo-mcp-server` now consumes the aligned project-scoped API through `@tekbreed/tekmemo-cloud-client`:
 
 ```txt
 GET  /api/v1/projects/:projectId/memory/core
@@ -122,7 +122,7 @@ POST /api/v1/projects/:projectId/sync/conflicts/:conflictId/resolve
 
 It does not call stale unscoped `/context`, `/memories`, `/recall`, or `/graph` routes.
 
-Graph tools remain present in the MCP surface but cloud runtime returns a clear not-available error until the cloud app installs and wires `@tekmemo/graph`.
+Graph tools remain present in the MCP surface but cloud runtime returns a clear not-available error until the cloud app installs and wires `@tekbreed/tekmemo-graph`.
 
 Cloud snapshots are also intentionally unavailable until the R2 snapshots/exports milestone.
 

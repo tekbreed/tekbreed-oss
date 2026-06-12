@@ -1,16 +1,16 @@
 {
-	"name": "@tekmemo/recall",
+	"name": "@tekbreed/tekmemo-recall",
 	"version": "0.2.0",
 	"description": "Provider-neutral vector recall contracts, validation, and test utilities for TekMemo.",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/tekbreed/tekmemo.git",
+		"url": "git+https://github.com/tekbreed/oss.git",
 		"directory": "packages/recall"
 	},
-	"homepage": "https://docs.memo.tekbreed.com/packages/recall",
+	"homepage": "https://oss.tekbreed.com/tekmemo/packages/recall",
 	"bugs": {
-		"url": "https://github.com/tekbreed/tekmemo/issues"
+		"url": "https://github.com/tekbreed/oss/issues"
 	},
 	"type": "module",
 	"sideEffects": false,
@@ -58,7 +58,7 @@
 		"llm",
 		"memory",
 		"recall",
-		"tekmemo",
+		"@tekbreed/tekmemo",
 		"typescript"
 	],
 	"devDependencies": {

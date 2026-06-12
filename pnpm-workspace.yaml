@@ -3,3 +3,4 @@ packages:
   - "benchmarks"
   - "examples/*"
   - "packages/*"
+  - "tooling/*"

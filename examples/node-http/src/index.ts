@@ -1,5 +1,5 @@
 import http from "node:http";
-import { createTekMemoCloudClient } from "@tekmemo/cloud-client";
+import { createTekMemoCloudClient } from "@tekbreed/tekmemo-cloud-client";
 
 const client = createTekMemoCloudClient({
 	baseUrl: process.env.TEKMEMO_CLOUD_URL!,

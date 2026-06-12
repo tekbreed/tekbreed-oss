@@ -1,6 +1,6 @@
 # Graph memory example
 
-Create local graph nodes and edges with `@tekmemo/graph`.
+Create local graph nodes and edges with `@tekbreed/tekmemo-graph`.
 
 Source folder:
 

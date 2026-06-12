@@ -152,7 +152,7 @@ export function createScopeMetadata(input: {
 				? input.context.participantIds
 				: undefined,
 		actorId: input.context.actorId,
-		createdByPackage: "@tekmemo/ai-sdk",
+		createdByPackage: "@tekbreed/tekmemo-ai-sdk",
 	}) as unknown as AiMemoryScopeMetadata;
 }
 

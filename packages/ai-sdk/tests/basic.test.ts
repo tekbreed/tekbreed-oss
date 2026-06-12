@@ -2,7 +2,7 @@ import {
 	bootstrapMemoryStore,
 	InMemoryMemoryStore,
 	writeCoreMemory,
-} from "tekmemo";
+} from "@tekbreed/tekmemo";
 import { expect, test } from "vitest";
 
 import {

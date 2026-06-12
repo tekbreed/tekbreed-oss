@@ -1,9 +1,9 @@
 export const site = {
-	title: "TekMemo",
+	title: "TekBreed OSS",
 	description:
-		"Developer documentation for TekMemo: file-first memory, cloud-client, CLI, MCP, AI SDK, graph memory, and framework integrations.",
-	repo: "https://github.com/tekbreed/tekmemo",
-	npm: "https://www.npmjs.com/package/tekmemo",
+		"Developer documentation for TekBreed OSS projects, starting with TekMemo file-first memory.",
+	repo: "https://github.com/tekbreed/oss",
+	npm: "https://www.npmjs.com/package/@tekbreed/tekmemo",
 	cloud: "https://memo.tekbreed.com",
 	x: "https://x.com/tekbreed",
 	license: "MIT",

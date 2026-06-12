@@ -3,7 +3,7 @@ services:
     build:
       context: ../..
       dockerfile: apps/self-host-node/Dockerfile
-    command: ["pnpm", "--filter", "@tekmemo/self-host-node", "server"]
+    command: ["pnpm", "--filter", "@tekbreed/tekmemo-self-host-node", "server"]
     ports:
       - "8787:8787"
     env_file:
@@ -19,7 +19,7 @@ services:
     build:
       context: ../..
       dockerfile: apps/self-host-node/Dockerfile
-    command: ["pnpm", "--filter", "@tekmemo/self-host-node", "worker"]
+    command: ["pnpm", "--filter", "@tekbreed/tekmemo-self-host-node", "worker"]
     env_file:
       - .env
     depends_on:

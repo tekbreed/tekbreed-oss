@@ -1,6 +1,6 @@
 # Cloud client example
 
-Use `@tekmemo/cloud-client` as the only package that talks directly to TekMemo Cloud.
+Use `@tekbreed/tekmemo-cloud-client` as the only package that talks directly to TekMemo Cloud.
 
 Source folder:
 

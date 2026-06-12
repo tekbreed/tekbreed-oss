@@ -10,13 +10,13 @@ import {
 	NOTES_MEMORY_PATH,
 	SNAPSHOTS_INDEX_PATH,
 	TEKMEMO_DIR,
-} from "tekmemo";
+} from "@tekbreed/tekmemo";
 
 export { TEKMEMO_DIR };
 
 /**
  * Flat CLI path map kept for command ergonomics.
- * The values intentionally come from `tekmemo`, so the CLI cannot drift from
+ * The values intentionally come from `@tekbreed/tekmemo`, so the CLI cannot drift from
  * the canonical protocol owned by the core package.
  */
 export const TEKMEMO_PATHS = {

@@ -1,10 +1,10 @@
-import { createTekMemoServer } from "@tekmemo/server";
+import { createTekMemoServer } from "@tekbreed/tekmemo-server";
 import {
 	createNodeTekMemoObjectStore,
 	createNodeTekMemoQueue,
 	createNodeTekMemoStore,
 	readTekMemoNodeRuntimeConfig,
-} from "@tekmemo/server/node";
+} from "@tekbreed/tekmemo-server/node";
 
 export async function createNodeRuntime() {
 	const config = readTekMemoNodeRuntimeConfig();

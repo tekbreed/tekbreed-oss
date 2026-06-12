@@ -5,7 +5,7 @@ import {
 	type MemoryPath,
 	type MemoryStore,
 	MemoryStoreError,
-} from "tekmemo";
+} from "@tekbreed/tekmemo";
 import {
 	type AgentfsLikeClient,
 	assertAgentfsLikeClient,

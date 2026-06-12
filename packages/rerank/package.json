@@ -1,16 +1,16 @@
 {
-	"name": "@tekmemo/rerank",
+	"name": "@tekbreed/tekmemo-rerank",
 	"version": "0.2.0",
 	"description": "Provider-neutral reranking contracts and utilities for TekMemo.",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/tekbreed/tekmemo.git",
+		"url": "git+https://github.com/tekbreed/oss.git",
 		"directory": "packages/rerank"
 	},
-	"homepage": "https://docs.memo.tekbreed.com/packages/rerank",
+	"homepage": "https://oss.tekbreed.com/tekmemo/packages/rerank",
 	"bugs": {
-		"url": "https://github.com/tekbreed/tekmemo/issues"
+		"url": "https://github.com/tekbreed/oss/issues"
 	},
 	"type": "module",
 	"sideEffects": false,
@@ -69,7 +69,7 @@
 		"memory",
 		"recall",
 		"rerank",
-		"tekmemo",
+		"@tekbreed/tekmemo",
 		"typescript"
 	],
 	"devDependencies": {

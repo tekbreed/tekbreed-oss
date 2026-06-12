@@ -1,5 +1,5 @@
 {
-	"name": "@tekmemo/self-host-cloudflare",
+	"name": "@tekbreed/tekmemo-self-host-cloudflare",
 	"version": "0.1.0",
 	"private": true,
 	"type": "module",
@@ -11,7 +11,7 @@
 		"build": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@tekmemo/server": "workspace:*",
+		"@tekbreed/tekmemo-server": "workspace:*",
 		"hono": "^4.0.0"
 	},
 	"devDependencies": {

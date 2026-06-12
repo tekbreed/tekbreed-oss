@@ -1,5 +1,5 @@
 {
-	"name": "@tekmemo/mcp-server",
+	"name": "@tekbreed/tekmemo-mcp-server",
 	"version": "0.1.1",
 	"description": "Production-ready Model Context Protocol boundary adapter for local, cloud, and hybrid TekMemo runtimes.",
 	"type": "module",
@@ -105,19 +105,19 @@
 		"mcp",
 		"memory",
 		"model-context-protocol",
-		"tekmemo",
+		"@tekbreed/tekmemo",
 		"typescript"
 	],
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/tekbreed/tekmemo.git",
+		"url": "git+https://github.com/tekbreed/oss.git",
 		"directory": "packages/mcp-server"
 	},
 	"bugs": {
-		"url": "https://github.com/tekbreed/tekmemo/issues"
+		"url": "https://github.com/tekbreed/oss/issues"
 	},
-	"homepage": "https://docs.memo.tekbreed.com/packages/mcp-server",
+	"homepage": "https://oss.tekbreed.com/tekmemo/packages/mcp-server",
 	"publishConfig": {
 		"access": "public",
 		"registry": "https://registry.npmjs.org/"
@@ -137,10 +137,10 @@
 		"@repo/utils": "workspace:*"
 	},
 	"dependencies": {
-		"@tekmemo/agentfs": "workspace:^",
-		"@tekmemo/cloud-client": "workspace:^",
-		"@tekmemo/fs": "workspace:^",
-		"tekmemo": "workspace:^"
+		"@tekbreed/tekmemo-agentfs": "workspace:^",
+		"@tekbreed/tekmemo-cloud-client": "workspace:^",
+		"@tekbreed/tekmemo-fs": "workspace:^",
+		"@tekbreed/tekmemo": "workspace:^"
 	},
 	"private": false,
 	"engines": {

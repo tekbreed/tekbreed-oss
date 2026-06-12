@@ -1,5 +1,5 @@
 import path from "node:path";
-import { MemoryPathError } from "tekmemo";
+import { MemoryPathError } from "@tekbreed/tekmemo";
 import { describe, expect, test } from "vitest";
 import {
 	normalizeOptions,

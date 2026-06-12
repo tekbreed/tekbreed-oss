@@ -1,5 +1,5 @@
 {
-	"name": "@tekmemo/example-sveltekit",
+	"name": "@tekbreed/example-tekmemo-sveltekit",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -7,7 +7,7 @@
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@tekmemo/cloud-client": "workspace:^",
+		"@tekbreed/tekmemo-cloud-client": "workspace:^",
 		"@sveltejs/kit": "^2.0.0",
 		"svelte": "^5.0.0"
 	},

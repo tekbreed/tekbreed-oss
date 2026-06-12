@@ -1,4 +1,4 @@
-import { createTekMemoCloudClient } from "@tekmemo/cloud-client";
+import { createTekMemoCloudClient } from "@tekbreed/tekmemo-cloud-client";
 import { Hono } from "hono";
 
 type Env = {

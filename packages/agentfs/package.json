@@ -1,17 +1,17 @@
 {
-	"name": "@tekmemo/agentfs",
+	"name": "@tekbreed/tekmemo-agentfs",
 	"version": "0.2.0",
 	"description": "AgentFS session workspace and MemoryStore adapter for TekMemo-powered agents.",
 	"private": false,
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/tekbreed/tekmemo.git",
+		"url": "git+https://github.com/tekbreed/oss.git",
 		"directory": "packages/agentfs"
 	},
-	"homepage": "https://docs.memo.tekbreed.com/packages/agentfs",
+	"homepage": "https://oss.tekbreed.com/tekmemo/packages/agentfs",
 	"bugs": {
-		"url": "https://github.com/tekbreed/tekmemo/issues"
+		"url": "https://github.com/tekbreed/oss/issues"
 	},
 	"type": "module",
 	"sideEffects": false,
@@ -22,7 +22,7 @@
 		"llm",
 		"recall",
 		"typescript",
-		"tekmemo"
+		"@tekbreed/tekmemo"
 	],
 	"main": "./dist/index.cjs",
 	"module": "./dist/index.mjs",
@@ -59,7 +59,7 @@
 		"release:check": "pnpm build && pnpm typecheck && pnpm test:run && pnpm lint:package && npm pack --dry-run"
 	},
 	"dependencies": {
-		"tekmemo": "workspace:^"
+		"@tekbreed/tekmemo": "workspace:^"
 	},
 	"devDependencies": {
 		"@repo/test-utils": "workspace:*",

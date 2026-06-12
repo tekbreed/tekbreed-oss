@@ -1,11 +1,11 @@
-# `@tekmemo/ai-sdk`
+# `@tekbreed/tekmemo-ai-sdk`
 
 Vercel AI SDK helpers for TekMemo memory tools.
 
 ## Install
 
 ```bash
-npm install @tekmemo/ai-sdk ai tekmemo @tekmemo/fs
+npm install @tekbreed/tekmemo-ai-sdk ai tekmemo @tekbreed/tekmemo-fs
 ```
 
 ## Purpose
@@ -31,8 +31,8 @@ import {
 	buildRuntimeMemoryContext,
 	buildRuntimeMemoryToolDefinition,
 	createLocalAiSdkRuntime,
-} from "@tekmemo/ai-sdk";
-import { createNodeFsMemoryStore } from "@tekmemo/fs";
+} from "@tekbreed/tekmemo-ai-sdk";
+import { createNodeFsMemoryStore } from "@tekbreed/tekmemo-fs";
 
 const store = createNodeFsMemoryStore({ rootDir: "./.tekmemo" });
 const runtime = createLocalAiSdkRuntime({ workspace: store });
@@ -56,10 +56,10 @@ await generateText({
 
 ## Cloud-backed tools
 
-For cloud-backed memory tools, use a runtime from `@tekmemo/cloud-client` instead of the local runtime:
+For cloud-backed memory tools, use a runtime from `@tekbreed/tekmemo-cloud-client` instead of the local runtime:
 
 ```ts
-import { createTekMemoCloudClient } from "@tekmemo/cloud-client";
+import { createTekMemoCloudClient } from "@tekbreed/tekmemo-cloud-client";
 
 const client = createTekMemoCloudClient({
 	baseUrl: "https://memo.tekbreed.com/api/v1",

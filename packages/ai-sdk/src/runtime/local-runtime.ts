@@ -1,4 +1,4 @@
-import type { MemoryStore } from "tekmemo";
+import type { MemoryStore } from "@tekbreed/tekmemo";
 import {
 	appendTimestampedNote,
 	CORE_MEMORY_PATH,
@@ -7,7 +7,7 @@ import {
 	readNotesMemory,
 	searchMemoryText,
 	writeCoreMemory,
-} from "tekmemo";
+} from "@tekbreed/tekmemo";
 import type {
 	AiRuntimeMemoryNote,
 	AiRuntimePage,

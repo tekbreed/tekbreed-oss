@@ -19,18 +19,18 @@ pnpm install
 ## Run
 
 ```bash
-pnpm --filter @tekmemo/example-ai-sdk dev
+pnpm --filter @tekbreed/example-tekmemo-ai-sdk dev
 ```
 
 ## Packages used
 
 ```bash
-pnpm add @tekmemo/ai-sdk tekmemo @tekmemo/fs ai zod
+pnpm add @tekbreed/tekmemo-ai-sdk tekmemo @tekbreed/tekmemo-fs ai zod
 ```
 
 ## Safety notes
 
 - Never put `TEKMEMO_API_KEY` in browser-side code.
-- Use `@tekmemo/cloud-client` only from server routes, CLI tools, MCP runtimes, workers, or trusted backend code.
+- Use `@tekbreed/tekmemo-cloud-client` only from server routes, CLI tools, MCP runtimes, workers, or trusted backend code.
 - Enable `allowWrites` only when the agent is supposed to create durable memory.
 - Enable `allowCoreUpdates` only for controlled maintenance workflows.

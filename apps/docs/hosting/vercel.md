@@ -10,7 +10,7 @@ Use server routes, server actions, or edge middleware. Never expose `TEKMEMO_API
 // app/actions.ts
 "use server";
 
-import { createTekMemoCloudClient } from "@tekmemo/cloud-client";
+import { createTekMemoCloudClient } from "@tekbreed/tekmemo-cloud-client";
 
 const client = createTekMemoCloudClient({
   baseUrl: process.env.TEKMEMO_CLOUD_URL!,
@@ -28,7 +28,7 @@ export async function getContext(query: string) {
 ```ts
 // app/api/memory/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { createTekMemoCloudClient } from "@tekmemo/cloud-client";
+import { createTekMemoCloudClient } from "@tekbreed/tekmemo-cloud-client";
 
 const client = createTekMemoCloudClient({
   baseUrl: process.env.TEKMEMO_CLOUD_URL!,

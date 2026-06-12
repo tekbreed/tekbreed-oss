@@ -4,12 +4,12 @@ Reranking is a crucial step in the recall pipeline. After retrieving a set of po
 
 ## Core Package
 
-`@tekmemo/rerank` provides the standard `Reranker` contract and a deterministic fallback implementation.
+`@tekbreed/tekmemo-rerank` provides the standard `Reranker` contract and a deterministic fallback implementation.
 
 ### Install
 
 ```bash
-npm install @tekmemo/rerank
+npm install @tekbreed/tekmemo-rerank
 ```
 
 ### API Reference
@@ -23,18 +23,18 @@ npm install @tekmemo/rerank
 
 ## VoyageAI Adapter
 
-`@tekmemo/rerank-voyage` provides a production-ready implementation of the reranker contract using VoyageAI's specialized rerank models.
+`@tekbreed/tekmemo-rerank-voyage` provides a production-ready implementation of the reranker contract using VoyageAI's specialized rerank models.
 
 ### Install
 
 ```bash
-npm install @tekmemo/rerank-voyage
+npm install @tekbreed/tekmemo-rerank-voyage
 ```
 
 ### Example usage
 
 ```ts
-import { createVoyageReranker } from "@tekmemo/rerank-voyage";
+import { createVoyageReranker } from "@tekbreed/tekmemo-rerank-voyage";
 
 // Create the reranker instance
 const reranker = createVoyageReranker({

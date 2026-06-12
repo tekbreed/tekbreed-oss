@@ -1,5 +1,5 @@
 {
-	"name": "@tekmemo/cloud-client",
+	"name": "@tekbreed/tekmemo-cloud-client",
 	"version": "0.1.1",
 	"description": "Project-scoped TekMemo Cloud API client, cloud runtime, and hybrid runtime helpers.",
 	"license": "MIT",
@@ -47,18 +47,18 @@
 		"mcp",
 		"memory",
 		"sync",
-		"tekmemo",
+		"@tekbreed/tekmemo",
 		"typescript"
 	],
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/tekbreed/tekmemo.git",
+		"url": "git+https://github.com/tekbreed/oss.git",
 		"directory": "packages/cloud-client"
 	},
 	"bugs": {
-		"url": "https://github.com/tekbreed/tekmemo/issues"
+		"url": "https://github.com/tekbreed/oss/issues"
 	},
-	"homepage": "https://docs.memo.tekbreed.com/packages/cloud-client",
+	"homepage": "https://oss.tekbreed.com/tekmemo/packages/cloud-client",
 	"devDependencies": {
 		"@repo/test-utils": "workspace:*",
 		"@repo/tsdown-config": "workspace:*",

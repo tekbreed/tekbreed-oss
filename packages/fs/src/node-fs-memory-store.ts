@@ -10,8 +10,8 @@ import fs from "node:fs/promises";
  */
 
 import { PathLock } from "@repo/utils";
-import type { MemoryPath, MemoryStore } from "tekmemo";
-import { MemoryNotFoundError } from "tekmemo";
+import type { MemoryPath, MemoryStore } from "@tekbreed/tekmemo";
+import { MemoryNotFoundError } from "@tekbreed/tekmemo";
 import {
 	isNotFoundError,
 	wrapFsError,

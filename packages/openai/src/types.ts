@@ -1,5 +1,5 @@
 /**
- * Core types for the @tekmemo/openai package.
+ * Core types for the @tekbreed/tekmemo-openai package.
  *
  * @remarks
  * Defines configuration, request/response, and embedder types
@@ -14,7 +14,7 @@ import type {
 } from "./models/models";
 
 /**
- * @file Type definitions for @tekmemo/openai.
+ * @file Type definitions for @tekbreed/tekmemo-openai.
  *
  * @remarks
  * This module defines the core types used throughout the package including

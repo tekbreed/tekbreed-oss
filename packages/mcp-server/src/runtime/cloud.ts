@@ -1,8 +1,8 @@
-import type { TekMemoCloudClient } from "@tekmemo/cloud-client";
+import type { TekMemoCloudClient } from "@tekbreed/tekmemo-cloud-client";
 import {
 	createCloudTekMemoRuntime,
 	TekMemoCloudConfigurationError,
-} from "@tekmemo/cloud-client";
+} from "@tekbreed/tekmemo-cloud-client";
 import { McpNotFoundError } from "../errors.js";
 import type {
 	MemoryContextInput,
@@ -26,7 +26,7 @@ export interface CloudTekMemoMcpRuntimeOptions {
 /**
  * Creates an MCP runtime backed by TekMemo Cloud's current project-scoped API.
  *
- * This runtime deliberately talks to @tekmemo/cloud-client instead of raw URLs.
+ * This runtime deliberately talks to @tekbreed/tekmemo-cloud-client instead of raw URLs.
  * The cloud client owns /api/v1/projects/:projectId route construction,
  * { data, meta } / { error, meta } envelope parsing, retries, timeouts,
  * request IDs, and API-key redaction.
@@ -387,24 +387,24 @@ function truncate(value: string, max: number): string {
 
 async function unsupportedGraphWrite(): Promise<never> {
 	throw new McpNotFoundError(
-		"Cloud graph APIs are not available yet. Install/wire @tekmemo/graph in TekMemo Cloud before enabling graph tools in cloud mode.",
+		"Cloud graph APIs are not available yet. Install/wire @tekbreed/tekmemo-graph in TekMemo Cloud before enabling graph tools in cloud mode.",
 	);
 }
 
 async function unsupportedGraphRead(): Promise<never> {
 	throw new McpNotFoundError(
-		"Cloud graph APIs are not available yet. Install/wire @tekmemo/graph in TekMemo Cloud before enabling graph tools in cloud mode.",
+		"Cloud graph APIs are not available yet. Install/wire @tekbreed/tekmemo-graph in TekMemo Cloud before enabling graph tools in cloud mode.",
 	);
 }
 
 async function unsupportedGraphPath(): Promise<never> {
 	throw new McpNotFoundError(
-		"Cloud graph APIs are not available yet. Install/wire @tekmemo/graph in TekMemo Cloud before enabling graph tools in cloud mode.",
+		"Cloud graph APIs are not available yet. Install/wire @tekbreed/tekmemo-graph in TekMemo Cloud before enabling graph tools in cloud mode.",
 	);
 }
 
 async function unsupportedGraphList(): Promise<never> {
 	throw new McpNotFoundError(
-		"Cloud graph APIs are not available yet. Install/wire @tekmemo/graph in TekMemo Cloud before enabling graph resources in cloud mode.",
+		"Cloud graph APIs are not available yet. Install/wire @tekbreed/tekmemo-graph in TekMemo Cloud before enabling graph resources in cloud mode.",
 	);
 }

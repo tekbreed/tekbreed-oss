@@ -1,4 +1,4 @@
-import { assertMemoryPath, type MemoryPath } from "tekmemo";
+import { assertMemoryPath, type MemoryPath } from "@tekbreed/tekmemo";
 import { AgentfsConfigError } from "../errors/agentfs-error";
 
 /**

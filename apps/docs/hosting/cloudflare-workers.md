@@ -5,13 +5,13 @@ Use Workers environment bindings for secrets. TekMemo Cloud works on Workers, Pa
 ## Setup
 
 ```bash
-npm install @tekmemo/cloud-client
+npm install @tekbreed/tekmemo-cloud-client
 ```
 
 ## Worker example
 
 ```ts
-import { createTekMemoCloudClient } from "@tekmemo/cloud-client";
+import { createTekMemoCloudClient } from "@tekbreed/tekmemo-cloud-client";
 
 export interface Env {
   TEKMEMO_CLOUD_URL: string;
@@ -61,7 +61,7 @@ wrangler secret put TEKMEMO_PROJECT_ID
 
 ```ts
 import { Hono } from "hono";
-import { createTekMemoCloudClient } from "@tekmemo/cloud-client";
+import { createTekMemoCloudClient } from "@tekbreed/tekmemo-cloud-client";
 
 type Bindings = {
   TEKMEMO_CLOUD_URL: string;

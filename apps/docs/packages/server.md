@@ -1,13 +1,13 @@
-# @tekmemo/server
+# @tekbreed/tekmemo-server
 
-`@tekmemo/server` is the Hono-based API layer for self-hosted TekMemo memory servers.
+`@tekbreed/tekmemo-server` is the Hono-based API layer for self-hosted TekMemo memory servers.
 
 ## Root import
 
 Use the root import for runtime-neutral app construction:
 
 ```ts
-import { createTekMemoServer } from "@tekmemo/server";
+import { createTekMemoServer } from "@tekbreed/tekmemo-server";
 ```
 
 The root import avoids Node-only dependencies so Cloudflare Workers can use the shared Hono app.
@@ -21,7 +21,7 @@ import {
 	createNodeTekMemoObjectStore,
 	createNodeTekMemoQueue,
 	createNodeTekMemoStore,
-} from "@tekmemo/server/node";
+} from "@tekbreed/tekmemo-server/node";
 ```
 
 The Node runtime supports:
@@ -34,7 +34,7 @@ The Node runtime supports:
 
 ## Self-hosting with Node
 
-The recommended Node deployment target is `apps/self-host-node` in the [TekMemo repository](https://github.com/tekbreed/tekmemo).
+The recommended Node deployment target is `apps/self-host-node` in the [TekMemo repository](https://github.com/tekbreed/oss).
 
 It runs as one API process plus one worker process:
 
@@ -64,10 +64,10 @@ docker compose up --build
 
 ## Connecting a client
 
-Use `@tekmemo/cloud-client` against your self-hosted base URL:
+Use `@tekbreed/tekmemo-cloud-client` against your self-hosted base URL:
 
 ```ts
-import { createTekMemoCloudClient } from "@tekmemo/cloud-client";
+import { createTekMemoCloudClient } from "@tekbreed/tekmemo-cloud-client";
 
 const client = createTekMemoCloudClient({
 	baseUrl: "http://localhost:8787/api/v1",

@@ -2,7 +2,7 @@ import {
 	assertNamespace,
 	normalizeNamespace,
 	RecallValidationError,
-} from "@tekmemo/recall";
+} from "@tekbreed/tekmemo-recall";
 import { UpstashRecallValidationError } from "../errors/upstash-errors.js";
 
 /**
@@ -23,7 +23,7 @@ import { UpstashRecallValidationError } from "../errors/upstash-errors.js";
 export interface UpstashNamespaceConfig {
 	/** Explicit namespace string. If provided, takes precedence over other options. */
 	namespace?: string;
-	/** Prefix for the namespace (default: "tekmemo"). */
+	/** Prefix for the namespace (default: "@tekbreed/tekmemo"). */
 	namespacePrefix?: string;
 	/** Environment segment (default: "default"). */
 	environment?: string;
@@ -93,7 +93,7 @@ export function resolveUpstashNamespace(
 	}
 
 	const prefix = safeSegment(
-		config.namespacePrefix ?? "tekmemo",
+		config.namespacePrefix ?? "@tekbreed/tekmemo",
 		"namespacePrefix",
 	);
 	const env = safeSegment(config.environment ?? "default", "environment");

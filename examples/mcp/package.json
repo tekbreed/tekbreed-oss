@@ -1,5 +1,5 @@
 {
-	"name": "@tekmemo/example-mcp",
+	"name": "@tekbreed/example-tekmemo-mcp",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -7,10 +7,10 @@
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@tekmemo/cloud-client": "workspace:^",
-		"@tekmemo/mcp-server": "workspace:^",
-		"tekmemo": "workspace:^",
-		"@tekmemo/fs": "workspace:^"
+		"@tekbreed/tekmemo-cloud-client": "workspace:^",
+		"@tekbreed/tekmemo-mcp-server": "workspace:^",
+		"@tekbreed/tekmemo": "workspace:^",
+		"@tekbreed/tekmemo-fs": "workspace:^"
 	},
 	"devDependencies": {
 		"tsx": "^4.21.0",

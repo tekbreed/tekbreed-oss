@@ -4,7 +4,7 @@ import {
 	type TekMemoCloudClient,
 	type TekMemoCloudClientOptions,
 	TekMemoCloudError,
-} from "@tekmemo/cloud-client";
+} from "@tekbreed/tekmemo-cloud-client";
 import { CliUsageError } from "../errors/cli-errors";
 
 export interface CloudConnectionOptions {
@@ -47,7 +47,7 @@ export function toCloudClientOptions(
 		...(normalized.timeoutMs !== undefined
 			? { timeoutMs: normalized.timeoutMs }
 			: {}),
-		userAgent: "@tekmemo/cli",
+		userAgent: "@tekbreed/tekmemo-cli",
 		requireApiKey: !options.allowMissingApiKey,
 		acceptLegacyEnvelope: false,
 	};

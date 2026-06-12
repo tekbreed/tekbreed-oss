@@ -1,16 +1,16 @@
 {
-	"name": "@tekmemo/voyageai",
+	"name": "@tekbreed/tekmemo-voyageai",
 	"version": "0.2.0",
 	"description": "Production-ready Voyage AI embedding adapter for TekMemo.",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/tekbreed/tekmemo.git",
+		"url": "git+https://github.com/tekbreed/oss.git",
 		"directory": "packages/voyageai"
 	},
-	"homepage": "https://docs.memo.tekbreed.com/packages/voyageai",
+	"homepage": "https://oss.tekbreed.com/tekmemo/packages/voyageai",
 	"bugs": {
-		"url": "https://github.com/tekbreed/tekmemo/issues"
+		"url": "https://github.com/tekbreed/oss/issues"
 	},
 	"type": "module",
 	"sideEffects": false,
@@ -69,7 +69,7 @@
 		"llm",
 		"memory",
 		"recall",
-		"tekmemo",
+		"@tekbreed/tekmemo",
 		"typescript",
 		"voyage"
 	],

@@ -1,11 +1,11 @@
-# `@tekmemo/cli`
+# `@tekbreed/tekmemo-cli`
 
 Command-line tooling for local, cloud, and hybrid memory workflows.
 
 ## Install
 
 ```bash
-npm install -D @tekmemo/cli
+npm install -D @tekbreed/tekmemo-cli
 ```
 
 ## Start
@@ -16,4 +16,4 @@ tekmemo remember "Use D1 for tenant metadata." --kind decision
 tekmemo context --query "database work" --json
 ```
 
-Cloud commands delegate to `@tekmemo/cloud-client`.
+Cloud commands delegate to `@tekbreed/tekmemo-cloud-client`.

@@ -1,4 +1,4 @@
-import { RecallProviderError, RecallValidationError } from "@tekmemo/recall";
+import { RecallProviderError, RecallValidationError } from "@tekbreed/tekmemo-recall";
 
 /**
  * @file Custom error types for Upstash Vector operations.

@@ -64,7 +64,7 @@ export async function runSnapshotCommand(
 		metadata: {
 			label,
 			fileCount: Object.keys(files).length,
-			createdBy: "@tekmemo/cli",
+			createdBy: "@tekbreed/tekmemo-cli",
 		},
 	};
 
@@ -80,7 +80,7 @@ export async function runSnapshotCommand(
 				type: "snapshot.created",
 				timestamp: createdAt,
 				sourcePath: path,
-				actor: { type: "system", id: "@tekmemo/cli" },
+				actor: { type: "system", id: "@tekbreed/tekmemo-cli" },
 				summary: `Created snapshot ${label}`,
 				metadata: { snapshotId: id, label, checksum: bundle.checksum },
 			},

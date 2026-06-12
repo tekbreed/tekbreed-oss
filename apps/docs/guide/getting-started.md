@@ -5,7 +5,7 @@ TekMemo starts with a normal project folder.
 ## 1. Install the CLI
 
 ```bash
-npm install -D @tekmemo/cli
+npm install -D @tekbreed/tekmemo-cli
 ```
 
 ## 2. Initialize memory
@@ -31,7 +31,7 @@ npx tekmemo context --query "database schema work" --json
 ## 5. Add MCP for coding agents
 
 ```bash
-npm install -D @tekmemo/mcp-server
+npm install -D @tekbreed/tekmemo-mcp-server
 ```
 
 Then configure your MCP client to run `tekmemo-mcp` in local, cloud, or hybrid mode.

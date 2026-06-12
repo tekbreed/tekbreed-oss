@@ -4,10 +4,10 @@
 
 - Added runtime mode vocabulary: `local`, `cloud`, `hybrid`, `memory`.
 - Changed binary default from in-memory runtime to local `.tekmemo/` runtime.
-- Added `createLocalTekMemoMcpRuntime` backed by `tekmemo` and `@tekmemo/fs`.
-- Added `createCloudTekMemoMcpRuntime` backed by the real `@tekmemo/cloud-client` interface.
+- Added `createLocalTekMemoMcpRuntime` backed by `@tekbreed/tekmemo` and `@tekbreed/tekmemo-fs`.
+- Added `createCloudTekMemoMcpRuntime` backed by the real `@tekbreed/tekmemo-cloud-client` interface.
 - Added `createHybridTekMemoMcpRuntime` for local+cloud use.
-- Wired `tekmemo-mcp --runtime cloud` and `tekmemo-mcp --runtime hybrid` through `@tekmemo/cloud-client`.
+- Wired `tekmemo-mcp --runtime cloud` and `tekmemo-mcp --runtime hybrid` through `@tekbreed/tekmemo-cloud-client`.
 - Added primary agent tool `tekmemo.context`.
 - Added primary write tool `tekmemo.remember`.
 - Kept `tekmemo.write_note` as a backward-compatible alias.
@@ -18,11 +18,11 @@
 
 ## Cloud client wiring
 
-`@tekmemo/mcp-server` now depends on `@tekmemo/cloud-client` and delegates all Cloud API work to that package.
+`@tekbreed/tekmemo-mcp-server` now depends on `@tekbreed/tekmemo-cloud-client` and delegates all Cloud API work to that package.
 
 ```txt
-@tekmemo/mcp-server
-  → @tekmemo/cloud-client
+@tekbreed/tekmemo-mcp-server
+  → @tekbreed/tekmemo-cloud-client
   → TekMemo Cloud API
 ```
 
@@ -39,4 +39,4 @@ tekmemo-mcp --runtime hybrid --root . --cloud-url https://memo.tekbreed.com/api/
 
 ## Recommended next step
 
-Make TekMemo Cloud implement the public API contract in `@tekmemo/cloud-client/docs/API_CONTRACT.md`, then run MCP cloud/hybrid integration tests against a local Cloudflare dev server.
+Make TekMemo Cloud implement the public API contract in `@tekbreed/tekmemo-cloud-client/docs/API_CONTRACT.md`, then run MCP cloud/hybrid integration tests against a local Cloudflare dev server.

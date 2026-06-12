@@ -1,4 +1,4 @@
-import { createTekMemoCloudClient } from "@tekmemo/cloud-client";
+import { createTekMemoCloudClient } from "@tekbreed/tekmemo-cloud-client";
 
 // Put this in app/api/tekmemo/context/route.ts in a real Next.js app.
 export async function GET(request: Request) {

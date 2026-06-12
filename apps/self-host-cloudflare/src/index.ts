@@ -1,4 +1,4 @@
-import { createInMemoryTekMemoServer } from "@tekmemo/server";
+import { createInMemoryTekMemoServer } from "@tekbreed/tekmemo-server";
 
 export interface Env {
 	TEKMEMO_API_KEY?: string;

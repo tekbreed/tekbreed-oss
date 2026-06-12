@@ -1,7 +1,7 @@
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { runTekMemoCli } from "@tekmemo/cli";
+import { runTekMemoCli } from "@tekbreed/tekmemo-cli";
 
 const cwd = await mkdtemp(join(tmpdir(), "tekmemo-cli-"));
 

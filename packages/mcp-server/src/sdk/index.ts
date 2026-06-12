@@ -44,7 +44,7 @@ export interface StructuralMcpServer {
 /**
  * Register TekMemo tools/resources/prompts on an official MCP SDK server instance.
  *
- * This adapter is intentionally structural so @tekmemo/mcp-server can compile without bundling
+ * This adapter is intentionally structural so @tekbreed/tekmemo-mcp-server can compile without bundling
  * the MCP SDK. Install @modelcontextprotocol/sdk in the host app and pass the SDK server.
  */
 export function registerTekMemoMcpCapabilities(

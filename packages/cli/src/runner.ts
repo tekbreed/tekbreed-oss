@@ -580,7 +580,7 @@ export async function runTekMemoCli(
 
 	const cloud = program
 		.command("cloud")
-		.description("use TekMemo Cloud through @tekmemo/cloud-client")
+		.description("use TekMemo Cloud through @tekbreed/tekmemo-cloud-client")
 		.option(
 			"--cloud-url <url>",
 			"TekMemo Cloud API URL; defaults to TEKMEMO_CLOUD_URL or TEKMEMO_API_URL",

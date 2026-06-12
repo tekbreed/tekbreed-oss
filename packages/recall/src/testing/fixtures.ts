@@ -1,5 +1,5 @@
 /**
- * @file Test fixtures for the @tekmemo/recall package.
+ * @file Test fixtures for the @tekbreed/tekmemo-recall package.
  *
  * @remarks
  * Provides factory functions to create test documents with sensible defaults.

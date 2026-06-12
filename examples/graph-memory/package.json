@@ -1,5 +1,5 @@
 {
-	"name": "@tekmemo/example-graph-memory",
+	"name": "@tekbreed/example-tekmemo-graph-memory",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -7,7 +7,7 @@
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@tekmemo/graph": "workspace:^"
+		"@tekbreed/tekmemo-graph": "workspace:^"
 	},
 	"devDependencies": {
 		"tsx": "^4.21.0",

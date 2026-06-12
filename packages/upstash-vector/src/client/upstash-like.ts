@@ -1,4 +1,4 @@
-import type { JsonValue } from "@tekmemo/recall";
+import type { JsonValue } from "@tekbreed/tekmemo-recall";
 
 /**
  * @file Defines the Upstash-like vector index interface and related types.

@@ -1,5 +1,5 @@
 {
-	"name": "@tekmemo/graph",
+	"name": "@tekbreed/tekmemo-graph",
 	"version": "0.2.1",
 	"description": "Provider-neutral graph memory primitives for TekMemo.",
 	"type": "module",
@@ -45,18 +45,18 @@
 		"graph",
 		"graph-memory",
 		"memory",
-		"tekmemo",
+		"@tekbreed/tekmemo",
 		"typescript"
 	],
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/tekbreed/tekmemo.git",
+		"url": "git+https://github.com/tekbreed/oss.git",
 		"directory": "packages/graph"
 	},
-	"homepage": "https://docs.memo.tekbreed.com/packages/graph",
+	"homepage": "https://oss.tekbreed.com/tekmemo/packages/graph",
 	"bugs": {
-		"url": "https://github.com/tekbreed/tekmemo/issues"
+		"url": "https://github.com/tekbreed/oss/issues"
 	},
 	"engines": {
 		"node": ">=22"

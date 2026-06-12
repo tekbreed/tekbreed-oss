@@ -1,4 +1,4 @@
-# @tekmemo/adapters
+# @tekbreed/tekmemo-adapters
 
 ## 0.1.0
 

@@ -1,6 +1,6 @@
 /**
  * @packageDocumentation
- * Testing utilities for the @tekmemo/rerank package.
+ * Testing utilities for the @tekbreed/tekmemo-rerank package.
  *
  * @remarks
  * This module provides a fake reranker implementation that can be used in unit tests

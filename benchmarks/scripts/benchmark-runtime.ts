@@ -7,14 +7,14 @@ import type {
 	BenchmarkThresholdFailure,
 	BenchmarkThresholdResult,
 	BenchmarkThresholds,
-} from "@tekmemo/benchmark-kit";
+} from "@tekbreed/tekmemo-benchmark-kit";
 import {
 	BenchmarkRunner,
 	evaluateBenchmarkThresholds,
 	jsonBenchmarkReport,
 	markdownBenchmarkReport,
-} from "@tekmemo/benchmark-kit";
-import type { RecallDocument } from "@tekmemo/recall";
+} from "@tekbreed/tekmemo-benchmark-kit";
+import type { RecallDocument } from "@tekbreed/tekmemo-recall";
 
 const BENCHMARK_ROOT = path.resolve(
 	path.dirname(fileURLToPath(import.meta.url)),
@@ -76,7 +76,7 @@ export function createRecallDocuments(
 		text: `TekMemo memory record ${index} about layered agent memory.`,
 		embedding: createVector(dimensions, index + 1),
 		metadata: {
-			projectId: "tekmemo",
+			projectId: "@tekbreed/tekmemo",
 			sourceType: "benchmark",
 			sourceId: `source-${index % 5}`,
 			memoryType: index % 2 === 0 ? "core" : "notes",

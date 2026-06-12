@@ -1,5 +1,5 @@
 /**
- * @file Type definitions for the @tekmemo/recall package.
+ * @file Type definitions for the @tekbreed/tekmemo-recall package.
  *
  * @remarks
  * This module defines the core data structures used throughout the recall package

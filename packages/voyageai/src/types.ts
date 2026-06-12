@@ -1,5 +1,5 @@
 /**
- * Core types for the @tekmemo/voyageai package.
+ * Core types for the @tekbreed/tekmemo-voyageai package.
  *
  * @remarks
  * Defines configuration, request/response, and embedder types

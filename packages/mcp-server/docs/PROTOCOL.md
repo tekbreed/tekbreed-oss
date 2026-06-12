@@ -1,6 +1,6 @@
 # MCP Protocol Notes
 
-`@tekmemo/mcp-server` targets MCP server behavior for tools, resources, and prompts.
+`@tekbreed/tekmemo-mcp-server` targets MCP server behavior for tools, resources, and prompts.
 
 ## Supported protocol versions
 
@@ -90,6 +90,6 @@ Remote Streamable HTTP should be implemented in the host app with the official M
 
 ## Cloud runtime alignment
 
-Cloud and hybrid runtime modes consume TekMemo Cloud through `@tekmemo/cloud-client`. The current source-of-truth cloud API is project-scoped under `/api/v1/projects/:projectId/...`, and the canonical envelope is `{ data, meta }` / `{ error, meta }`.
+Cloud and hybrid runtime modes consume TekMemo Cloud through `@tekbreed/tekmemo-cloud-client`. The current source-of-truth cloud API is project-scoped under `/api/v1/projects/:projectId/...`, and the canonical envelope is `{ data, meta }` / `{ error, meta }`.
 
 MCP does not construct raw cloud URLs and does not own cloud database, billing, BYOK, webhook, or provider-secret behavior. It only validates MCP tool input and delegates to the selected runtime.

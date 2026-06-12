@@ -4,18 +4,18 @@ Vector adapters implement the `RecallStore` contract, allowing TekMemo to store 
 
 ## Upstash Vector
 
-`@tekmemo/upstash-vector` provides a serverless recall store backed by Upstash's global vector database. It is optimized for low-latency retrieval in serverless environments like Cloudflare Workers and Vercel.
+`@tekbreed/tekmemo-upstash-vector` provides a serverless recall store backed by Upstash's global vector database. It is optimized for low-latency retrieval in serverless environments like Cloudflare Workers and Vercel.
 
 ### Install
 
 ```bash
-npm install @tekmemo/upstash-vector
+npm install @tekbreed/tekmemo-upstash-vector
 ```
 
 ### Usage
 
 ```ts
-import { createUpstashRecallStore } from "@tekmemo/upstash-vector";
+import { createUpstashRecallStore } from "@tekbreed/tekmemo-upstash-vector";
 
 const store = createUpstashRecallStore({
   url: process.env.UPSTASH_VECTOR_REST_URL,

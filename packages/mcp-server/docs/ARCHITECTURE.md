@@ -1,13 +1,13 @@
 # TekMemo MCP Architecture
 
-`@tekmemo/mcp-server` is the agent-facing doorway into TekMemo memory.
+`@tekbreed/tekmemo-mcp-server` is the agent-facing doorway into TekMemo memory.
 
 It should not be the memory engine.
 
 ```txt
 Claude Code / Codex / OpenClaw / MCP client
         ↓
-@tekmemo/mcp-server
+@tekbreed/tekmemo-mcp-server
         ↓
 runtime adapter
         ↓
@@ -43,8 +43,8 @@ Runtime layer
 
 | Runtime | Responsibility |
 | --- | --- |
-| local | Use `tekmemo` + `@tekmemo/fs` to read/write `.tekmemo/` |
-| cloud | Call `@tekmemo/cloud-client` methods |
+| local | Use `@tekbreed/tekmemo` + `@tekbreed/tekmemo-fs` to read/write `.tekmemo/` |
+| cloud | Call `@tekbreed/tekmemo-cloud-client` methods |
 | hybrid | Combine local and cloud runtimes without owning sync conflicts |
 | memory | Deterministic test/demo runtime |
 
@@ -52,11 +52,11 @@ Runtime layer
 
 MCP should never scatter raw `fetch('/api/v1/...')` calls.
 
-Cloud API access belongs in `@tekmemo/cloud-client`.
+Cloud API access belongs in `@tekbreed/tekmemo-cloud-client`.
 
 ```txt
 MCP tool call
   → cloud runtime
-  → @tekmemo/cloud-client
+  → @tekbreed/tekmemo-cloud-client
   → TekMemo Cloud API
 ```

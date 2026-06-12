@@ -4,7 +4,7 @@ import {
 	CORE_MEMORY_PATH,
 	MemoryNotFoundError,
 	MemoryPathError,
-} from "tekmemo";
+} from "@tekbreed/tekmemo";
 import { describe, expect, test } from "vitest";
 import {
 	createNodeFsMemoryStore,

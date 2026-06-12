@@ -1,5 +1,5 @@
 {
-	"name": "@tekmemo/example-tanstack",
+	"name": "@tekbreed/example-tekmemo-tanstack",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -7,7 +7,7 @@
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@tekmemo/cloud-client": "workspace:^",
+		"@tekbreed/tekmemo-cloud-client": "workspace:^",
 		"@tanstack/react-router": "^1.0.0",
 		"react": "^19.0.0",
 		"react-dom": "^19.0.0"

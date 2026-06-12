@@ -1,9 +1,9 @@
-import type { AgentfsLikeClient } from "@tekmemo/agentfs";
+import type { AgentfsLikeClient } from "@tekbreed/tekmemo-agentfs";
 import {
 	createTekMemoAgentSession,
 	extractSessionMemory,
-} from "@tekmemo/agentfs";
-import { createNodeFsMemoryStore } from "@tekmemo/fs";
+} from "@tekbreed/tekmemo-agentfs";
+import { createNodeFsMemoryStore } from "@tekbreed/tekmemo-fs";
 import type { TekMemoFileSystem } from "../fs/tekmemo-fs";
 import type { CliOutput } from "../output/output";
 import { printJsonEnvelope } from "../output/output";

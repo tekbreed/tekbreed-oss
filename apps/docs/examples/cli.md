@@ -1,6 +1,6 @@
 # CLI example
 
-Use `@tekmemo/cli` from scripts and agent workflows.
+Use `@tekbreed/tekmemo-cli` from scripts and agent workflows.
 
 Source folder:
 

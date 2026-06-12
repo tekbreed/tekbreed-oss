@@ -6,18 +6,18 @@ The examples folder shows practical ways to use TekMemo packages in real project
 
 | Goal | Example | Package |
 | --- | --- | --- |
-| Use local `.tekmemo/` memory | [Local only](./local-only.md) | `tekmemo`, `@tekmemo/fs` |
-| Use graph memory | [Graph memory](./graph-memory.md) | `@tekmemo/graph` |
-| Call TekMemo Cloud | [Cloud client](./cloud-client.md) | `@tekmemo/cloud-client` |
-| Use shell/agent commands | [CLI](./cli.md) | `@tekmemo/cli` |
-| Expose memory to coding agents | [MCP](./mcp.md) | `@tekmemo/mcp-server` |
-| Add memory to AI SDK tools | [AI SDK](./ai-sdk.md) | `@tekmemo/adapters/ai-sdk` |
+| Use local `.tekmemo/` memory | [Local only](./local-only.md) | `@tekbreed/tekmemo`, `@tekbreed/tekmemo-fs` |
+| Use graph memory | [Graph memory](./graph-memory.md) | `@tekbreed/tekmemo-graph` |
+| Call TekMemo Cloud | [Cloud client](./cloud-client.md) | `@tekbreed/tekmemo-cloud-client` |
+| Use shell/agent commands | [CLI](./cli.md) | `@tekbreed/tekmemo-cli` |
+| Expose memory to coding agents | [MCP](./mcp.md) | `@tekbreed/tekmemo-mcp-server` |
+| Add memory to AI SDK tools | [AI SDK](./ai-sdk.md) | `@tekbreed/tekmemo-adapters/ai-sdk` |
 
 ## Framework integrations
 
 TekMemo Cloud works with any JavaScript server runtime. The pattern is the same across frameworks:
 
-1. Install `@tekmemo/cloud-client`
+1. Install `@tekbreed/tekmemo-cloud-client`
 2. Create the client with server-side environment variables
 3. Use memory composables in route handlers, loaders, or server actions
 

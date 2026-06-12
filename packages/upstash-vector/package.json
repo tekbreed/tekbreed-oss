@@ -1,16 +1,16 @@
 {
-	"name": "@tekmemo/upstash-vector",
+	"name": "@tekbreed/tekmemo-upstash-vector",
 	"version": "0.2.0",
 	"description": "Upstash Vector recall adapter for TekMemo.",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/tekbreed/tekmemo.git",
+		"url": "git+https://github.com/tekbreed/oss.git",
 		"directory": "packages/upstash-vector"
 	},
-	"homepage": "https://docs.memo.tekbreed.com/packages/upstash-vector",
+	"homepage": "https://oss.tekbreed.com/tekmemo/packages/upstash-vector",
 	"bugs": {
-		"url": "https://github.com/tekbreed/tekmemo/issues"
+		"url": "https://github.com/tekbreed/oss/issues"
 	},
 	"type": "module",
 	"sideEffects": false,
@@ -58,13 +58,13 @@
 		"llm",
 		"memory",
 		"recall",
-		"tekmemo",
+		"@tekbreed/tekmemo",
 		"typescript",
 		"upstash",
 		"vector"
 	],
 	"dependencies": {
-		"@tekmemo/recall": "workspace:^"
+		"@tekbreed/tekmemo-recall": "workspace:^"
 	},
 	"peerDependencies": {
 		"@upstash/vector": ">=1.2.0"

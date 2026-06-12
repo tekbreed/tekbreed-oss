@@ -1,14 +1,14 @@
 import {
 	createLocalTekMemoMcpRuntime,
 	createTekMemoMcpProtocolServer,
-} from "@tekmemo/mcp-server";
+} from "@tekbreed/tekmemo-mcp-server";
 
 const config = {
 	mcpServers: {
 		tekmemo: {
 			command: "npx",
 			args: [
-				"@tekmemo/mcp-server",
+				"@tekbreed/tekmemo-mcp-server",
 				"--runtime",
 				"cloud",
 				"--project-id",

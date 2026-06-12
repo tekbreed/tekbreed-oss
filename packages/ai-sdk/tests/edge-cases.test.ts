@@ -6,7 +6,7 @@ import {
 	DEFAULT_NOTES_MEMORY,
 	InMemoryMemoryStore,
 	NOTES_MEMORY_PATH,
-} from "tekmemo";
+} from "@tekbreed/tekmemo";
 import { expect, test, vi } from "vitest";
 import { buildPrepareCallMemoryText } from "../src/prepare-call/build-prepare-call-memory-text";
 import { safeReadMemoryPath } from "../src/prepare-call/safe-read-memory-path";

@@ -1,17 +1,17 @@
-# `@tekmemo/ai-sdk`
+# `@tekbreed/tekmemo-ai-sdk`
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/@tekmemo/ai-sdk"><img src="https://img.shields.io/npm/v/@tekmemo%2Fai-sdk?label=@tekmemo/ai-sdk&style=for-the-badge" alt="npm version" /></a> &nbsp; 
-  <a href="https://github.com/tekbreed/tekmemo"><img src="https://img.shields.io/badge/status-alpha-orange?style=for-the-badge" alt="Status: Alpha" /></a> &nbsp; 
-  <a href="https://www.npmjs.com/package/@tekmemo/ai-sdk"><img src="https://img.shields.io/npm/dm/@tekmemo%2Fai-sdk?style=for-the-badge" alt="npm downloads" /></a> &nbsp; 
-  <a href="https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/tekbreed/tekmemo/ci.yml?branch=main&style=for-the-badge&label=CI" alt="CI" /></a> &nbsp; 
-  <a href="https://docs.memo.tekbreed.com/"><img src="https://img.shields.io/badge/docs-online-blue?style=for-the-badge" alt="Docs" /></a> &nbsp; 
+  <a href="https://www.npmjs.com/package/@tekbreed/tekmemo-ai-sdk"><img src="https://img.shields.io/npm/v/@tekbreed%2Ftekmemo-ai-sdk?label=@tekbreed/tekmemo-ai-sdk&style=for-the-badge" alt="npm version" /></a> &nbsp; 
+  <a href="https://github.com/tekbreed/oss"><img src="https://img.shields.io/badge/status-alpha-orange?style=for-the-badge" alt="Status: Alpha" /></a> &nbsp; 
+  <a href="https://www.npmjs.com/package/@tekbreed/tekmemo-ai-sdk"><img src="https://img.shields.io/npm/dm/@tekbreed%2Ftekmemo-ai-sdk?style=for-the-badge" alt="npm downloads" /></a> &nbsp; 
+  <a href="https://github.com/tekbreed/oss/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/tekbreed/oss/ci.yml?branch=main&style=for-the-badge&label=CI" alt="CI" /></a> &nbsp; 
+  <a href="https://oss.tekbreed.com/tekmemo/"><img src="https://img.shields.io/badge/docs-online-blue?style=for-the-badge" alt="Docs" /></a> &nbsp; 
   <a href="../../LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge" alt="MIT License" /></a>
 </p>
 
 ## Purpose
 
-`@tekmemo/ai-sdk` makes TekMemo usable as a Vercel AI SDK tool with minimal glue code. It exposes helpers for:
+`@tekbreed/tekmemo-ai-sdk` makes TekMemo usable as a Vercel AI SDK tool with minimal glue code. It exposes helpers for:
 
 - creating an AI SDK-compatible memory tool
 - defining a ready-to-spread `tools` object
@@ -22,11 +22,11 @@
 
 ## AgentFS session instructions
 
-Use this when an AI SDK-powered agent is working inside an AgentFS session created by `@tekmemo/agentfs`:
+Use this when an AI SDK-powered agent is working inside an AgentFS session created by `@tekbreed/tekmemo-agentfs`:
 
 ```ts
-import { createTekMemoAgentSession } from "@tekmemo/agentfs";
-import { buildAgentSessionInstructions } from "@tekmemo/ai-sdk";
+import { createTekMemoAgentSession } from "@tekbreed/tekmemo-agentfs";
+import { buildAgentSessionInstructions } from "@tekbreed/tekmemo-ai-sdk";
 
 const session = createTekMemoAgentSession({
   client: agentfsClient,
@@ -46,22 +46,22 @@ const system = buildAgentSessionInstructions({
 ## Install
 
 ```bash
-npm install @tekmemo/ai-sdk ai tekmemo @tekmemo/fs
+npm install @tekbreed/tekmemo-ai-sdk ai tekmemo @tekbreed/tekmemo-fs
 ```
 
-For hosted memory, also install `@tekmemo/cloud-client` and create a cloud runtime there.
+For hosted memory, also install `@tekbreed/tekmemo-cloud-client` and create a cloud runtime there.
 
 ## Plug-and-play AI SDK usage
 
 ```ts
 import { generateText } from "ai";
 import { openai } from "@ai-sdk/openai";
-import { createNodeFsMemoryStore } from "@tekmemo/fs";
+import { createNodeFsMemoryStore } from "@tekbreed/tekmemo-fs";
 import {
   buildTekMemoSystemPrompt,
   createLocalAiSdkRuntime,
   defineTekMemoTools,
-} from "@tekmemo/ai-sdk";
+} from "@tekbreed/tekmemo-ai-sdk";
 
 const workspace = createNodeFsMemoryStore({
   rootDir: process.cwd(),
@@ -102,7 +102,7 @@ console.log(result.text);
 The exported tool name is `tekmemo_memory`. To control the tool key yourself, use `createTekMemoTool()` directly:
 
 ```ts
-import { createTekMemoTool } from "@tekmemo/ai-sdk";
+import { createTekMemoTool } from "@tekbreed/tekmemo-ai-sdk";
 
 const tools = {
   memory: createTekMemoTool({ runtime, access, allowWrites: true }),
@@ -114,7 +114,7 @@ const tools = {
 For local file-backed apps, `createLocalTekMemoTool()` and `defineLocalTekMemoTools()` create the local runtime and AI SDK tool in one call.
 
 ```ts
-import { defineLocalTekMemoTools } from "@tekmemo/ai-sdk";
+import { defineLocalTekMemoTools } from "@tekbreed/tekmemo-ai-sdk";
 
 const tools = defineLocalTekMemoTools({
   workspace,
@@ -135,7 +135,7 @@ Scope filtering is applied using the `access` object. User memory requires `user
 
 This package owns the AI SDK integration layer only. It does not own TekMemo Cloud billing, dashboards, tenancy, hosted database storage, or provider secrets.
 
-For hosted memory, use `@tekmemo/cloud-client`. For local file-backed memory, use `tekmemo` with `@tekmemo/fs`. For MCP tools, use `@tekmemo/mcp-server`.
+For hosted memory, use `@tekbreed/tekmemo-cloud-client`. For local file-backed memory, use `@tekbreed/tekmemo` with `@tekbreed/tekmemo-fs`. For MCP tools, use `@tekbreed/tekmemo-mcp-server`.
 
 ## License
 

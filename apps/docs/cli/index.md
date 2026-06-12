@@ -1,11 +1,11 @@
 # CLI
 
-`@tekmemo/cli` gives you a command-line interface for managing local, cloud, and hybrid memory.
+`@tekbreed/tekmemo-cli` gives you a command-line interface for managing local, cloud, and hybrid memory.
 
 ## Install
 
 ```bash
-npm install -D @tekmemo/cli
+npm install -D @tekbreed/tekmemo-cli
 ```
 
 ## Quick start

@@ -52,7 +52,7 @@ export async function runEditCommand(
 		metadata: {
 			document: options.type,
 			command: "edit",
-			createdBy: "@tekmemo/cli",
+			createdBy: "@tekbreed/tekmemo-cli",
 		},
 	};
 	await options.fs.appendText(

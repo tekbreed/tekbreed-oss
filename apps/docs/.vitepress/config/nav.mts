@@ -2,11 +2,14 @@ import type { DefaultTheme } from "vitepress";
 
 export const nav: DefaultTheme.NavItem[] = [
 	{
-		text: "Guide",
-		link: "/guide/",
-		activeMatch: "/guide/",
+		text: "TekMemo",
+		items: [
+			{ text: "Guide", link: "/guide/" },
+			{ text: "Packages", link: "/packages/" },
+			{ text: "Examples", link: "/examples/" },
+		],
+		activeMatch: "/(guide|packages|examples)/",
 	},
-	{ text: "Examples", link: "/examples/", activeMatch: "/examples/" },
 	{
 		text: "Ecosystem",
 		items: [
@@ -26,9 +29,11 @@ export const nav: DefaultTheme.NavItem[] = [
 			{ text: "Configuration", link: "/reference/configuration" },
 			{ text: "Errors", link: "/reference/errors" },
 			{ text: "Glossary", link: "/reference/glossary" },
+			{ text: "FAQs", link: "/reference/faqs" },
+
 			{
 				text: "Changelog",
-				link: "https://github.com/tekbreed/tekmemo/blob/main/CHANGELOG.md",
+				link: "https://github.com/tekbreed/oss/blob/main/CHANGELOG.md",
 			},
 		],
 		activeMatch: "/(packages|architecture|hosting|reference)/",

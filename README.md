@@ -10,9 +10,9 @@
 
 <p align="center">
   <a href="https://www.npmjs.com/package/tekmemo"><img src="https://img.shields.io/npm/v/tekmemo?label=tekmemo&style=for-the-badge" alt="npm version" /></a> &nbsp; 
-  <a href="https://github.com/tekbreed/tekmemo"><img src="https://img.shields.io/badge/status-alpha-orange?style=for-the-badge" alt="Project status: Alpha" /></a> &nbsp; 
-  <a href="https://github.com/tekbreed/tekmemo/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/tekbreed/tekmemo/ci.yml?branch=main&style=for-the-badge&label=CI" alt="CI status" /></a> &nbsp; 
-  <a href="https://docs.memo.tekbreed.com/"><img src="https://img.shields.io/badge/docs-online-blue?style=for-the-badge" alt="Docs" /></a> &nbsp; 
+  <a href="https://github.com/tekbreed/oss"><img src="https://img.shields.io/badge/status-alpha-orange?style=for-the-badge" alt="Project status: Alpha" /></a> &nbsp; 
+  <a href="https://github.com/tekbreed/oss/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/tekbreed/oss/ci.yml?branch=main&style=for-the-badge&label=CI" alt="CI status" /></a> &nbsp; 
+  <a href="https://oss.tekbreed.com/tekmemo/"><img src="https://img.shields.io/badge/docs-online-blue?style=for-the-badge" alt="Docs" /></a> &nbsp; 
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge" alt="MIT License" /></a> &nbsp; 
   <a href="./CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge" alt="PRs welcome" /></a> &nbsp; 
   <a href="https://github.com/sponsors/christophersesugh"><img src="https://img.shields.io/badge/sponsor-GitHub%20Sponsors-ff69b4?style=for-the-badge" alt="Sponsor" /></a>
@@ -20,9 +20,9 @@
 
 <p align="center">
   <strong>
-    <a href="https://docs.memo.tekbreed.com/quickstart">Quickstart</a> ·
-    <a href="https://docs.memo.tekbreed.com/">Docs</a> ·
-    <a href="https://docs.memo.tekbreed.com/faq">FAQ</a> ·
+    <a href="https://oss.tekbreed.com/tekmemo/quickstart">Quickstart</a> ·
+    <a href="https://oss.tekbreed.com/tekmemo/">Docs</a> ·
+    <a href="https://oss.tekbreed.com/tekmemo/faq">FAQ</a> ·
     <a href="./SECURITY.md">Security</a> ·
     <a href="./CONTRIBUTING.md">Contributing</a>
   </strong>
@@ -107,13 +107,13 @@ Memory is **project-scoped**, **user-scoped**, or **session-scoped**. Scope is s
 ### Local file-backed memory
 
 ```bash
-pnpm add tekmemo @tekmemo/fs
+pnpm add @tekbreed/tekmemo @tekbreed/tekmemo-fs
 ```
 
 ### CLI
 
 ```bash
-pnpm add -D @tekmemo/cli
+pnpm add -D @tekbreed/tekmemo-cli
 pnpm exec tekmemo init
 pnpm exec tekmemo remember "Use local-first memory for development" --kind decision
 pnpm exec tekmemo context --query "current task" --json
@@ -122,24 +122,24 @@ pnpm exec tekmemo context --query "current task" --json
 ### MCP server
 
 ```bash
-pnpm add @tekmemo/mcp-server @tekmemo/cloud-client tekmemo @tekmemo/fs
+pnpm add @tekbreed/tekmemo-mcp-server @tekbreed/tekmemo-cloud-client tekmemo @tekbreed/tekmemo-fs
 ```
 
 ### Vercel AI SDK tools
 
 ```bash
-pnpm add @tekmemo/ai-sdk ai tekmemo @tekmemo/fs
+pnpm add @tekbreed/tekmemo-ai-sdk ai tekmemo @tekbreed/tekmemo-fs
 ```
 
 ### All adapters via convenience package
 
 ```bash
-pnpm add @tekmemo/adapters
+pnpm add @tekbreed/tekmemo-adapters
 # Then import implementation APIs from subpaths:
-# @tekmemo/adapters/ai-sdk
-# @tekmemo/adapters/voyageai
-# @tekmemo/adapters/agentfs
-# @tekmemo/adapters/cloud-client
+# @tekbreed/tekmemo-adapters/ai-sdk
+# @tekbreed/tekmemo-adapters/voyageai
+# @tekbreed/tekmemo-adapters/agentfs
+# @tekbreed/tekmemo-adapters/cloud-client
 ```
 
 ---
@@ -153,12 +153,12 @@ Add TekMemo memory to any `generateText` or `streamText` call in three steps:
 ```ts
 import { generateText } from "ai";
 import { openai } from "@ai-sdk/openai";
-import { createNodeFsMemoryStore } from "@tekmemo/fs";
+import { createNodeFsMemoryStore } from "@tekbreed/tekmemo-fs";
 import {
   buildRuntimeMemoryContext,
   buildRuntimeMemoryToolDefinition,
   createLocalAiSdkRuntime,
-} from "@tekmemo/adapters/ai-sdk";
+} from "@tekbreed/tekmemo-adapters/ai-sdk";
 
 // 1. Create a local file-backed memory store
 const workspace = createNodeFsMemoryStore({
@@ -198,8 +198,8 @@ console.log(result.text);
 ### MCP client (Claude Code, Cursor, Codex)
 
 ```ts
-import { createNodeFsMemoryStore } from "@tekmemo/fs";
-import { createTekMemoMcpServer } from "@tekmemo/mcp-server";
+import { createNodeFsMemoryStore } from "@tekbreed/tekmemo-fs";
+import { createTekMemoMcpServer } from "@tekbreed/tekmemo-mcp-server";
 
 const workspace = createNodeFsMemoryStore({
   rootDir: process.cwd(),
@@ -216,8 +216,8 @@ Then point your MCP client at the running server. TekMemo exposes `memory/read`,
 ### Cloud (hybrid local + remote)
 
 ```ts
-import { createTekMemoCloudClient } from "@tekmemo/adapters/cloud-client";
-import { createLocalAiSdkRuntime } from "@tekmemo/adapters/ai-sdk";
+import { createTekMemoCloudClient } from "@tekbreed/tekmemo-adapters/cloud-client";
+import { createLocalAiSdkRuntime } from "@tekbreed/tekmemo-adapters/ai-sdk";
 
 const cloud = createTekMemoCloudClient({ apiKey: process.env.TEKMEMO_API_KEY });
 const runtime = createLocalAiSdkRuntime({ workspace, cloud });
@@ -243,38 +243,38 @@ const runtime = createLocalAiSdkRuntime({ workspace, cloud });
 
 | Package | Purpose |
 | --- | --- |
-| `tekmemo` | Core memory contracts, records, source refs, chunks, and `.tekmemo/` protocol helpers |
-| `@tekmemo/fs` | Node filesystem adapter for local `.tekmemo/` memory |
-| `@tekmemo/graph` | Graph-memory primitives: nodes, edges, relationships, and traversal contracts |
-| `@tekmemo/cloud-client` | Project-scoped TekMemo Cloud API client — used by CLI, MCP, AI SDK, and custom apps |
-| `@tekmemo/cli` | Local, cloud, and hybrid command-line workflows |
-| `@tekmemo/mcp-server` | MCP server and runtime adapter exposing TekMemo tools, resources, and prompts |
-| `@tekmemo/ai-sdk` | Vercel AI SDK tool bridge for reading and writing memory |
-| `@tekmemo/adapters` | Convenience subpath re-exports for AgentFS, AI SDK, cloud, provider, vector, and rerank adapters |
-| `@tekmemo/server` | Hono-based self-host memory server package for Node, Docker, and Cloudflare wrappers |
-| `@tekmemo/recall` | Provider-neutral recall contracts |
-| `@tekmemo/upstash-vector` | Upstash Vector recall adapter |
-| `@tekmemo/rerank` | Provider-neutral reranking contracts |
-| `@tekmemo/rerank-voyage` | Voyage AI reranking adapter |
-| `@tekmemo/voyageai` | Voyage AI embedding adapter |
-| `@tekmemo/openai` | OpenAI embedding adapter |
-| `@tekmemo/agentfs` | AgentFS adapter |
-| `@tekmemo/benchmark-kit` | Benchmark runner and performance test helpers |
+| `@tekbreed/tekmemo` | Core memory contracts, records, source refs, chunks, and `.tekmemo/` protocol helpers |
+| `@tekbreed/tekmemo-fs` | Node filesystem adapter for local `.tekmemo/` memory |
+| `@tekbreed/tekmemo-graph` | Graph-memory primitives: nodes, edges, relationships, and traversal contracts |
+| `@tekbreed/tekmemo-cloud-client` | Project-scoped TekMemo Cloud API client — used by CLI, MCP, AI SDK, and custom apps |
+| `@tekbreed/tekmemo-cli` | Local, cloud, and hybrid command-line workflows |
+| `@tekbreed/tekmemo-mcp-server` | MCP server and runtime adapter exposing TekMemo tools, resources, and prompts |
+| `@tekbreed/tekmemo-ai-sdk` | Vercel AI SDK tool bridge for reading and writing memory |
+| `@tekbreed/tekmemo-adapters` | Convenience subpath re-exports for AgentFS, AI SDK, cloud, provider, vector, and rerank adapters |
+| `@tekbreed/tekmemo-server` | Hono-based self-host memory server package for Node, Docker, and Cloudflare wrappers |
+| `@tekbreed/tekmemo-recall` | Provider-neutral recall contracts |
+| `@tekbreed/tekmemo-upstash-vector` | Upstash Vector recall adapter |
+| `@tekbreed/tekmemo-rerank` | Provider-neutral reranking contracts |
+| `@tekbreed/tekmemo-rerank-voyage` | Voyage AI reranking adapter |
+| `@tekbreed/tekmemo-voyageai` | Voyage AI embedding adapter |
+| `@tekbreed/tekmemo-openai` | OpenAI embedding adapter |
+| `@tekbreed/tekmemo-agentfs` | AgentFS adapter |
+| `@tekbreed/tekmemo-benchmark-kit` | Benchmark runner and performance test helpers |
 
 ---
 
 ## Adapter Imports
 
-`tekmemo` stays provider-neutral. Applications can install direct adapter packages or use `@tekmemo/adapters` as a convenience entry point. Implementation APIs are exposed through subpaths so the root package never loads optional peer dependencies.
+`@tekbreed/tekmemo` stays provider-neutral. Applications can install direct adapter packages or use `@tekbreed/tekmemo-adapters` as a convenience entry point. Implementation APIs are exposed through subpaths so the root package never loads optional peer dependencies.
 
 ```ts
-import { buildRuntimeMemoryToolDefinition } from "@tekmemo/adapters/ai-sdk";
-import { createTekMemoAgentSession } from "@tekmemo/adapters/agentfs";
-import { createVoyageEmbedder } from "@tekmemo/adapters/voyageai";
-import { createOpenAIEmbedder } from "@tekmemo/adapters/openai";
-import { createUpstashRecallStore } from "@tekmemo/adapters/upstash-vector";
-import { createVoyageReranker } from "@tekmemo/adapters/rerank-voyage";
-import { createTekMemoCloudClient } from "@tekmemo/adapters/cloud-client";
+import { buildRuntimeMemoryToolDefinition } from "@tekbreed/tekmemo-adapters/ai-sdk";
+import { createTekMemoAgentSession } from "@tekbreed/tekmemo-adapters/agentfs";
+import { createVoyageEmbedder } from "@tekbreed/tekmemo-adapters/voyageai";
+import { createOpenAIEmbedder } from "@tekbreed/tekmemo-adapters/openai";
+import { createUpstashRecallStore } from "@tekbreed/tekmemo-adapters/upstash-vector";
+import { createVoyageReranker } from "@tekbreed/tekmemo-adapters/rerank-voyage";
+import { createTekMemoCloudClient } from "@tekbreed/tekmemo-adapters/cloud-client";
 ```
 
 ---
@@ -293,22 +293,22 @@ tekmemo/
 ├── examples/                   # Runnable integration examples
 ├── packages/                   # Published packages and internal workspace packages
 │   ├── tekmemo/                # Core memory model, document types, patching
-│   ├── ai-sdk/                 # @tekmemo/ai-sdk — Vercel AI SDK integration
-│   ├── fs/                     # @tekmemo/fs — local filesystem adapter
-│   ├── agentfs/                # @tekmemo/agentfs — AgentFS adapter
-│   ├── graph/                  # @tekmemo/graph — graph memory primitives
-│   ├── cli/                    # @tekmemo/cli — command-line interface
-│   ├── mcp-server/             # @tekmemo/mcp-server — MCP server adapter
-│   ├── cloud-client/           # @tekmemo/cloud-client — Cloud API client
-│   ├── server/                 # @tekmemo/server — Hono-based self-host server
-│   ├── adapters/               # @tekmemo/adapters — convenience re-exports
-│   ├── openai/                 # @tekmemo/openai — OpenAI embedding adapter
-│   ├── upstash-vector/         # @tekmemo/upstash-vector — Upstash vector adapter
-│   ├── voyageai/               # @tekmemo/voyageai — Voyage AI embedding adapter
-│   ├── recall/                 # @tekmemo/recall — semantic recall memory
-│   ├── rerank/                 # @tekmemo/rerank — reranking adapter
-│   ├── rerank-voyage/          # @tekmemo/rerank-voyage — Voyage reranking adapter
-│   └── benchmark-kit/          # @tekmemo/benchmark-kit — benchmarking tools
+│   ├── ai-sdk/                 # @tekbreed/tekmemo-ai-sdk — Vercel AI SDK integration
+│   ├── fs/                     # @tekbreed/tekmemo-fs — local filesystem adapter
+│   ├── agentfs/                # @tekbreed/tekmemo-agentfs — AgentFS adapter
+│   ├── graph/                  # @tekbreed/tekmemo-graph — graph memory primitives
+│   ├── cli/                    # @tekbreed/tekmemo-cli — command-line interface
+│   ├── mcp-server/             # @tekbreed/tekmemo-mcp-server — MCP server adapter
+│   ├── cloud-client/           # @tekbreed/tekmemo-cloud-client — Cloud API client
+│   ├── server/                 # @tekbreed/tekmemo-server — Hono-based self-host server
+│   ├── adapters/               # @tekbreed/tekmemo-adapters — convenience re-exports
+│   ├── openai/                 # @tekbreed/tekmemo-openai — OpenAI embedding adapter
+│   ├── upstash-vector/         # @tekbreed/tekmemo-upstash-vector — Upstash vector adapter
+│   ├── voyageai/               # @tekbreed/tekmemo-voyageai — Voyage AI embedding adapter
+│   ├── recall/                 # @tekbreed/tekmemo-recall — semantic recall memory
+│   ├── rerank/                 # @tekbreed/tekmemo-rerank — reranking adapter
+│   ├── rerank-voyage/          # @tekbreed/tekmemo-rerank-voyage — Voyage reranking adapter
+│   └── benchmark-kit/          # @tekbreed/tekmemo-benchmark-kit — benchmarking tools
 ├── .github/                    # CI, docs deploy, and release workflows
 ├── biome.json                  # Linting + formatting (Biome)
 ├── turbo.json                  # Turborepo pipeline config
@@ -319,7 +319,7 @@ tekmemo/
 
 ## Self-Host Memory Server
 
-TekMemo self-hosting is built around `@tekmemo/server`, not the full TekMemo Cloud SaaS app. The current Node/Docker baseline uses Hono, Postgres, a Postgres-backed queue, and S3-compatible object storage. Docker Compose packages the same Node runtime with Postgres/pgvector and MinIO.
+TekMemo self-hosting is built around `@tekbreed/tekmemo-server`, not the full TekMemo Cloud SaaS app. The current Node/Docker baseline uses Hono, Postgres, a Postgres-backed queue, and S3-compatible object storage. Docker Compose packages the same Node runtime with Postgres/pgvector and MinIO.
 
 ```bash
 cp apps/self-host-docker/.env.example apps/self-host-docker/.env
@@ -352,7 +352,7 @@ The `examples/` directory contains beginner-readable integration examples:
 | --- | --- |
 | **Core** | Local-only memory, graph memory, CLI workflows |
 | **MCP** | Local, cloud, and hybrid MCP setup |
-| **Cloud** | `@tekmemo/cloud-client` usage |
+| **Cloud** | `@tekbreed/tekmemo-cloud-client` usage |
 | **AI SDK** | `generateText` + `streamText` with memory tools |
 | **Frameworks** | Next.js, React Router, Express, Hono, Fastify, NestJS, Astro, SvelteKit, Nuxt, Vite React, TanStack Start |
 | **Runtimes** | Node HTTP, Cloudflare Workers |

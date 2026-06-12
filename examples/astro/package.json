@@ -1,5 +1,5 @@
 {
-	"name": "@tekmemo/example-astro",
+	"name": "@tekbreed/example-tekmemo-astro",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -7,7 +7,7 @@
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@tekmemo/cloud-client": "workspace:^",
+		"@tekbreed/tekmemo-cloud-client": "workspace:^",
 		"astro": "^5.0.0"
 	},
 	"devDependencies": {

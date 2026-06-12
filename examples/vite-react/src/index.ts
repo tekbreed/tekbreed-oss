@@ -1,4 +1,4 @@
-// Browser-side Vite/React code must never import @tekmemo/cloud-client with a secret API key.
+// Browser-side Vite/React code must never import @tekbreed/tekmemo-cloud-client with a secret API key.
 // Call your own server route instead.
 
 export async function loadTekMemoContext(query: string) {

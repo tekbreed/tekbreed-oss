@@ -4,18 +4,18 @@ TekMemo provides official adapters for industry-leading embedding and AI models.
 
 ## OpenAI
 
-`@tekmemo/openai` provides embedding integration for OpenAI's `text-embedding-3-*` and `ada-002` models.
+`@tekbreed/tekmemo-openai` provides embedding integration for OpenAI's `text-embedding-3-*` and `ada-002` models.
 
 ### Install
 
 ```bash
-npm install @tekmemo/openai
+npm install @tekbreed/tekmemo-openai
 ```
 
 ### Usage
 
 ```ts
-import { createOpenAIEmbedder } from "@tekmemo/openai";
+import { createOpenAIEmbedder } from "@tekbreed/tekmemo-openai";
 
 const embedder = createOpenAIEmbedder({
   apiKey: process.env.OPENAI_API_KEY,
@@ -34,18 +34,18 @@ console.log(results.embeddings[0].vector);
 
 ## VoyageAI
 
-`@tekmemo/voyageai` provides high-performance embedding integration for Voyage's specialized models (e.g. `voyage-large-2`, `voyage-code-2`).
+`@tekbreed/tekmemo-voyageai` provides high-performance embedding integration for Voyage's specialized models (e.g. `voyage-large-2`, `voyage-code-2`).
 
 ### Install
 
 ```bash
-npm install @tekmemo/voyageai
+npm install @tekbreed/tekmemo-voyageai
 ```
 
 ### Usage
 
 ```ts
-import { createVoyageEmbedder } from "@tekmemo/voyageai";
+import { createVoyageEmbedder } from "@tekbreed/tekmemo-voyageai";
 
 const embedder = createVoyageEmbedder({
   apiKey: process.env.VOYAGE_API_KEY,

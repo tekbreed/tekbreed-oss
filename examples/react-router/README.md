@@ -27,17 +27,17 @@
     ## Run
 
     ```bash
-    pnpm --filter @tekmemo/example-react-router dev
+    pnpm --filter @tekbreed/example-tekmemo-react-router dev
     ```
 
     ## Packages used
 
     ```bash
-    pnpm add @tekmemo/cloud-client
+    pnpm add @tekbreed/tekmemo-cloud-client
     ```
 
     ## Safety notes
 
     - Never put `TEKMEMO_API_KEY` in browser-side code.
-    - Use `@tekmemo/cloud-client` only from server routes, CLI tools, MCP runtimes, workers, or trusted backend code.
+    - Use `@tekbreed/tekmemo-cloud-client` only from server routes, CLI tools, MCP runtimes, workers, or trusted backend code.
     - Local examples write only to temporary folders or `.tekmemo/` under the selected project root.

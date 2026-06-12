@@ -7,7 +7,7 @@ import {
 	readCoreMemory,
 	readNotesMemory,
 	writeCoreMemory,
-} from "tekmemo";
+} from "@tekbreed/tekmemo";
 import { describe, expect, test } from "vitest";
 import { createNodeFsMemoryStore } from "../src/index";
 import { createTempRoot } from "./test-utils";

@@ -1,11 +1,11 @@
 # Model Context Protocol (MCP)
 
-`@tekmemo/mcp-server` exposes TekMemo memory to MCP-compatible tools such as Claude Code, Cursor, and other agent clients.
+`@tekbreed/tekmemo-mcp-server` exposes TekMemo memory to MCP-compatible tools such as Claude Code, Cursor, and other agent clients.
 
 ## Install
 
 ```bash
-npm install -D @tekmemo/mcp-server
+npm install -D @tekbreed/tekmemo-mcp-server
 ```
 
 ## Running the server
@@ -51,9 +51,9 @@ To add TekMemo to an MCP-compatible client, add it to your configuration file (e
 ```json
 {
   "mcpServers": {
-    "tekmemo": {
+    "@tekbreed/tekmemo": {
       "command": "npx",
-      "args": ["-y", "@tekmemo/mcp-server", "--runtime", "local", "--root", "/path/to/project"]
+      "args": ["-y", "@tekbreed/tekmemo-mcp-server", "--runtime", "local", "--root", "/path/to/project"]
     }
   }
 }
@@ -61,4 +61,4 @@ To add TekMemo to an MCP-compatible client, add it to your configuration file (e
 
 ## How it works
 
-The MCP server acts as a bridge between your coding agent and TekMemo memory. In **local mode**, it reads and writes directly to your `.tekmemo/` folder. In **cloud mode**, it connects to the TekMemo Cloud API through `@tekmemo/cloud-client`.
+The MCP server acts as a bridge between your coding agent and TekMemo memory. In **local mode**, it reads and writes directly to your `.tekmemo/` folder. In **cloud mode**, it connects to the TekMemo Cloud API through `@tekbreed/tekmemo-cloud-client`.

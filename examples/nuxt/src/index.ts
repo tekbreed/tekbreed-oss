@@ -1,4 +1,4 @@
-import { createTekMemoCloudClient } from "@tekmemo/cloud-client";
+import { createTekMemoCloudClient } from "@tekbreed/tekmemo-cloud-client";
 
 // Put this in server/api/tekmemo/context.get.ts in a real Nuxt app.
 export default defineEventHandler(async (event) => {

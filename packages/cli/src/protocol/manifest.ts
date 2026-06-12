@@ -4,7 +4,7 @@ import {
 	parseManifest as parseCoreManifest,
 	type TekMemoManifest,
 	validateTekMemoManifest,
-} from "tekmemo";
+} from "@tekbreed/tekmemo";
 import { CliProtocolError } from "../errors/cli-errors";
 
 export type TekMemoCliManifest = TekMemoManifest;

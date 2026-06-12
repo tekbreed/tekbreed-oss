@@ -1,5 +1,5 @@
 /**
- * @file Testing utilities for @tekmemo/openai.
+ * @file Testing utilities for @tekbreed/tekmemo-openai.
  *
  * @remarks
  * This module exports fake/mock implementations of OpenAI clients
