@@ -1,5 +1,5 @@
 {
-	"$id": "https://oss.tekbreed.com/config.schema.json",
+	"$id": "https://oss.tekbreed.com/1.0.0-alpha.0/config.schema.json",
 	"$schema": "http://json-schema.org/draft-07/schema#",
 	"title": "TekMemo CLI Configuration",
 	"type": "object",

@@ -106,6 +106,11 @@ export interface CloudSyncPushCommandOptions extends CloudCommandBaseOptions {
 	checkpointJson?: string | undefined;
 }
 
+export interface CloudSyncResolveCommandOptions
+	extends CloudCommandBaseOptions {
+	conflictId: string;
+	resolution: string;
+}
 export interface CloudReadinessCommandOptions extends CloudCommandBaseOptions {}
 
 export interface CloudContextComposeCommandOptions
@@ -657,6 +662,23 @@ export async function runCloudSyncPushCommand(
 	return result.rejected.length === 0 && result.conflicts.length === 0 ? 0 : 1;
 }
 
+export async function runCloudSyncResolveCommand(
+	options: CloudSyncResolveCommandOptions,
+): Promise<number> {
+	const client = createCloudClient(options);
+	const resolution = normalizeConflictResolution(options.resolution);
+	const result = await client.conflicts.resolve({
+		conflictId: options.conflictId,
+		resolution,
+	});
+	if (options.json) {
+		printJsonEnvelope(options.output, "cloud.sync.resolve", result);
+		return 0;
+	}
+	options.output.write(`Resolved conflict ${options.conflictId}.`);
+	return 0;
+}
+
 export async function runCloudReadinessCommand(
 	options: CloudReadinessCommandOptions,
 ): Promise<number> {
@@ -1134,12 +1156,21 @@ function normalizeIndexMode(
 	throw new CliUsageError("index mode must be all, changed, core, or notes.");
 }
 
-function normalizeConflictResolution(value: string): SyncConflictResolution {
-	if (CONFLICT_RESOLUTIONS.has(value as SyncConflictResolution))
-		return value as SyncConflictResolution;
-	throw new CliUsageError(
-		"conflict resolution must be keep_cloud, use_client, or ignore.",
-	);
+function normalizeConflictResolution(
+	value: string,
+): "keep_existing" | "use_incoming" | "merge" | "dismiss" {
+	switch (value) {
+		case "keep_cloud":
+			return "keep_existing";
+		case "use_client":
+			return "use_incoming";
+		case "ignore":
+			return "dismiss";
+		default:
+			throw new CliUsageError(
+				"conflict resolution must be keep_cloud, use_client, or ignore.",
+			);
+	}
 }
 
 function normalizeConfidence(value: string | number): number {
