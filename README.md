@@ -4,14 +4,12 @@
 
 # TekBreed OSS
 
-Open-source ai infrastructure from TekBreed.
-
-**TekMemo** is the first project in this repo: a file-first memory runtime for AI apps, agents, coding tools, and MCP clients.
+Open-source AI infrastructure from TekBreed — starting with **TekMemo**, a file-first memory runtime for AI apps, agents, coding tools, and MCP clients.
 
 <p>
   <a href="https://www.npmjs.com/package/@tekbreed/tekmemo"><img src="https://img.shields.io/npm/v/@tekbreed%2Ftekmemo?label=@tekbreed/tekmemo&style=for-the-badge" alt="npm version" /></a> &nbsp;
-  <a href="https://github.com/tekbreed/oss"><img src="https://img.shields.io/badge/status-alpha-orange?style=for-the-badge" alt="Project status: Alpha" /></a> &nbsp;
-  <a href="https://github.com/tekbreed/oss/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/tekbreed/oss/ci.yml?branch=main&style=for-the-badge&label=CI" alt="CI status" /></a> &nbsp;
+  <a href="https://github.com/tekbreed/tekbreed-oss"><img src="https://img.shields.io/badge/status-alpha-orange?style=for-the-badge" alt="Project status: Alpha" /></a> &nbsp;
+  <a href="https://github.com/tekbreed/tekbreed-oss/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/tekbreed/tekbreed-oss/ci.yml?branch=main&style=for-the-badge&label=CI" alt="CI status" /></a> &nbsp;
   <a href="https://oss.tekbreed.com/"><img src="https://img.shields.io/badge/docs-online-blue?style=for-the-badge" alt="Docs" /></a> &nbsp;
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge" alt="MIT License" /></a>
 </p>
@@ -22,7 +20,7 @@ Open-source ai infrastructure from TekBreed.
 
 ## Repository Purpose
 
-`tekbreed/oss` is the umbrella monorepo for TekBreed open-source work. It should be organized by product family, not by a sprawl of tiny published packages.
+`tekbreed/tekbreed-oss` is the umbrella monorepo for TekBreed open-source work. It should be organized by product family, not by a sprawl of tiny published packages.
 
 Current product family:
 
