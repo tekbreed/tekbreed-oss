@@ -2,7 +2,7 @@
  * Aggregate changelog script for the TekMemo monorepo.
  *
  * @remarks
- * Reads all public OSS package changelogs (`tekmemo` + `@tekmemo/*`),
+ * Reads all public OSS package changelogs (`@tekbreed/tekmemo*`),
  * parses their version entries, and produces a root-level `CHANGELOG.md`
  * grouped by release version (release-oriented format).
  *
@@ -33,13 +33,13 @@ interface GroupedRelease {
 const PACKAGES_DIR = resolve(__dirname, "..", "packages");
 const ROOT_CHANGELOG_PATH = resolve(__dirname, "..", "CHANGELOG.md");
 
-const PUBLIC_PACKAGE_PREFIXES = ["tekmemo", "@tekmemo/"];
+const PUBLIC_PACKAGE_PREFIXES = ["@tekbreed/tekmemo"];
 
 /**
  * Check if a package name is a public OSS package.
  *
  * @param name - The package name from package.json.
- * @returns True if the package is public OSS (tekmemo or @tekmemo/*).
+ * @returns True if the package is public TekBreed OSS.
  */
 function isPublicPackage(name: string): boolean {
 	return PUBLIC_PACKAGE_PREFIXES.some((prefix) => name.startsWith(prefix));
@@ -203,18 +203,22 @@ function renderPackageSection(entry: VersionEntry): string {
  *
  * @remarks
  * The default changeset generator uses bare package names like `#### tekmemo`
- * and scoped names like `#### @tekmemo/agentfs`. This function normalizes
+ * and scoped names like `#### @tekbreed/tekmemo-agentfs`. This function normalizes
  * the comparison to handle both forms.
  *
- * @param packageName - The full package name (e.g. `tekmemo` or `@tekmemo/fs`).
+ * @param packageName - The full package name (e.g. `@tekbreed/tekmemo` or `@tekbreed/tekmemo-fs`).
  * @param subHeader - The text after `#### ` in the changelog.
  * @returns True if the sub-header refers to this package's own changes.
  */
 function isOwnChange(packageName: string, subHeader: string): boolean {
 	if (subHeader === packageName) return true;
-	if (packageName.startsWith("@tekmemo/")) {
-		const shortName = packageName.replace("@tekmemo/", "");
+	if (packageName.startsWith("@tekbreed/")) {
+		const shortName = packageName.replace("@tekbreed/", "");
 		if (subHeader === shortName) return true;
+	}
+	if (subHeader.startsWith("@tekbreed/tekmemo-")) {
+		const legacyShortName = subHeader.replace("@tekbreed/tekmemo-", "tekmemo-");
+		if (packageName === `@tekbreed/${legacyShortName}`) return true;
 	}
 	return false;
 }

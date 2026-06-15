@@ -66,6 +66,16 @@
 		"benchmark:compare": {
 			"dependsOn": ["benchmark:release"],
 			"outputs": []
+		},
+		"pack:dry-run": {
+			"dependsOn": ["build"],
+			"cache": false,
+			"outputs": []
+		},
+		"release:check": {
+			"dependsOn": ["build"],
+			"cache": false,
+			"outputs": []
 		}
 	}
 }

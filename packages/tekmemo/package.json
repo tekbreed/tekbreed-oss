@@ -1,17 +1,17 @@
 {
-	"name": "tekmemo",
-	"version": "0.2.0",
+	"name": "@tekbreed/tekmemo",
+	"version": "1.0.0-alpha.0",
 	"private": false,
-	"description": "Provider-neutral core memory runtime for AI apps and agents.",
+	"description": "TekMemo memory runtime for AI apps and agents",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/tekbreed/tekmemo.git",
+		"url": "git+https://github.com/tekbreed/tekbreed-oss.git",
 		"directory": "packages/tekmemo"
 	},
-	"homepage": "https://docs.memo.tekbreed.com/packages/tekmemo",
+	"homepage": "https://oss.tekbreed.com/tekmemo",
 	"bugs": {
-		"url": "https://github.com/tekbreed/tekmemo/issues"
+		"url": "https://github.com/tekbreed/tekbreed-oss/issues"
 	},
 	"type": "module",
 	"sideEffects": false,
@@ -32,11 +32,13 @@
 	},
 	"files": [
 		"dist",
-		"README.md"
+		"README.md",
+		"LICENSE"
 	],
 	"publishConfig": {
 		"access": "public",
-		"registry": "https://registry.npmjs.org/"
+		"registry": "https://registry.npmjs.org/",
+		"provenance": true
 	},
 	"scripts": {
 		"build": "tsdown",
@@ -57,14 +59,17 @@
 		"llm",
 		"memory",
 		"recall",
-		"tekmemo",
+		"@tekbreed/tekmemo",
 		"typescript"
 	],
 	"devDependencies": {
 		"@repo/test-utils": "workspace:*",
 		"@repo/tsdown-config": "workspace:*",
 		"@repo/typescript-config": "workspace:*",
-		"@repo/utils": "workspace:*"
+		"@repo/utils": "workspace:*",
+		"@types/pg": "^8.15.6",
+		"ai": "^6.0.174",
+		"openai": "^6.10.0"
 	},
 	"engines": {
 		"node": ">=22"
@@ -72,5 +77,30 @@
 	"funding": {
 		"type": "github",
 		"url": "https://github.com/sponsors/christophersesugh"
+	},
+	"dependencies": {
+		"hono": "^4.0.0",
+		"pg": "^8.16.3",
+		"zod": "^4.4.2"
+	},
+	"peerDependencies": {
+		"@modelcontextprotocol/sdk": ">=1.29.0",
+		"@upstash/vector": ">=1.2.0",
+		"ai": ">=5.0.0 <7.0.0",
+		"openai": "^6.10.0"
+	},
+	"peerDependenciesMeta": {
+		"@modelcontextprotocol/sdk": {
+			"optional": true
+		},
+		"@upstash/vector": {
+			"optional": true
+		},
+		"ai": {
+			"optional": true
+		},
+		"openai": {
+			"optional": true
+		}
 	}
 }

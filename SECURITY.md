@@ -1,37 +1,25 @@
 # Security Policy
 
-TekMemo takes security seriously.
+TekBreed takes security seriously.
 
-This document explains how to report vulnerabilities and what security practices apply to the public TekMemo OSS repository.
+This document explains how to report vulnerabilities and what security practices apply to the public TekBreed OSS repository, starting with the TekMemo package family.
 
 ---
 
 ## Scope
 
-This policy applies to the public TekMemo open-source repository and the packages published from it, including:
+This policy applies to the public TekBreed OSS repository and the published TekMemo package surfaces, including:
 
 ```txt
-tekmemo
-@tekmemo/fs
-@tekmemo/agentfs
-@tekmemo/ai-sdk
-@tekmemo/recall
-@tekmemo/upstash-vector
-@tekmemo/voyageai
-@tekmemo/openai
-@tekmemo/rerank
-@tekmemo/rerank-voyage
-@tekmemo/benchmark-kit
-@repo/test-utils
+@tekbreed/tekmemo
 ```
 
 This policy also covers:
 
-* docs examples
 * CLI behavior
 * connector safety
 * MCP server behavior
-* sync client behavior
+* cloud client behavior
 * telemetry redaction
 * package configuration safety
 
@@ -80,7 +68,7 @@ Use GitHub private vulnerability reporting or GitHub Security Advisories when av
 You may also report security concerns by emailing:
 
 ```txt
-security@tekmemo.dev
+security@tekbreed.com
 ```
 
 If the email is not active, use GitHub private vulnerability reporting or contact a maintainer privately through GitHub.
@@ -121,7 +109,7 @@ TekMemo has several areas where security matters deeply.
 
 ### Filesystem access
 
-Packages such as `@tekmemo/fs` and future connectors must protect against:
+Filesystem memory stores and future connectors must protect against:
 
 * path traversal
 * absolute path escape
@@ -297,11 +285,11 @@ When appropriate, TekMemo may publish:
 Security reports:
 
 ```txt
-support@tekbreed.com
+security@tekbreed.com
 ```
 
 General issues:
 
 ```txt
-https://github.com/tekbreed/tekmemo/issues
+https://github.com/tekbreed/oss/issues
 ```

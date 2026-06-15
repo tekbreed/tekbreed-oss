@@ -2,21 +2,19 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import * as path from "node:path";
 import {
-	createBenchmarkSuite,
-	createMemoryReadBenchmarkCase,
-	createMemoryWriteBenchmarkCase,
-	createRecallQueryBenchmarkCase,
-} from "@tekmemo/benchmark-kit";
-import { createNodeFsMemoryStore } from "@tekmemo/fs";
-import { createInMemoryRecallStore } from "@tekmemo/recall";
-import { createDeterministicFallbackReranker } from "@tekmemo/rerank";
-import {
 	CORE_MEMORY_PATH,
 	chunkText,
+	createBenchmarkSuite,
+	createDeterministicFallbackReranker,
+	createInMemoryRecallStore,
+	createMemoryReadBenchmarkCase,
+	createMemoryWriteBenchmarkCase,
+	createNodeFsMemoryStore,
+	createRecallQueryBenchmarkCase,
 	NOTES_MEMORY_PATH,
 	readCoreMemory,
 	writeCoreMemory,
-} from "tekmemo";
+} from "@tekbreed/tekmemo";
 import {
 	createMemoryText,
 	createRecallDocuments,
@@ -53,13 +51,7 @@ try {
 						iterations: 10,
 						warmupIterations: 1,
 						async run() {
-							await Promise.all([
-								import("tekmemo"),
-								import("@tekmemo/fs"),
-								import("@tekmemo/recall"),
-								import("@tekmemo/rerank"),
-								import("@tekmemo/benchmark-kit"),
-							]);
+							await import("@tekbreed/tekmemo");
 						},
 					},
 					createMemoryWriteBenchmarkCase({
@@ -117,7 +109,7 @@ try {
 						query: {
 							embedding: createVector(12, 10),
 							topK: 10,
-							filter: { projectId: "tekmemo" },
+							filter: { projectId: "@tekbreed/tekmemo" },
 						},
 						iterations: 75,
 						warmupIterations: 5,

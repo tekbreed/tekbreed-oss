@@ -1,4 +1,5 @@
-user-docs
+projects
+explanation
 
 # Dependencies
 node_modules
@@ -35,3 +36,8 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+# Editor / agent tool config (local-only, machine-specific)
+opencode.json
+# skills-lock.json
+css_guide.md

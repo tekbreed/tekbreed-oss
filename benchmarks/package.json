@@ -1,5 +1,5 @@
 {
-	"name": "@tekmemo/benchmarks",
+	"name": "@tekbreed/benchmarks",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -14,11 +14,7 @@
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@tekmemo/benchmark-kit": "workspace:*",
-		"@tekmemo/fs": "workspace:*",
-		"@tekmemo/recall": "workspace:*",
-		"@tekmemo/rerank": "workspace:*",
-		"tekmemo": "workspace:*"
+		"@tekbreed/tekmemo": "workspace:*"
 	},
 	"devDependencies": {
 		"@repo/typescript-config": "workspace:*",

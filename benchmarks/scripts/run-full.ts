@@ -1,9 +1,9 @@
 import {
+	chunkText,
 	createBenchmarkSuite,
+	createInMemoryRecallStore,
 	createRecallQueryBenchmarkCase,
-} from "@tekmemo/benchmark-kit";
-import { createInMemoryRecallStore } from "@tekmemo/recall";
-import { chunkText } from "tekmemo";
+} from "@tekbreed/tekmemo";
 import {
 	createMemoryText,
 	createRecallDocuments,
@@ -56,7 +56,7 @@ await runBenchmarks({
 					query: {
 						embedding: createVector(dimensions, 42),
 						topK: 20,
-						filter: { projectId: "tekmemo" },
+						filter: { projectId: "@tekbreed/tekmemo" },
 					},
 					iterations: 50,
 					warmupIterations: 5,

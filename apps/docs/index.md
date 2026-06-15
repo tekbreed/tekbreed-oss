@@ -1,28 +1,32 @@
 ---
 layout: home
 hero:
-  name: TekMemo
-  text: File-first memory for AI apps & agents.
-  image: /tekmemo.svg
-  tagline: Developer documentation for local memory, cloud sync, CLI workflows, MCP clients, graph memory, and AI SDK integrations.
+  name: TekBreed OSS
+  text: Next-generation memory infrastructure for AI apps and agents.
+  image: /logo.svg
+  # tagline: "Build smarter AI apps with TekMemo — a file-first memory runtime, unified API, and built-in MCP integration."
   actions:
     - theme: brand
-      text: Quickstart⚡️
-      link: /guide/
+      text: Explore TekMemo
+      link: /packages/tekmemo
     - theme: alt
       text: View on GitHub 
-      link: https://github.com/tekbreed/tekmemo
+      link: https://github.com/tekbreed/tekbreed-oss
 features:
+  - title: TekMemo
+    icon: 🧠
+    link: "/packages/tekmemo/"
+    details: Start with TekBreed's file-first memory runtime for AI apps, agents, CLIs, MCP clients, and graph-aware recall.
   - title: File-first local runtime
     icon: 📁
+    link: "/packages/tekmemo/file-first-memory"
     details: Start with a .tekmemo folder, inspect memory as files, and keep durable context close to the project.
-  - title: Cloud sync and APIs
-    icon: ☁️
-    details: Use @tekmemo/cloud-client for hosted project memory, sync, recall, graph APIs, and self-hosted Cloud URLs.
-  - title: Agent and MCP friendly
-    icon: 🤖
-    details: Use the CLI, MCP server, and AI SDK tools to give coding agents stable memory before, during, and after work.
-  - title: Graph memory included
-    icon: 🧠
-    details: Use @tekmemo/graph for relationships, neighborhoods, paths, and source-aware memory structures.
+  - title: TekMemo CLI
+    icon: ⬛️
+    link: "/packages/cli/"
+    details: The command-line interface for managing local, cloud, and hybrid memory workflows.
+  - title: TekMemo MCP
+    icon: ⚡️
+    link: "/packages/mcp/"
+    details: The Model Context Protocol (MCP) server for exposing TekMemo memory to coding agents and AI applications.
 ---

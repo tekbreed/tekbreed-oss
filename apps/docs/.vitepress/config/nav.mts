@@ -2,35 +2,46 @@ import type { DefaultTheme } from "vitepress";
 
 export const nav: DefaultTheme.NavItem[] = [
 	{
-		text: "Guide",
-		link: "/guide/",
-		activeMatch: "/guide/",
-	},
-	{ text: "Examples", link: "/examples/", activeMatch: "/examples/" },
-	{
-		text: "Ecosystem",
+		text: "Packages",
 		items: [
-			{ text: "CLI", link: "/cli/" },
-			{ text: "MCP Server", link: "/mcp/" },
-			{ text: "Cloud Client", link: "/cloud-client/" },
-			{ text: "AI SDK", link: "/ai-sdk/" },
+			{
+				text: "tekmemo",
+				link: "/packages/tekmemo",
+				activeMatch: "/packages/tekmemo/",
+			},
+			{
+				text: "tekmemo-cli",
+				link: "/packages/cli",
+				activeMatch: "/packages/cli/",
+			},
+			{
+				text: "tekmemo-mcp",
+				link: "/packages/mcp",
+				activeMatch: "/packages/mcp/",
+			},
 		],
-		activeMatch: "/(cli|mcp|cloud-client|ai-sdk)/",
+		activeMatch: "/packages/",
+	},
+	{
+		text: "API",
+		items: [
+			{
+				text: "tekmemo",
+				link: "/api/tekmemo",
+				activeMatch: "/api/tekmemo/",
+			},
+		],
+		activeMatch: "/api/",
 	},
 	{
 		text: "Reference",
 		items: [
-			{ text: "Packages", link: "/packages/" },
-			{ text: "Architecture", link: "/architecture/" },
-			{ text: "Hosting", link: "/hosting/" },
-			{ text: "Configuration", link: "/reference/configuration" },
-			{ text: "Errors", link: "/reference/errors" },
-			{ text: "Glossary", link: "/reference/glossary" },
 			{
-				text: "Changelog",
-				link: "https://github.com/tekbreed/tekmemo/blob/main/CHANGELOG.md",
+				text: "tekmemo",
+				link: "/reference/tekmemo",
+				activeMatch: "/reference/tekmemo/",
 			},
 		],
-		activeMatch: "/(packages|architecture|hosting|reference)/",
+		activeMatch: "/reference/",
 	},
 ];
