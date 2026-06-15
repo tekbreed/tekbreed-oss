@@ -35,6 +35,7 @@ import {
 	runCloudSnapshotsDownloadCommand,
 	runCloudSyncPullCommand,
 	runCloudSyncPushCommand,
+	runCloudSyncResolveCommand,
 	runCloudSyncStatusCommand,
 	runCloudUpdateCoreCommand,
 	runCloudValidateCommand,
@@ -940,6 +941,27 @@ export async function runTekMemoCli(
 				checkpointJson: options.checkpointJson,
 				stdin: options.stdin,
 				file: options.file,
+			});
+		});
+
+	sync
+		.command("resolve")
+		.description("resolve a cloud sync conflict")
+		.requiredOption("--conflict-id <id>", "conflict ID to resolve")
+		.requiredOption("--resolution <type>", "keep_cloud | use_client | ignore")
+		.action(async (options) => {
+			currentCommand = "cloud.sync.resolve";
+			const g = await cloudGlobals();
+			exitCode = await runCloudSyncResolveCommand({
+				output,
+				json: g.json,
+				cloudUrl: g.cloudUrl,
+				apiKey: g.apiKey,
+				workspaceId: g.workspaceId,
+				projectId: g.projectId,
+				timeoutMs: g.timeoutMs,
+				conflictId: options.conflictId,
+				resolution: options.resolution,
 			});
 		});
 

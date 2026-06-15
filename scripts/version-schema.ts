@@ -22,7 +22,11 @@ async function main() {
 	schema.$id = `https://oss.tekbreed.com/${version}/config.schema.json`;
 
 	await fs.mkdir(targetDir, { recursive: true });
-	await fs.writeFile(targetPath, `${JSON.stringify(schema, null, 2)}\n`, "utf-8");
+	await fs.writeFile(
+		targetPath,
+		`${JSON.stringify(schema, null, 2)}\n`,
+		"utf-8",
+	);
 
 	console.log(
 		`Created versioned schema at apps/docs/public/${version}/config.schema.json`,

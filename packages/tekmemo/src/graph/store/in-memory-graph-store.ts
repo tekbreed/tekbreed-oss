@@ -546,8 +546,7 @@ export class InMemoryGraphStore implements GraphStore {
 		options?: { clear?: boolean },
 	): Promise<void> {
 		if (
-			!snapshot ||
-			snapshot.version !== 1 ||
+			snapshot?.version !== 1 ||
 			!Array.isArray(snapshot.nodes) ||
 			!Array.isArray(snapshot.edges)
 		) {
