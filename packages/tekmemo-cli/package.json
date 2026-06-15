@@ -64,6 +64,18 @@
 		"@repo/typescript-config": "workspace:*",
 		"@repo/utils": "workspace:*"
 	},
+	"keywords": [
+		"cli",
+		"ai",
+		"agents",
+		"memory",
+		"tekmemo",
+		"typescript"
+	],
+	"funding": {
+		"type": "github",
+		"url": "https://github.com/sponsors/christophersesugh"
+	},
 	"engines": {
 		"node": ">=22"
 	}

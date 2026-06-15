@@ -18,22 +18,10 @@ import type { MemoryStore } from "../types/memory-store";
  * @param store - The memory store to read from.
  * @returns The raw core memory text.
  */
-/**
- * Reads the core memory document from the store.
- *
- * @param store - The memory store to read from.
- * @returns The raw core memory text.
- */
 export async function readCoreMemory(store: MemoryStore): Promise<string> {
 	return store.read(CORE_MEMORY_PATH);
 }
 
-/**
- * Writes content to the core memory document, normalizing line endings.
- *
- * @param store - The memory store to write to.
- * @param content - The markdown content to write.
- */
 /**
  * Writes content to the core memory document, normalizing line endings.
  *
@@ -48,12 +36,6 @@ export async function writeCoreMemory(
 	await store.write(CORE_MEMORY_PATH, normalizeMarkdownDocument(content));
 }
 
-/**
- * Reads and returns trimmed core memory text.
- *
- * @param store - The memory store to read from.
- * @returns Trimmed core memory text.
- */
 /**
  * Reads and returns trimmed core memory text.
  *

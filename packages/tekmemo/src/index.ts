@@ -8,9 +8,10 @@
  */
 
 export * from "./agentfs";
-export { isNotFoundError } from "./agentfs";
 export * from "./ai-sdk";
 export * from "./benchmark-kit";
+// Explicit type exports to resolve ambiguities between cloud-client re-exports
+// and types of the same name from other sub-packages.
 export type {
 	MemoryKind,
 	Page,
@@ -43,6 +44,8 @@ export * from "./core/search/search-memory";
 export * from "./core/snapshots/snapshot-records";
 export * from "./core/stores/in-memory-store";
 export * from "./core/types/config";
+// Explicit type exports to resolve ambiguities from duplicate embedding types
+// across sub-packages.
 export type {
 	EmbeddingRecord,
 	EmbedTextsInput,
@@ -58,12 +61,8 @@ export * from "./core/types/memory-store";
 // consolidated subpath exports
 export * from "./fs";
 export * from "./graph";
-export { cloneAndValidateMetadata } from "./graph";
 export * from "./openai";
-export { expectedVectorLength } from "./openai";
-export type { RecallResult } from "./recall";
 export * from "./recall";
-export { assertNonEmptyString } from "./recall";
 export * from "./rerank";
 export * from "./rerank-voyage";
 export * from "./testing";

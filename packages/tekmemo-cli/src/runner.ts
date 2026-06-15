@@ -1,4 +1,4 @@
-import { createRequire } from "node:module";
+import pkg from "../package.json" with { type: "json" };
 import { Command, CommanderError } from "commander";
 import {
 	runAgentCompleteCommand,
@@ -67,8 +67,6 @@ import {
 } from "./output/output";
 import { parseNonNegativeInteger, parsePositiveInteger } from "./utils/numbers";
 
-const require = createRequire(import.meta.url);
-const pkg = require("../package.json") as { version: string };
 const parsePositiveOption = parsePositiveInteger as unknown as (
 	value: string,
 	previous: string | undefined,

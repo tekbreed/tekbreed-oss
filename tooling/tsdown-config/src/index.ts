@@ -17,7 +17,7 @@ export const baseConfig: UserConfig = {
 	dts: true,
 	clean: true,
 	minify: false,
-	target: "node20",
+	target: "node22",
 	platform: "node",
 	fixedExtension: true,
 	deps: {

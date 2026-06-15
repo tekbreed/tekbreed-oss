@@ -54,16 +54,24 @@
 		"prepack": "pnpm build",
 		"release:check": "pnpm build && pnpm typecheck && pnpm test:run && pnpm lint:package && npm pack --dry-run"
 	},
+	"keywords": [
+		"mcp",
+		"model-context-protocol",
+		"ai",
+		"agents",
+		"memory",
+		"tekmemo",
+		"typescript"
+	],
+	"funding": {
+		"type": "github",
+		"url": "https://github.com/sponsors/christophersesugh"
+	},
 	"dependencies": {
 		"@tekbreed/tekmemo": "workspace:*"
 	},
 	"peerDependencies": {
 		"@modelcontextprotocol/sdk": ">=1.29.0"
-	},
-	"peerDependenciesMeta": {
-		"@modelcontextprotocol/sdk": {
-			"optional": true
-		}
 	},
 	"devDependencies": {
 		"@repo/test-utils": "workspace:*",
