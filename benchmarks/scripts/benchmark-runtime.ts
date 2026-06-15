@@ -76,7 +76,7 @@ export function createRecallDocuments(
 		text: `TekMemo memory record ${index} about layered agent memory.`,
 		embedding: createVector(dimensions, index + 1),
 		metadata: {
-			projectId: "@tekbreed/tekmemo",
+			projectId: "tekbreed-tekmemo",
 			sourceType: "benchmark",
 			sourceId: `source-${index % 5}`,
 			memoryType: index % 2 === 0 ? "core" : "notes",

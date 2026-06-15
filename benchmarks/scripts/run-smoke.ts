@@ -78,7 +78,7 @@ await runBenchmarks({
 					query: {
 						embedding: createVector(8, 5),
 						topK: 5,
-						filter: { projectId: "@tekbreed/tekmemo" },
+						filter: { projectId: "tekbreed-tekmemo" },
 					},
 					iterations: 100,
 					warmupIterations: 5,
