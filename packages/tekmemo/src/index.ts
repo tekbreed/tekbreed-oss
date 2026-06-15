@@ -8,6 +8,8 @@
  */
 
 export * from "./agentfs";
+// Explicit re-export resolves TS2308 ambiguity: isNotFoundError appears in multiple export * sources.
+export { isNotFoundError } from "./agentfs";
 export * from "./ai-sdk";
 export * from "./benchmark-kit";
 // Explicit type exports to resolve ambiguities between cloud-client re-exports
@@ -61,8 +63,15 @@ export * from "./core/types/memory-store";
 // consolidated subpath exports
 export * from "./fs";
 export * from "./graph";
+// Explicit re-export resolves TS2308 ambiguity: cloneAndValidateMetadata appears in multiple export * sources.
+export { cloneAndValidateMetadata } from "./graph";
 export * from "./openai";
+// Explicit re-export resolves TS2308 ambiguity: expectedVectorLength appears in multiple export * sources.
+export { expectedVectorLength } from "./openai";
 export * from "./recall";
+// Explicit re-exports resolve TS2308 ambiguities: RecallResult and assertNonEmptyString appear in multiple export * sources.
+export type { RecallResult } from "./recall";
+export { assertNonEmptyString } from "./recall";
 export * from "./rerank";
 export * from "./rerank-voyage";
 export * from "./testing";
