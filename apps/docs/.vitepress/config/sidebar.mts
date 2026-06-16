@@ -41,6 +41,11 @@ const tekmemo = [
 		text: "Cloud client",
 		link: "/packages/tekmemo/cloud-client",
 	},
+	{
+		text: "Errors",
+		link: "/packages/tekmemo/errors",
+	},
+	// { text: "FAQs", link: "/packages/tekmemo/faqs" },
 ];
 
 const tekmemoCli = [
@@ -62,7 +67,7 @@ const tekmemoMcp = [
 const tekMemoApi = [
 	{ text: "Overview", link: "/api/tekmemo/" },
 	{
-		text: "Core Runtime (@tekbreed/tekmemo)",
+		text: "Core Runtime",
 		items: [
 			{ text: "Filesystem Store", link: "/api/tekmemo/fs" },
 			{ text: "Agent Filesystem", link: "/api/tekmemo/agentfs" },
@@ -75,28 +80,16 @@ const tekMemoApi = [
 			{ text: "Benchmark Kit", link: "/api/tekmemo/benchmark-kit" },
 		],
 	},
-	// { text: "CLI (@tekbreed/tekmemo-cli)", link: "/api/cli/" },
-	// { text: "MCP Server (@tekbreed/tekmemo-mcp-server)", link: "/api/mcp/" },
+	// { text: "CLI", link: "/api/cli/" },
+	// { text: "MCP Server", link: "/api/mcp/" },
 ];
 
-const tekmemoReference = [
-	{ text: "Overview", link: "/reference/tekmemo/" },
-	{ text: "Configuration", link: "/reference/tekmemo/configuration" },
-	{ text: "Errors", link: "/reference/tekmemo/errors" },
-	{ text: "Glossary", link: "/reference/tekmemo/glossary" },
-	{ text: "FAQs", link: "/reference/tekmemo/faqs" },
-	{
-		text: "Changelog",
-		link: "https://github.com/tekbreed/oss/blob/main/CHANGELOG.md",
-	},
-];
+const faqs = [{ text: "TekMemo", link: "/faqs/" }];
 
 export const sidebar: DefaultTheme.Sidebar = {
 	"/packages/tekmemo/": [{ text: "TekMemo", items: tekmemo }],
 	"/packages/cli/": [{ text: "TekMemo CLI", items: tekmemoCli }],
 	"/packages/mcp/": [{ text: "TekMemo MCP", items: tekmemoMcp }],
 	"/api/tekmemo/": [{ text: "TekMemo API", items: tekMemoApi }],
-	"/reference/tekmemo/": [
-		{ text: "TekMemo Reference", items: tekmemoReference },
-	],
+	"/faqs/": [{ text: "Frequently Asked Questions", items: faqs }],
 };

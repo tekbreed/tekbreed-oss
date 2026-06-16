@@ -1,5 +1,3 @@
-# Frequently asked questions
-
 ## What is TekMemo?
 
 TekMemo is a **layered memory runtime for AI agents and applications**. It gives LLMs durable, project-scoped context so they stay accurate and consistent across sessions — instead of relying solely on ephemeral context windows.
@@ -122,8 +120,8 @@ npx tekmemo context --query "current task"
 
 Since memory is file-first, you can also directly read `.tekmemo/core.md` and `.tekmemo/notes.md` in your editor.
 
-## Do I need to install multiple packages?
+<!-- ## Do I need to install multiple packages?
 
 No. TekMemo is published as one unified package, `@tekbreed/tekmemo`. It contains all memory stores, provider adapters, CLI commands, the MCP server, and the AI SDK integrations. You only need to install a single package to use all features.
 
-See [Packages](/api/tekmemo/) for the module breakdown.
+See [Packages](/api/tekmemo/) for the module breakdown. -->

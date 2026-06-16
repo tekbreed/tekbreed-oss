@@ -282,14 +282,6 @@ When appropriate, TekMemo may publish:
 
 ## Contact
 
-Security reports:
+Security reports: [security@tekbreed.com](mailto:security@tekbreed.com)
 
-```txt
-security@tekbreed.com
-```
-
-General issues:
-
-```txt
-https://github.com/tekbreed/oss/issues
-```
+General issues: [TekBreed OSS](https://github.com/tekbreed/tekbreed-oss/issues)

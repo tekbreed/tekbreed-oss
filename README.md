@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./assets/logo.svg" alt="TekBreed Logo" width="120" />
+<img src="./assets/images/logo.svg" alt="TekBreed Logo" width="120" />
 
 # TekBreed OSS
 

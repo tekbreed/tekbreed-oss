@@ -67,7 +67,6 @@
 		"@repo/tsdown-config": "workspace:*",
 		"@repo/typescript-config": "workspace:*",
 		"@repo/utils": "workspace:*",
-		"@types/pg": "^8.15.6",
 		"ai": "^6.0.174",
 		"openai": "^6.10.0"
 	},
@@ -79,8 +78,6 @@
 		"url": "https://github.com/sponsors/christophersesugh"
 	},
 	"dependencies": {
-		"hono": "^4.0.0",
-		"pg": "^8.16.3",
 		"zod": "^4.4.2"
 	},
 	"peerDependencies": {

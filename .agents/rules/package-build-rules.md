@@ -21,7 +21,6 @@ The base options that `pkgConfig` applies by default:
 |---|---|
 | `format` | `["esm", "cjs"]` |
 | `sourcemap` | `true` |
-| `minify` | `false` |
 | `target` | `"node20"` |
 | `platform` | `"node"` |
 | `dts` | `true` |

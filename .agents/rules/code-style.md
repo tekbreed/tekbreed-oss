@@ -10,5 +10,3 @@ These are enforced by Biome — do not fight them:
 - **JSDoc**: Every function, React component, file, and `useEffect` hook MUST be properly documented using JSDoc. Documentation should explain the purpose, parameters, return types, and any side effects or constraints.
 
 Run `pnpm format-and-lint:fix` before committing. If Biome raises a lint error, fix it — do not suppress it unless there is a strong, documented reason.
-
-> ⚠️ **Important:** `prettier` has been removed from this project. Do not add it back. Use `pnpm format-and-lint:fix` (Biome) for all formatting.

@@ -13,59 +13,37 @@ TekMemo is the first product family. It is published as three main packages:
 @tekbreed/tekmemo-cli        # CLI distribution
 @tekbreed/tekmemo-mcp-server # Model Context Protocol server
 ```
+## What Agents Should Avoid
 
-Everything is imported directly from their respective packages. Do not reintroduce separate public TekMemo adapter packages.
+- **Do not** add new npm dependencies without evaluating if an existing package already covers the need
+- **Do not** add cloud-specific logic (auth, billing, sync) into any OSS package
+- **Do not** use `console.log` in production code — use structured logging or remove it
+- **Do not** commit secrets, API keys, or environment values — use `.env` files that are gitignored
+- **Do not** run `pnpm build` during a code-editing session unless you are explicitly validating production correctness
+- **Do not** add `prettier` — it has been removed; all formatting goes through Biome
+- **Do not** use `@repo/` for public OSS packages — that scope is for internal tooling (`utils`, `tsdown-config`, `typescript-config`) only
+- **Do not** copy-paste tsdown options into new packages — import `pkgConfig` from `@repo/tsdown-config` instead
 
-## Current Structure
+## Verification & Workspace Rules
 
-```txt
-tekbreed-oss/
-├── apps/
-│   └── docs/              # TekBreed OSS docs site
-├── packages/
-│   ├── tekmemo/           # TekMemo core runtime package
-│   ├── tekmemo-cli/       # TekMemo CLI package
-│   ├── tekmemo-mcp-server/# TekMemo MCP server package
-├── projects/
-│   └── tekmemo/           # planning and architecture notes
-├── tooling/               # private @repo/* workspace tooling
-├── docs/                  # repo operations notes
-└── scripts/               # repo maintenance scripts
-```
-
-## Package Boundaries
-
-- Public TekMemo Core APIs belong in `packages/tekmemo/src/` and are re-exported in `packages/tekmemo/src/index.ts`.
-- TekMemo CLI logic and binaries belong in `packages/tekmemo-cli/`.
-- TekMemo MCP server logic and binaries belong in `packages/tekmemo-mcp-server/`.
-- Private shared tooling belongs in `tooling/` and keeps the `@repo/*` namespace.
-
-## Commands
-
-Run commands from the repo root.
-
-```bash
-pnpm install
-pnpm build
-pnpm typecheck
-pnpm test
-pnpm format-and-lint
-pnpm format-and-lint:fix
-pnpm lint:package
-pnpm docs:dev
-pnpm docs:build
-pnpm validate:workspace
-```
-
-## Style And Safety
-
-- Use TypeScript strict mode and ESM.
-- Use Biome formatting: tabs and double quotes.
-- Do not add Prettier.
-- Do not use `any` unless the reason is documented.
-- Prefer `unknown` for untrusted external data.
-- Add tests for new logic-heavy behavior.
-- Do not commit secrets, API keys, `.env` files, private credentials, or private cloud internals.
+- **DRY & SSOT**: DRY (Don't Repeat Yourself) and SSOT (Single Source of Truth) principles MUST be ensured throughout the workspace.
+- **Global Skills**: Global/workspace-wide skills and reference guidelines are stored in `~/.agents/skills/`.
+- **Workspace rules**
+  - **Rules directory**: All workspace rules that are not in this file are located in [.agents/rules](./.agents/rules)
+  - **Check** [Adding new package](./.agents/rules/adding-new-package.md) for instructions on how to add a new package.
+  - **Check** [CI and GitHub actions](./.agents/rules/ci-github-actions.md) for workspace CI and github actions.
+  - **Check** [Code style](./.agents/rules/code-style.md) for workspace code style.
+  - **Check** [Git conventions](./.agents/rules/git-conventions.md) for workspace git conventions.
+  - **Check** [Core concepts](./.agents/rules/core-concepts.md) for tekmemo core memory concepts.
+  - **Check** [Development Commands](./.agents/rules/development-commands.md) for workspace development CLI commands.
+  - **Check** [Git conventions](./.agents/rules/git-conventions.md) for workspace commit message style and rules.
+  - **Check** [Monorepo structure](./.agents/rules/monorepo-structure.md) for workspace monorepo structure.
+  - **Check** [Package boundaries](./.agents/rules/package-boundaries.md) for workspace package boundaries.
+  - **Check** [Package build rules](./.agents/rules/package-build-rules.md) for workspace package build rules.
+  - **Check** [Technology stack](./.agents/rules/technology-stack.md) for workspace technology stack.
+  - **Check** [Testing requirements](./.agents/rules/testing-requirements.md) for workspace testing requirements.
+  - **Check** [Testing](./.agents/rules/testing.md) for workspace testing.
+  - **Check** [Typescript rules](./.agents/rules/typescript-rules.md) for workspace typescript rules.
 
 ## Repository Standards
 

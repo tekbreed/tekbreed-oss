@@ -5,17 +5,17 @@ export const nav: DefaultTheme.NavItem[] = [
 		text: "Packages",
 		items: [
 			{
-				text: "tekmemo",
+				text: "TekMemo",
 				link: "/packages/tekmemo",
 				activeMatch: "/packages/tekmemo/",
 			},
 			{
-				text: "tekmemo-cli",
+				text: "TekMemo CLI",
 				link: "/packages/cli",
 				activeMatch: "/packages/cli/",
 			},
 			{
-				text: "tekmemo-mcp",
+				text: "TekMemo MCP Server",
 				link: "/packages/mcp",
 				activeMatch: "/packages/mcp/",
 			},
@@ -26,22 +26,35 @@ export const nav: DefaultTheme.NavItem[] = [
 		text: "API",
 		items: [
 			{
-				text: "tekmemo",
+				text: "TekMemo",
 				link: "/api/tekmemo",
 				activeMatch: "/api/tekmemo/",
 			},
 		],
 		activeMatch: "/api/",
 	},
+
 	{
-		text: "Reference",
+		text: "Changelog",
 		items: [
 			{
-				text: "tekmemo",
-				link: "/reference/tekmemo",
-				activeMatch: "/reference/tekmemo/",
+				text: "TekMemo",
+				link: "https://github.com/tekbreed/tekbreed-oss/blob/main/packages/tekmemo/CHANGELOG.md",
+			},
+			{
+				text: "TekMemo CLI",
+				link: "https://github.com/tekbreed/tekbreed-oss/blob/main/packages/tekmemo-cli/CHANGELOG.md",
+			},
+			{
+				text: "TekMemo MCP Server",
+				link: "https://github.com/tekbreed/tekbreed-oss/blob/main/packages/tekmemo-mcp-server/CHANGELOG.md",
 			},
 		],
-		activeMatch: "/reference/",
+		activeMatch: "/changelog/",
+	},
+	{
+		text: "FAQs",
+		link: "/faqs/",
+		activeMatch: "/faqs/",
 	},
 ];

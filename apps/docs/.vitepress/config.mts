@@ -15,7 +15,7 @@ export default defineConfig({
 	ignoreDeadLinks: false,
 	head,
 	markdown: {
-		// lineNumbers: true,
+		lineNumbers: true,
 		theme: { light: "github-light", dark: "github-dark" },
 		container: {
 			tipLabel: "TIP",

@@ -2,7 +2,7 @@
 
 ## Our commitment
 
-TekBreed OSS is an open-source project for developers building agent infrastructure, starting with TekMemo memory infrastructure for AI apps and agents.
+TekBreed OSS is an open-source project for developers building agent infrastructure, starting with TekBreed memory infrastructure for AI apps and agents.
 
 We want this project to be a respectful, practical, and productive environment for everyone.
 
@@ -195,7 +195,7 @@ This Code of Conduct applies in:
 * community chats
 * official project events
 * maintainer interactions
-* any official TekMemo OSS community space
+* any official TekBreed OSS community space
 
 It may also apply outside official spaces when behavior directly affects the project or community.
 
@@ -215,7 +215,7 @@ Repeated harmful behavior after correction is not acceptable.
 
 ## Maintainer availability
 
-TekMemo may be maintained by a small team.
+TekBreed may be maintained by a small team.
 
 Please respect that maintainers may not respond immediately.
 
@@ -235,7 +235,7 @@ Repeated pressure is not.
 
 ## Project-first culture
 
-The TekMemo community should optimize for:
+The TekBreed community should optimize for:
 
 * useful software
 * clear documentation
@@ -251,4 +251,4 @@ The best contribution is one that makes the project easier to use, safer to run,
 
 ## Acknowledgment
 
-By participating in TekMemo spaces, you agree to follow this Code of Conduct.
+By participating in TekBreed OSS spaces, you agree to follow this Code of Conduct.

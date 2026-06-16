@@ -27,7 +27,7 @@ Expose memory hosted on TekMemo Cloud:
 ```bash
 tekmemo-mcp \
   --runtime cloud \
-  --cloud-url https://memo.tekbreed.com/api/v1 \
+  --cloud-url https://api.tekbreed.com/memo/v1 \
   --api-key "$TEKMEMO_API_KEY" \
   --project-id proj_123
 ```

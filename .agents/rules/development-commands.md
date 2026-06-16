@@ -35,21 +35,9 @@ pnpm test:watch
 
 # Validate package exports with publint
 pnpm lint:package
-```
 
-### Slides app only (`apps/slides`)
-
-```bash
-cd apps/slides
-
-# Start Slidev dev server (localhost:3030)
-pnpm dev
-
-# Build static slides
-pnpm build
-
-# Export slides to PDF/HTML
-pnpm export
+# Validate packages from all sort of warnings and bugs
+pnpm validate:workspace
 ```
 
 ### Package scripts (e.g. `packages/tekmemo`)

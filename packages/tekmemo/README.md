@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/tekbreed/tekbreed-oss/main/assets/architecture.svg" alt="Memory Layer" />
+  <img src="https://raw.githubusercontent.com/tekbreed/tekbreed-oss/main/assets/images/architecture.svg" alt="Memory Layer" />
 </p>
 
 # `@tekbreed/tekmemo`
