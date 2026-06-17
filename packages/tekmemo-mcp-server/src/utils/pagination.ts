@@ -1,13 +1,43 @@
+/**
+ * Pagination encoding, decoding, and slicing utilities for MCP collections.
+ *
+ * @module pagination
+ */
+
 import { McpValidationError } from "../errors";
 import type { Page } from "../types";
 
+/**
+ * Options configuration for array/collection pagination.
+ */
 export interface PaginationOptions {
+	/**
+	 * An opaque base64url cursor string returned from a previous paginated call.
+	 */
 	cursor?: string | undefined;
+	/**
+	 * Number of items to retrieve in this page.
+	 */
 	limit?: number | undefined;
+	/**
+	 * Default fallback limit if none is specified.
+	 */
 	defaultLimit: number;
+	/**
+	 * Maximum limit ceiling to prevent performance degradation.
+	 */
 	maxLimit: number;
 }
 
+/**
+ * Normalizes and validates the limit value.
+ *
+ * @param limit - The input limit value.
+ * @param defaultLimit - Fallback limit.
+ * @param maxLimit - Max allowed limit.
+ * @returns The validated limit number.
+ * @throws {McpValidationError} If the limit is not a positive integer or exceeds max limit.
+ */
 export function normalizeLimit(
 	limit: unknown,
 	defaultLimit: number,
@@ -22,6 +52,14 @@ export function normalizeLimit(
 	return limit;
 }
 
+/**
+ * Encodes a numeric offset and namespace into an opaque base64url cursor string.
+ *
+ * @param offset - The array index/offset.
+ * @param namespace - The context namespace to validate during decoding.
+ * @returns The base64url cursor string.
+ * @throws {McpValidationError} If offset is not a non-negative integer.
+ */
 export function encodeCursor(offset: number, namespace = "page"): string {
 	if (!Number.isInteger(offset) || offset < 0)
 		throw new McpValidationError("cursor offset is invalid.");
@@ -31,6 +69,14 @@ export function encodeCursor(offset: number, namespace = "page"): string {
 	).toString("base64url");
 }
 
+/**
+ * Decodes an opaque base64url cursor string back into a numeric offset.
+ *
+ * @param cursor - The base64url cursor.
+ * @param namespace - The expected namespace.
+ * @returns The decoded offset index.
+ * @throws {McpValidationError} If the cursor is invalid, has a mismatching version/namespace, or is expired.
+ */
 export function decodeCursor(
 	cursor: string | undefined,
 	namespace = "page",
@@ -62,6 +108,15 @@ export function decodeCursor(
 	}
 }
 
+/**
+ * Slices a flat array of items into a paginated Page structure.
+ *
+ * @template T - The element type of the array.
+ * @param items - The input collection array.
+ * @param options - Config options including cursor and limits.
+ * @param namespace - Namespace label for decoding/encoding cursors.
+ * @returns A paginated page containing items and optionally the next cursor.
+ */
 export function paginateArray<T>(
 	items: readonly T[],
 	options: PaginationOptions,

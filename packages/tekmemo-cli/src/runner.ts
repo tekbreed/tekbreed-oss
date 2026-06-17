@@ -1,3 +1,9 @@
+/**
+ * CLI runner orchestrating options parsing, command registration, and execution via Commander.
+ *
+ * @module runner
+ */
+
 import { Command, CommanderError } from "commander";
 import pkg from "../package.json" with { type: "json" };
 import {
@@ -67,35 +73,90 @@ import {
 } from "./output/output";
 import { parseNonNegativeInteger, parsePositiveInteger } from "./utils/numbers";
 
+/**
+ * Helper constant mapping positive integer parser.
+ */
 const parsePositiveOption = parsePositiveInteger as unknown as (
 	value: string,
 	previous: string | undefined,
 ) => string;
+
+/**
+ * Helper constant mapping non-negative integer parser.
+ */
 const parseNonNegativeOption = parseNonNegativeInteger as unknown as (
 	value: string,
 	previous: string | undefined,
 ) => string;
 
+/**
+ * Input configuration variables for invoking the CLI runner programmatically.
+ */
 export interface RunTekMemoCliInput {
+	/**
+	 * Raw command line arguments (e.g. process.argv.slice(2)).
+	 */
 	argv: string[];
+	/**
+	 * Current working directory to resolve relative paths from.
+	 */
 	cwd?: string;
+	/**
+	 * Custom CLI output console wrapper.
+	 */
 	output?: CliOutput;
+	/**
+	 * If true, enables verbose debugging output.
+	 */
 	verbose?: boolean;
+	/**
+	 * If true, silences non-error messages.
+	 */
 	quiet?: boolean;
+	/**
+	 * If true, disables ANSI colored text formats in stdout/stderr.
+	 */
 	noColor?: boolean;
+	/**
+	 * Optional prefetched stdin content, if available.
+	 */
 	stdinContent?: string;
 }
 
+/**
+ * Results returned by running the CLI runner.
+ */
 export interface RunTekMemoCliResult {
+	/**
+	 * Exit code status (0 for success, non-zero for failures).
+	 */
 	exitCode: number;
+	/**
+	 * Array of lines captured from standard output.
+	 */
 	stdout: string[];
+	/**
+	 * Array of lines captured from standard error.
+	 */
 	stderr: string[];
 }
 
+/**
+ * Instantiates the TekMemoFileSystem helper using a root path.
+ *
+ * @param root - Absolute path to workspace root.
+ * @returns Instantiated TekMemoFileSystem.
+ */
 function createFs(root: string): TekMemoFileSystem {
 	return new TekMemoFileSystem({ rootDir: root });
 }
 
+/**
+ * Parses parameters and executes command line instructions.
+ *
+ * @param input - Setup inputs including command line argument vectors.
+ * @returns Executed command results stdout, stderr and exit code.
+ */
 export async function runTekMemoCli(
 	input: RunTekMemoCliInput,
 ): Promise<RunTekMemoCliResult> {
@@ -1506,11 +1567,24 @@ export async function runTekMemoCli(
 	}
 }
 
+/**
+ * Accumulates string options into an array for multi-value CLI flags.
+ *
+ * @param value - Newly parsed option string value.
+ * @param previous - Cumulative array of parsed values.
+ * @returns Updated array containing all parsed values.
+ */
 function collect(value: string, previous: string[]): string[] {
 	previous.push(value);
 	return previous;
 }
 
+/**
+ * Normalizes command line arguments to ensure a valid node execution prefix is present.
+ *
+ * @param argv - Raw string arguments.
+ * @returns Normalized arguments array.
+ */
 function normalizeArgv(argv: string[]): string[] {
 	if (
 		argv.length > 0 &&
@@ -1524,6 +1598,12 @@ function normalizeArgv(argv: string[]): string[] {
 	return [...argv];
 }
 
+/**
+ * Asserts whether a given error is a CommanderError instance.
+ *
+ * @param error - The caught error object.
+ * @returns True if error is a CommanderError.
+ */
 function isCommanderError(error: unknown): error is CommanderError {
 	return error instanceof CommanderError;
 }

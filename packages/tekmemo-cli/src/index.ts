@@ -1,3 +1,9 @@
+/**
+ * Main entry point exporting the public API for the TekMemo CLI library.
+ *
+ * @module index
+ */
+
 export {
 	type CloudConnectionOptions,
 	cloudConnectionSummary,

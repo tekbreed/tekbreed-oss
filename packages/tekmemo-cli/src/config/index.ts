@@ -1,3 +1,9 @@
+/**
+ * Config module entry point for the TekMemo CLI.
+ *
+ * @module config
+ */
+
 export type {
 	CliRuntimeFlags,
 	ResolvedCliRuntimeConfig,

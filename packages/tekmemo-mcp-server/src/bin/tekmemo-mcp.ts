@@ -1,4 +1,12 @@
 #!/usr/bin/env node
+
+/**
+ * Command Line Interface entrypoint executable for the Model Context Protocol (MCP) server.
+ * Parses process arguments, constructs the runtime, and starts the stdio server stream.
+ *
+ * @module tekmemo-mcp
+ */
+
 import {
 	createTekMemoMcpProtocolServer,
 	createTekMemoMcpRuntimeFromConfig,
@@ -12,6 +20,12 @@ main().catch((error) => {
 	process.exit(2);
 });
 
+/**
+ * Main application entrypoint function.
+ * Initializes the runtime based on CLI parameters and starts the transport server.
+ *
+ * @returns A promise that resolves when server initialization and stream execution completes.
+ */
 async function main(): Promise<void> {
 	const args = parseArgs(process.argv.slice(2));
 	if (args.help) {
@@ -78,6 +92,12 @@ type RuntimeWritePolicy =
 	| "local-only"
 	| "cloud-only";
 
+/**
+ * Parses argv command line parameters into a structured record dictionary mapping option keys.
+ *
+ * @param argv - The process argv slice.
+ * @returns A parsed parameters record mapping flag values.
+ */
 function parseArgs(
 	argv: string[],
 ): Record<string, string | boolean | undefined> {
@@ -150,6 +170,14 @@ function parseArgs(
 	return out;
 }
 
+/**
+ * Asserts that a value exists for a given command-line option flag and returns it.
+ *
+ * @param argv - The process arguments array.
+ * @param index - Index of the expected flag value.
+ * @param flag - The flag name.
+ * @returns The parsed option string value.
+ */
 function requireValue(argv: string[], index: number, flag: string): string {
 	const value = argv[index];
 	if (value === undefined || value.startsWith("--")) {
@@ -159,6 +187,13 @@ function requireValue(argv: string[], index: number, flag: string): string {
 	return value;
 }
 
+/**
+ * Parses and returns a numeric configuration option with fallback protection.
+ *
+ * @param value - The input flag value.
+ * @param fallback - The default fallback number.
+ * @returns The parsed number or the fallback.
+ */
 function numberArg(
 	value: string | undefined,
 	fallback: number | undefined,
@@ -168,6 +203,9 @@ function numberArg(
 	return Number.isFinite(number) && number > 0 ? number : fallback;
 }
 
+/**
+ * Outputs the helper command usage documentation block to standard output.
+ */
 function printHelp(): void {
 	console.log(`Usage: tekmemo-mcp-server [options]
 
@@ -188,7 +226,7 @@ Options:
   --request-timeout-ms <number>         Per-tool timeout. Defaults to 30000.
   --max-input-bytes <number>            Max tool argument bytes.
   --max-output-bytes <number>           Max tool result bytes.
-  -h, --help                            Show this help.
+  --help                                Show this help.
 
 Environment:
   TEKMEMO_RUNTIME                       local, memory, cloud, or hybrid.

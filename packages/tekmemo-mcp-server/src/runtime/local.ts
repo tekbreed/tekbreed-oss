@@ -1,3 +1,10 @@
+/**
+ * MCP Server Local (filesystem-backed) runtime implementation.
+ * Stores memory events, notes, snapshots, and graph nodes in the local file system.
+ *
+ * @module local
+ */
+
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path, { resolve } from "node:path";
@@ -40,14 +47,38 @@ import type {
 import { paginateArray } from "../utils/pagination";
 import { buildRuntimeContext } from "./helpers";
 
+/**
+ * Options for configuring the Local MCP runtime.
+ */
 export interface LocalTekMemoMcpRuntimeOptions {
+	/**
+	 * Local root directory path of the store (defaults to process.cwd()).
+	 */
 	rootDir?: string;
+	/**
+	 * Target Project ID.
+	 */
 	projectId?: string;
+	/**
+	 * Optional custom name identifier.
+	 */
 	name?: string;
+	/**
+	 * Optional custom version identifier.
+	 */
 	version?: string;
+	/**
+	 * Automatically seed/bootstrap directory folders and manifests if missing.
+	 */
 	autoBootstrap?: boolean;
 }
 
+/**
+ * Creates an MCP runtime backed by the local file system using NodeFsMemoryStore.
+ *
+ * @param options - Configure directories, project identifiers, and bootstrap behavior.
+ * @returns The instantiated local TekMemoMcpRuntime.
+ */
 export function createLocalTekMemoMcpRuntime(
 	options: LocalTekMemoMcpRuntimeOptions = {},
 ): TekMemoMcpRuntime {

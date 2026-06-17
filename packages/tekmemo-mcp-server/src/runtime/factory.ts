@@ -1,3 +1,10 @@
+/**
+ * MCP Server Runtime instantiation factory.
+ * Resolves local configs, environment variables, and constructs local, cloud, or hybrid runtimes.
+ *
+ * @module factory
+ */
+
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
@@ -11,39 +18,106 @@ import { createHybridTekMemoMcpRuntime } from "./hybrid";
 import { createInMemoryTekMemoRuntime } from "./in-memory";
 import { createLocalTekMemoMcpRuntime } from "./local";
 
+/**
+ * Options for creating an MCP runtime using the factory.
+ */
 export interface RuntimeFactoryOptions {
+	/**
+	 * Runtime execution mode. Supports 'local', 'cloud', 'hybrid', or 'memory'.
+	 */
 	mode?: TekMemoRuntimeMode;
+	/**
+	 * Root directory of the TekMemo local store (defaults to process.cwd()).
+	 */
 	rootDir?: string;
+	/**
+	 * Unique Project identifier.
+	 */
 	projectId?: string;
+	/**
+	 * Unique Workspace identifier.
+	 */
 	workspaceId?: string;
+	/**
+	 * Pre-instantiated Cloud Client instance.
+	 */
 	cloudClient?: TekMemoCloudClientLike;
+	/**
+	 * Nested options for cloud connection properties.
+	 */
 	cloud?: CloudRuntimeFactoryOptions;
+	/**
+	 * Policy deciding how read queries are split between local and cloud runtimes.
+	 */
 	readPolicy?: RuntimeReadPolicy;
+	/**
+	 * Policy deciding how write actions are split between local and cloud runtimes.
+	 */
 	writePolicy?: RuntimeWritePolicy;
 }
 
+/**
+ * Connection and configuration parameters for cloud-scoped runtimes.
+ */
 export interface CloudRuntimeFactoryOptions {
+	/**
+	 * Base URL of the TekMemo Cloud service.
+	 */
 	baseUrl?: string | undefined;
+	/**
+	 * API Key credential for authorization.
+	 */
 	apiKey?: string | undefined;
+	/**
+	 * Target Workspace ID.
+	 */
 	workspaceId?: string | undefined;
+	/**
+	 * Target Project ID.
+	 */
 	projectId?: string | undefined;
+	/**
+	 * Connection timeout in milliseconds.
+	 */
 	timeoutMs?: number | undefined;
+	/**
+	 * HTTP Client User Agent header value.
+	 */
 	userAgent?: string | undefined;
+	/**
+	 * Whether an API key must be supplied.
+	 */
 	requireApiKey?: boolean | undefined;
+	/**
+	 * Request retry behavior options.
+	 */
 	retry?: TekMemoCloudClientOptions["retry"] | undefined;
 }
 
+/**
+ * Allowed read query resolution patterns.
+ */
 export type RuntimeReadPolicy =
 	| "local-first"
 	| "cloud-first"
 	| "local-only"
 	| "cloud-only";
+
+/**
+ * Allowed write action resolution patterns.
+ */
 export type RuntimeWritePolicy =
 	| "local-first"
 	| "cloud-first"
 	| "local-only"
 	| "cloud-only";
 
+/**
+ * Instantiates a TekMemoMcpRuntime by merging command parameters, file configs, and environment variables.
+ *
+ * @param options - Factory configuration options.
+ * @returns The resolved TekMemoMcpRuntime instance.
+ */
 export function createTekMemoMcpRuntimeFromConfig(
 	options: RuntimeFactoryOptions = {},
 ): TekMemoMcpRuntime {
@@ -118,6 +192,12 @@ export function createTekMemoMcpRuntimeFromConfig(
 	});
 }
 
+/**
+ * Instantiates a new TekMemo Cloud client using resolved parameters and environment keys.
+ *
+ * @param options - Cloud connection configurations.
+ * @returns An implementation client compatible with TekMemoCloudClientLike.
+ */
 export function createCloudClientFromRuntimeOptions(
 	options: CloudRuntimeFactoryOptions = {},
 ): TekMemoCloudClientLike {

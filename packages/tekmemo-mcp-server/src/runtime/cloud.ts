@@ -1,3 +1,9 @@
+/**
+ * MCP Server Cloud runtime implementation.
+ *
+ * @module cloud
+ */
+
 import {
 	createCloudTekMemoRuntime,
 	type TekMemoCloudClient,
@@ -14,12 +20,30 @@ import type {
 } from "../types";
 import { buildRuntimeContext } from "./helpers";
 
+/**
+ * Type representing a class/instance compatible with the TekMemoCloudClient contract.
+ */
 export type TekMemoCloudClientLike = TekMemoCloudClient;
 
+/**
+ * Configuration options for creating a Cloud MCP Runtime.
+ */
 export interface CloudTekMemoMcpRuntimeOptions {
+	/**
+	 * An instance of a TekMemo Cloud client.
+	 */
 	client: TekMemoCloudClientLike;
+	/**
+	 * Optional Project ID. If not supplied, runtime operations requiring cloud will fail.
+	 */
 	projectId?: string;
+	/**
+	 * Optional runtime server name identifier.
+	 */
 	name?: string;
+	/**
+	 * Optional runtime version identifier.
+	 */
 	version?: string;
 }
 
@@ -30,6 +54,9 @@ export interface CloudTekMemoMcpRuntimeOptions {
  * The cloud client owns /api/v1/projects/:projectId route construction,
  * { data, meta } / { error, meta } envelope parsing, retries, timeouts,
  * request IDs, and API-key redaction.
+ *
+ * @param options - Configuration options for the cloud runtime.
+ * @returns The instantiated TekMemoMcpRuntime.
  */
 export function createCloudTekMemoMcpRuntime(
 	options: CloudTekMemoMcpRuntimeOptions,

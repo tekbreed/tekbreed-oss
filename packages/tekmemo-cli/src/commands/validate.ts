@@ -1,3 +1,9 @@
+/**
+ * CLI command handler for validating local workspace files and structures.
+ *
+ * @module validate
+ */
+
 import type { z } from "zod";
 import type { TekMemoFileSystem } from "../fs/tekmemo-fs";
 import type { CliOutput } from "../output/output";
@@ -14,17 +20,44 @@ import {
 	SnapshotEntrySchema,
 } from "../protocol/schemas";
 
+/**
+ * Options configuration for the validate command.
+ */
 export interface ValidateCommandOptions {
+	/**
+	 * The TekMemo filesystem wrapper.
+	 */
 	fs: TekMemoFileSystem;
+	/**
+	 * The CLI output console wrapper.
+	 */
 	output: CliOutput;
+	/**
+	 * If true, outputs results in structured JSON format.
+	 */
 	json?: boolean | undefined;
 }
 
+/**
+ * Represents a single protocol validation issue/error.
+ */
 interface ValidateIssue {
+	/**
+	 * Machine-readable code describing the validation failure type.
+	 */
 	code: string;
+	/**
+	 * Descriptive validation failure message.
+	 */
 	message: string;
 }
 
+/**
+ * Runs the validate command, performing strict schema and structure checkups.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runValidateCommand(
 	options: ValidateCommandOptions,
 ): Promise<number> {

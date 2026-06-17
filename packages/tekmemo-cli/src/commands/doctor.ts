@@ -1,3 +1,9 @@
+/**
+ * CLI command handler for auditing and diagnosing TekMemo workspace repositories.
+ *
+ * @module doctor
+ */
+
 import type { z } from "zod";
 import type { TekMemoFileSystem } from "../fs/tekmemo-fs";
 import type { CliOutput } from "../output/output";
@@ -15,19 +21,52 @@ import {
 	SnapshotEntrySchema,
 } from "../protocol/schemas";
 
+/**
+ * Represents a validation problem (error or warning) detected by the doctor check.
+ */
 export interface DoctorIssue {
+	/**
+	 * Severity level of the issue.
+	 */
 	level: "error" | "warning";
+	/**
+	 * Machine-readable category code for the issue.
+	 */
 	code: string;
+	/**
+	 * Human-readable descriptive message.
+	 */
 	message: string;
 }
 
+/**
+ * Options configuration for the doctor command.
+ */
 export interface DoctorCommandOptions {
+	/**
+	 * The TekMemo filesystem wrapper.
+	 */
 	fs: TekMemoFileSystem;
+	/**
+	 * The CLI output console wrapper.
+	 */
 	output: CliOutput;
+	/**
+	 * If true, outputs results in structured JSON format.
+	 */
 	json?: boolean | undefined;
+	/**
+	 * If true, throws errors on malformed lines during JSONL parsing.
+	 */
 	strict?: boolean | undefined;
 }
 
+/**
+ * Runs the doctor command, checking repository integrity, schema compliance, and formatting.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runDoctorCommand(
 	options: DoctorCommandOptions,
 ): Promise<number> {

@@ -1,3 +1,9 @@
+/**
+ * CLI command handler for initializing a new TekMemo local workspace.
+ *
+ * @module init
+ */
+
 import readline from "node:readline/promises";
 import type { TekMemoFileSystem } from "../fs/tekmemo-fs";
 import type { CliOutput } from "../output/output";
@@ -9,15 +15,42 @@ import {
 } from "../protocol/constants";
 import { createDefaultManifest } from "../protocol/manifest";
 
+/**
+ * Options configuration for the init command.
+ */
 export interface InitCommandOptions {
+	/**
+	 * The TekMemo filesystem wrapper.
+	 */
 	fs: TekMemoFileSystem;
+	/**
+	 * The CLI output console wrapper.
+	 */
 	output: CliOutput;
+	/**
+	 * If true, outputs results in structured JSON format.
+	 */
 	json?: boolean | undefined;
+	/**
+	 * If true, forces overwriting of existing workspace seed files.
+	 */
 	force?: boolean | undefined;
+	/**
+	 * Custom project identifier to seed. If omitted, a random ID is prompted or generated.
+	 */
 	projectId?: string | undefined;
+	/**
+	 * If true, suppresses interactive TTY prompt for project ID.
+	 */
 	noInput?: boolean | undefined;
 }
 
+/**
+ * Runs the init command, generating standard directory layout and seed files.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runInitCommand(
 	options: InitCommandOptions,
 ): Promise<number> {

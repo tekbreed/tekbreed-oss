@@ -1,3 +1,9 @@
+/**
+ * MCP Tool definitions configuration mapping schemas and safety constraints.
+ *
+ * @module definitions
+ */
+
 import {
 	booleanSchema,
 	graphEdgeSchema,
@@ -31,6 +37,13 @@ const kindSchema: JsonObject = {
 	description: "Memory kind. Defaults to note.",
 };
 
+/**
+ * Creates and returns all MCP tool definitions supported by TekMemo.
+ * Configures lists pagination properties to match maxPageSize where appropriate.
+ *
+ * @param maxPageSize - The maximum allowed page limit size constraint.
+ * @returns An array of all available McpToolDefinitions.
+ */
 export function createToolDefinitions(
 	maxPageSize: number,
 ): McpToolDefinition[] {

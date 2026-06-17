@@ -1,3 +1,9 @@
+/**
+ * CLI command handlers for interacting with the TekMemo Cloud service.
+ *
+ * @module cloud
+ */
+
 import type {
 	CreateNoteInput,
 	JsonObject,
@@ -18,221 +24,630 @@ import { parseMetadataJson } from "../utils/metadata";
 import { parseConfidence } from "../utils/numbers";
 import { scanForSecrets } from "../utils/secrets";
 
+/**
+ * Base options shared by all cloud commands.
+ */
 export interface CloudCommandBaseOptions extends CloudConnectionOptions {
+	/**
+	 * The CLI output console wrapper.
+	 */
 	output: CliOutput;
+	/**
+	 * If true, outputs results in structured JSON format.
+	 */
 	json?: boolean | undefined;
+	/**
+	 * Optional local workspace root directory path.
+	 */
 	rootDir?: string | undefined;
+	/**
+	 * Optional prefetched stdin content, if available.
+	 */
 	stdinContent?: string | undefined;
 }
 
+/**
+ * Options for the cloud health command.
+ */
 export interface CloudHealthCommandOptions extends CloudCommandBaseOptions {}
 
+/**
+ * Options for the cloud context command.
+ */
 export interface CloudContextCommandOptions extends CloudCommandBaseOptions {
+	/**
+	 * Text query to filter matching memory files on the cloud.
+	 */
 	query: string;
+	/**
+	 * Maximum number of records to return.
+	 */
 	limit?: string | number | undefined;
+	/**
+	 * Maximum bytes size allowed in the formatted context output.
+	 */
 	maxBytes?: string | number | undefined;
+	/**
+	 * If true, includes core memory in context.
+	 */
 	includeCore?: boolean | undefined;
+	/**
+	 * If true, includes notes memory in context.
+	 */
 	includeNotes?: boolean | undefined;
+	/**
+	 * If true, includes recent memory records in context.
+	 */
 	includeRecent?: boolean | undefined;
 }
 
+/**
+ * Options for the cloud recall search command.
+ */
 export interface CloudRecallCommandOptions extends CloudCommandBaseOptions {
+	/**
+	 * Text query to search in cloud memories.
+	 */
 	query: string;
+	/**
+	 * Maximum number of recall results to return.
+	 */
 	limit?: string | number | undefined;
+	/**
+	 * The search strategy to use: 'local', 'vector', or 'hybrid'.
+	 */
 	strategy?: string | undefined;
+	/**
+	 * Fallback mode if the primary search fails or yields no results: 'none' or 'local'.
+	 */
 	fallback?: string | undefined;
+	/**
+	 * If true, performs semantic reranking on the returned results.
+	 */
 	rerank?: boolean | undefined;
 }
 
+/**
+ * Options for the cloud recall index command.
+ */
 export interface CloudRecallIndexCommandOptions
 	extends CloudCommandBaseOptions {
+	/**
+	 * indexing mode: all, changed, core, or notes.
+	 */
 	mode?: string | undefined;
+	/**
+	 * If true, forces rebuilding the index even if no changes are detected.
+	 */
 	force?: boolean | undefined;
 }
 
+/**
+ * Options for the cloud remember command.
+ */
 export interface CloudRememberCommandOptions extends CloudCommandBaseOptions {
+	/**
+	 * Inline text content of the note to remember on the cloud.
+	 */
 	content?: string | undefined;
+	/**
+	 * If true, reads content to remember from stdin.
+	 */
 	stdin?: boolean | undefined;
+	/**
+	 * Workspace-relative path to a file containing content to remember.
+	 */
 	file?: string | undefined;
+	/**
+	 * The category of note (e.g. decision, preference, summary, note).
+	 */
 	kind?: string | undefined;
+	/**
+	 * Optional title header for the note.
+	 */
 	title?: string | undefined;
+	/**
+	 * Optional array of tags to associate with the note.
+	 */
 	tags?: string[] | undefined;
+	/**
+	 * Confidence score (0 to 1) representing the validity of the fact.
+	 */
 	confidence?: string | number | undefined;
+	/**
+	 * Optional source identifier or URI.
+	 */
 	source?: string | undefined;
+	/**
+	 * Optional metadata key-value JSON string.
+	 */
 	metadata?: string | undefined;
+	/**
+	 * If true, ignores warnings about potential secrets or API keys.
+	 */
 	allowSecrets?: boolean | undefined;
 }
 
+/**
+ * Options for the cloud read command.
+ */
 export interface CloudReadCommandOptions extends CloudCommandBaseOptions {
+	/**
+	 * The memory type to read: 'core' or 'notes'.
+	 */
 	target: "core" | "notes";
+	/**
+	 * Maximum number of records to return.
+	 */
 	limit?: string | number | undefined;
 }
 
+/**
+ * Options for the cloud core memory update command.
+ */
 export interface CloudUpdateCoreCommandOptions extends CloudCommandBaseOptions {
+	/**
+	 * Inline text content to update the core memory with.
+	 */
 	content?: string | undefined;
+	/**
+	 * If true, reads content to update from stdin.
+	 */
 	stdin?: boolean | undefined;
+	/**
+	 * Workspace-relative path to a file containing content to update.
+	 */
 	file?: string | undefined;
+	/**
+	 * If true, ignores warnings about potential secrets or API keys.
+	 */
 	allowSecrets?: boolean | undefined;
 }
 
+/**
+ * Options for the cloud recent events command.
+ */
 export interface CloudRecentCommandOptions extends CloudCommandBaseOptions {
+	/**
+	 * Maximum number of recent events to return.
+	 */
 	limit?: string | number | undefined;
 }
 
+/**
+ * Options for the cloud validation command.
+ */
 export interface CloudValidateCommandOptions extends CloudCommandBaseOptions {
+	/**
+	 * If true, performs strict validation on protocol files.
+	 */
 	strict?: boolean | undefined;
 }
 
+/**
+ * Options for the cloud snapshot command.
+ */
 export interface CloudSnapshotCommandOptions extends CloudCommandBaseOptions {
+	/**
+	 * Optional descriptive label to tag the snapshot with.
+	 */
 	label?: string | undefined;
+	/**
+	 * Optional snapshot type: 'manual', 'automatic', etc.
+	 */
 	type?: string | undefined;
 }
 
+/**
+ * Options for the cloud sync status command.
+ */
 export interface CloudSyncStatusCommandOptions extends CloudCommandBaseOptions {
+	/**
+	 * Unique client identifier checking status.
+	 */
 	clientId?: string | undefined;
 }
 
+/**
+ * Options for the cloud sync pull command.
+ */
 export interface CloudSyncPullCommandOptions extends CloudCommandBaseOptions {
+	/**
+	 * Unique client identifier pulling changes.
+	 */
 	clientId: string;
+	/**
+	 * Retrieve changes only since this server version number.
+	 */
 	sinceServerVersion?: string | number | undefined;
+	/**
+	 * Maximum number of sync events to pull.
+	 */
 	limit?: string | number | undefined;
 }
 
+/**
+ * Options for the cloud sync push command.
+ */
 export interface CloudSyncPushCommandOptions extends CloudCommandBaseOptions {
+	/**
+	 * Unique client identifier pushing events.
+	 */
 	clientId: string;
+	/**
+	 * Optional raw JSON string of SyncEventInput array.
+	 */
 	eventsJson?: string | undefined;
+	/**
+	 * Optional path to a file containing JSON/JSONL events to push.
+	 */
 	file?: string | undefined;
+	/**
+	 * If true, reads push events from stdin.
+	 */
 	stdin?: boolean | undefined;
+	/**
+	 * Optional checkpoint metadata JSON string.
+	 */
 	checkpointJson?: string | undefined;
 }
 
+/**
+ * Options for the cloud sync resolve command.
+ */
 export interface CloudSyncResolveCommandOptions
 	extends CloudCommandBaseOptions {
+	/**
+	 * The identifier of the conflict to resolve.
+	 */
 	conflictId: string;
+	/**
+	 * The resolution action (keep_cloud, use_client, or ignore).
+	 */
 	resolution: string;
 }
+
+/**
+ * Options for the cloud readiness command.
+ */
 export interface CloudReadinessCommandOptions extends CloudCommandBaseOptions {}
 
+/**
+ * Options for the cloud context compose command.
+ */
 export interface CloudContextComposeCommandOptions
 	extends CloudCommandBaseOptions {
+	/**
+	 * Text query to search.
+	 */
 	query: string;
+	/**
+	 * Maximum number of context snippets to compose.
+	 */
 	topK?: string | number | undefined;
+	/**
+	 * Search strategy: local, vector, hybrid.
+	 */
 	strategy?: string | undefined;
+	/**
+	 * If true, runs reranker.
+	 */
 	rerank?: boolean | undefined;
+	/**
+	 * If true, includes core memory.
+	 */
 	includeCoreMemory?: boolean | undefined;
+	/**
+	 * If true, includes recall results.
+	 */
 	includeRecallResults?: boolean | undefined;
+	/**
+	 * If true, includes graph context.
+	 */
 	includeGraphContext?: boolean | undefined;
 }
 
+/**
+ * Options for listing graph nodes.
+ */
 export interface CloudGraphListNodesCommandOptions
 	extends CloudCommandBaseOptions {
+	/**
+	 * Maximum number of nodes to return.
+	 */
 	limit?: string | number | undefined;
+	/**
+	 * Pagination cursor token.
+	 */
 	cursor?: string | undefined;
+	/**
+	 * Filter by node status (active, stale, deleted).
+	 */
 	status?: string | undefined;
 }
 
+/**
+ * Options for creating a graph node.
+ */
 export interface CloudGraphCreateNodeCommandOptions
 	extends CloudCommandBaseOptions {
+	/**
+	 * Unique identifier of the node.
+	 */
 	nodeId: string;
+	/**
+	 * Type classification of the node.
+	 */
 	type: string;
+	/**
+	 * Descriptive label for the node.
+	 */
 	label: string;
+	/**
+	 * Optional summary description.
+	 */
 	summary?: string | undefined;
+	/**
+	 * Optional alias names.
+	 */
 	aliases?: string[] | undefined;
+	/**
+	 * Optional JSON string of metadata key-value pairs.
+	 */
 	metadataJson?: string | undefined;
 }
 
+/**
+ * Options for listing graph edges.
+ */
 export interface CloudGraphListEdgesCommandOptions
 	extends CloudCommandBaseOptions {
+	/**
+	 * Maximum number of edges to return.
+	 */
 	limit?: string | number | undefined;
+	/**
+	 * Pagination cursor token.
+	 */
 	cursor?: string | undefined;
+	/**
+	 * Filter by edge status (active, stale, deleted).
+	 */
 	status?: string | undefined;
 }
 
+/**
+ * Options for creating a graph edge.
+ */
 export interface CloudGraphCreateEdgeCommandOptions
 	extends CloudCommandBaseOptions {
+	/**
+	 * Optional custom identifier for the edge.
+	 */
 	edgeId?: string | undefined;
+	/**
+	 * Source node identifier.
+	 */
 	fromNodeId: string;
+	/**
+	 * Target node identifier.
+	 */
 	toNodeId: string;
+	/**
+	 * Relationship type of the edge.
+	 */
 	type: string;
+	/**
+	 * If true, indicates the relationship is directed.
+	 */
 	directed?: boolean | undefined;
+	/**
+	 * Connection strength weight.
+	 */
 	weight?: string | number | undefined;
+	/**
+	 * Optional JSON string of metadata key-value pairs.
+	 */
 	metadataJson?: string | undefined;
 }
 
+/**
+ * Options for retrieving node neighbors.
+ */
 export interface CloudGraphNeighborsCommandOptions
 	extends CloudCommandBaseOptions {
+	/**
+	 * The center node identifier.
+	 */
 	nodeId: string;
+	/**
+	 * Traversal direction: in, out, both.
+	 */
 	direction?: string | undefined;
+	/**
+	 * Maximum traversal hop depth.
+	 */
 	depth?: string | number | undefined;
+	/**
+	 * Maximum neighbors to return.
+	 */
 	limit?: string | number | undefined;
 }
 
+/**
+ * Options for finding a path between two nodes.
+ */
 export interface CloudGraphPathCommandOptions extends CloudCommandBaseOptions {
+	/**
+	 * Starting node identifier.
+	 */
 	fromNodeId: string;
+	/**
+	 * Ending node identifier.
+	 */
 	toNodeId: string;
+	/**
+	 * Maximum traversal depth limit.
+	 */
 	maxDepth?: string | number | undefined;
 }
 
+/**
+ * Options for running extraction jobs.
+ */
 export interface CloudExtractionRunCommandOptions
 	extends CloudCommandBaseOptions {
+	/**
+	 * Extraction mode: entity, relationship, all.
+	 */
 	mode?: string | undefined;
+	/**
+	 * If true, forces rerun of extraction.
+	 */
 	force?: boolean | undefined;
 }
 
+/**
+ * Options for listing extraction jobs.
+ */
 export interface CloudExtractionJobsCommandOptions
 	extends CloudCommandBaseOptions {
+	/**
+	 * Maximum number of jobs to return.
+	 */
 	limit?: string | number | undefined;
 }
 
+/**
+ * Options for running evaluations.
+ */
 export interface CloudEvalsRunCommandOptions extends CloudCommandBaseOptions {
+	/**
+	 * Optional comma-separated fixture identifiers to filter evaluation.
+	 */
 	fixtureIds?: string | undefined;
+	/**
+	 * Number of evaluation iterations.
+	 */
 	iterations?: string | number | undefined;
+	/**
+	 * Optional JSON string of metric evaluation thresholds.
+	 */
 	thresholdsJson?: string | undefined;
 }
 
+/**
+ * Options for running benchmarks.
+ */
 export interface CloudBenchmarksRunCommandOptions
 	extends CloudCommandBaseOptions {
+	/**
+	 * Optional comma-separated fixture identifiers to filter benchmark.
+	 */
 	fixtureIds?: string | undefined;
+	/**
+	 * Number of benchmark iterations.
+	 */
 	iterations?: string | number | undefined;
+	/**
+	 * Optional JSON string of metric benchmark thresholds.
+	 */
 	thresholdsJson?: string | undefined;
 }
 
+/**
+ * Options for creating database exports.
+ */
 export interface CloudExportsCreateCommandOptions
 	extends CloudCommandBaseOptions {
+	/**
+	 * Optional descriptive label to tag the export with.
+	 */
 	label?: string | undefined;
 }
 
+/**
+ * Options for downloading database exports.
+ */
 export interface CloudExportsDownloadCommandOptions
 	extends CloudCommandBaseOptions {
+	/**
+	 * The identifier of the export to download.
+	 */
 	exportId: string;
 }
 
+/**
+ * Options for creating cloud snapshots.
+ */
 export interface CloudSnapshotsCreateCommandOptions
 	extends CloudCommandBaseOptions {
+	/**
+	 * Optional descriptive label.
+	 */
 	label?: string | undefined;
+	/**
+	 * Optional trigger descriptor (manual, auto, pre-sync).
+	 */
 	trigger?: string | undefined;
 }
 
+/**
+ * Options for downloading cloud snapshots.
+ */
 export interface CloudSnapshotsDownloadCommandOptions
 	extends CloudCommandBaseOptions {
+	/**
+	 * The identifier of the snapshot to download.
+	 */
 	snapshotId: string;
 }
 
+/**
+ * Options for listing cloud LLM providers.
+ */
 export interface CloudProvidersListCommandOptions
 	extends CloudCommandBaseOptions {}
 
+/**
+ * Options for registering a cloud provider credential.
+ */
 export interface CloudProvidersCreateCommandOptions
 	extends CloudCommandBaseOptions {
+	/**
+	 * Provider name (openai, anthropic, google, etc.).
+	 */
 	provider: string;
+	/**
+	 * Unique key/credential profile label.
+	 */
 	keyName: string;
+	/**
+	 * API secret key string.
+	 */
 	secret: string;
+	/**
+	 * Optional base REST endpoint URL overrides.
+	 */
 	restUrl?: string | undefined;
+	/**
+	 * Default embedding model to use.
+	 */
 	embeddingModel?: string | undefined;
+	/**
+	 * Default rerank model to use.
+	 */
 	rerankModel?: string | undefined;
 }
 
+/**
+ * Options for testing provider credentials.
+ */
 export interface CloudProvidersTestCommandOptions
 	extends CloudCommandBaseOptions {
+	/**
+	 * The credential identifier profile to test.
+	 */
 	credentialId: string;
 }
 
@@ -258,12 +673,18 @@ const INDEX_MODES = new Set<RecallIndexMode>([
 	"core",
 	"notes",
 ]);
-const CONFLICT_RESOLUTIONS = new Set<SyncConflictResolution>([
+const _CONFLICT_RESOLUTIONS = new Set<SyncConflictResolution>([
 	"keep_cloud",
 	"use_client",
 	"ignore",
 ]);
 
+/**
+ * Performs a cloud health check.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudHealthCommand(
 	options: CloudHealthCommandOptions,
 ): Promise<number> {
@@ -288,6 +709,12 @@ export async function runCloudHealthCommand(
 	return result.ok ? 0 : 1;
 }
 
+/**
+ * Aggregates cloud context memory files.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudContextCommand(
 	options: CloudContextCommandOptions,
 ): Promise<number> {
@@ -350,6 +777,12 @@ export async function runCloudContextCommand(
 	return 0;
 }
 
+/**
+ * Queries the cloud memory service using semantic search strategies.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudRecallCommand(
 	options: CloudRecallCommandOptions,
 ): Promise<number> {
@@ -372,6 +805,12 @@ export async function runCloudRecallCommand(
 	return 0;
 }
 
+/**
+ * Triggers a recall reindexing process on the cloud memory store.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudRecallIndexCommand(
 	options: CloudRecallIndexCommandOptions,
 ): Promise<number> {
@@ -395,6 +834,12 @@ export async function runCloudRecallIndexCommand(
 	return 0;
 }
 
+/**
+ * Stores a fact/note in the cloud memory service.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudRememberCommand(
 	options: CloudRememberCommandOptions,
 ): Promise<number> {
@@ -445,6 +890,12 @@ export async function runCloudRememberCommand(
 	return 0;
 }
 
+/**
+ * Reads core or note memory records from the cloud.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudReadCommand(
 	options: CloudReadCommandOptions,
 ): Promise<number> {
@@ -476,6 +927,12 @@ export async function runCloudReadCommand(
 	return 0;
 }
 
+/**
+ * Updates cloud core memory contents.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudUpdateCoreCommand(
 	options: CloudUpdateCoreCommandOptions,
 ): Promise<number> {
@@ -510,12 +967,24 @@ export async function runCloudUpdateCoreCommand(
 	return 0;
 }
 
+/**
+ * Retrieves the most recent cloud memory notes.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudRecentCommand(
 	options: CloudRecentCommandOptions,
 ): Promise<number> {
 	return runCloudReadCommand({ ...options, target: "notes" });
 }
 
+/**
+ * Validates the cloud memory service health and core schema compliance.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudValidateCommand(
 	options: CloudValidateCommandOptions,
 ): Promise<number> {
@@ -561,6 +1030,12 @@ export async function runCloudValidateCommand(
 	return result.ok ? 0 : 1;
 }
 
+/**
+ * Creates a cloud database snapshot.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudSnapshotCommand(
 	options: CloudSnapshotCommandOptions,
 ): Promise<number> {
@@ -577,6 +1052,12 @@ export async function runCloudSnapshotCommand(
 	return 2;
 }
 
+/**
+ * Retrieves the sync status of a cloud workspace.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudSyncStatusCommand(
 	options: CloudSyncStatusCommandOptions,
 ): Promise<number> {
@@ -601,6 +1082,12 @@ export async function runCloudSyncStatusCommand(
 	return 0;
 }
 
+/**
+ * Pulls sync events from the cloud memory service.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudSyncPullCommand(
 	options: CloudSyncPullCommandOptions,
 ): Promise<number> {
@@ -625,6 +1112,12 @@ export async function runCloudSyncPullCommand(
 	return 0;
 }
 
+/**
+ * Pushes local memory events to the cloud sync service.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudSyncPushCommand(
 	options: CloudSyncPushCommandOptions,
 ): Promise<number> {
@@ -662,6 +1155,12 @@ export async function runCloudSyncPushCommand(
 	return result.rejected.length === 0 && result.conflicts.length === 0 ? 0 : 1;
 }
 
+/**
+ * Resolves a sync conflict in the cloud memory service.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudSyncResolveCommand(
 	options: CloudSyncResolveCommandOptions,
 ): Promise<number> {
@@ -679,6 +1178,12 @@ export async function runCloudSyncResolveCommand(
 	return 0;
 }
 
+/**
+ * Performs a cloud readiness check.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudReadinessCommand(
 	options: CloudReadinessCommandOptions,
 ): Promise<number> {
@@ -702,6 +1207,12 @@ export async function runCloudReadinessCommand(
 	return result.ok ? 0 : 1;
 }
 
+/**
+ * Composes detailed context summaries from cloud memories.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudContextComposeCommand(
 	options: CloudContextComposeCommandOptions,
 ): Promise<number> {
@@ -732,6 +1243,12 @@ export async function runCloudContextComposeCommand(
 	return 0;
 }
 
+/**
+ * Lists nodes in the cloud knowledge graph.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudGraphListNodesCommand(
 	options: CloudGraphListNodesCommandOptions,
 ): Promise<number> {
@@ -762,6 +1279,12 @@ export async function runCloudGraphListNodesCommand(
 	return 0;
 }
 
+/**
+ * Creates a node in the cloud knowledge graph.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudGraphCreateNodeCommand(
 	options: CloudGraphCreateNodeCommandOptions,
 ): Promise<number> {
@@ -785,6 +1308,12 @@ export async function runCloudGraphCreateNodeCommand(
 	return 0;
 }
 
+/**
+ * Lists edges in the cloud knowledge graph.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudGraphListEdgesCommand(
 	options: CloudGraphListEdgesCommandOptions,
 ): Promise<number> {
@@ -818,6 +1347,12 @@ export async function runCloudGraphListEdgesCommand(
 	return 0;
 }
 
+/**
+ * Creates an edge in the cloud knowledge graph.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudGraphCreateEdgeCommand(
 	options: CloudGraphCreateEdgeCommandOptions,
 ): Promise<number> {
@@ -846,6 +1381,12 @@ export async function runCloudGraphCreateEdgeCommand(
 	return 0;
 }
 
+/**
+ * Retrieves direct and indirect neighbors of a node in the cloud knowledge graph.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudGraphNeighborsCommand(
 	options: CloudGraphNeighborsCommandOptions,
 ): Promise<number> {
@@ -873,6 +1414,12 @@ export async function runCloudGraphNeighborsCommand(
 	return 0;
 }
 
+/**
+ * Finds a path between two nodes in the cloud knowledge graph.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudGraphPathCommand(
 	options: CloudGraphPathCommandOptions,
 ): Promise<number> {
@@ -896,6 +1443,12 @@ export async function runCloudGraphPathCommand(
 	return 0;
 }
 
+/**
+ * Triggers a new extraction run on the cloud database.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudExtractionRunCommand(
 	options: CloudExtractionRunCommandOptions,
 ): Promise<number> {
@@ -923,6 +1476,12 @@ export async function runCloudExtractionRunCommand(
 	return 0;
 }
 
+/**
+ * Lists details on cloud extraction jobs.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudExtractionJobsCommand(
 	options: CloudExtractionJobsCommandOptions,
 ): Promise<number> {
@@ -942,6 +1501,12 @@ export async function runCloudExtractionJobsCommand(
 	return 0;
 }
 
+/**
+ * Runs evaluations on cloud memory systems using test fixtures.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudEvalsRunCommand(
 	options: CloudEvalsRunCommandOptions,
 ): Promise<number> {
@@ -962,6 +1527,12 @@ export async function runCloudEvalsRunCommand(
 	return 0;
 }
 
+/**
+ * Runs latency and quality benchmarks on the cloud memory endpoints.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudBenchmarksRunCommand(
 	options: CloudBenchmarksRunCommandOptions,
 ): Promise<number> {
@@ -984,6 +1555,12 @@ export async function runCloudBenchmarksRunCommand(
 	return 0;
 }
 
+/**
+ * Creates a new export archive of the cloud database.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudExportsCreateCommand(
 	options: CloudExportsCreateCommandOptions,
 ): Promise<number> {
@@ -999,6 +1576,12 @@ export async function runCloudExportsCreateCommand(
 	return 0;
 }
 
+/**
+ * Resolves a download URL for a completed database export archive.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudExportsDownloadCommand(
 	options: CloudExportsDownloadCommandOptions,
 ): Promise<number> {
@@ -1014,6 +1597,12 @@ export async function runCloudExportsDownloadCommand(
 	return 0;
 }
 
+/**
+ * Creates a new snapshot on the cloud database.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudSnapshotsCreateCommand(
 	options: CloudSnapshotsCreateCommandOptions,
 ): Promise<number> {
@@ -1032,6 +1621,12 @@ export async function runCloudSnapshotsCreateCommand(
 	return 0;
 }
 
+/**
+ * Resolves a download URL for a completed cloud snapshot.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudSnapshotsDownloadCommand(
 	options: CloudSnapshotsDownloadCommandOptions,
 ): Promise<number> {
@@ -1047,6 +1642,12 @@ export async function runCloudSnapshotsDownloadCommand(
 	return 0;
 }
 
+/**
+ * Lists registered LLM provider credentials in the cloud service.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudProvidersListCommand(
 	options: CloudProvidersListCommandOptions,
 ): Promise<number> {
@@ -1064,6 +1665,12 @@ export async function runCloudProvidersListCommand(
 	return 0;
 }
 
+/**
+ * Registers new LLM provider credentials in the cloud service.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudProvidersCreateCommand(
 	options: CloudProvidersCreateCommandOptions,
 ): Promise<number> {
@@ -1086,6 +1693,12 @@ export async function runCloudProvidersCreateCommand(
 	return 0;
 }
 
+/**
+ * Tests a registered LLM provider credential's validity.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runCloudProvidersTestCommand(
 	options: CloudProvidersTestCommandOptions,
 ): Promise<number> {
@@ -1103,6 +1716,14 @@ export async function runCloudProvidersTestCommand(
 	return result.ok ? 0 : 1;
 }
 
+/**
+ * Creates and configures a cloud client instance using the provided connection settings.
+ *
+ * @param options - Base cloud connection options.
+ * @param allowMissingApiKey - If true, does not throw if api key is missing.
+ * @param allowMissingProjectId - If true, does not throw if project id is missing.
+ * @returns Instantiated TekMemoCloudClient.
+ */
 function createCloudClient(
 	options: CloudCommandBaseOptions,
 	allowMissingApiKey = false,
@@ -1119,6 +1740,13 @@ function createCloudClient(
 	});
 }
 
+/**
+ * Normalizes and validates notes kind string.
+ *
+ * @param value - The input note kind string.
+ * @returns The validated MemoryKind.
+ * @throws {CliUsageError} If the kind is invalid.
+ */
 function normalizeMemoryKind(value: string | undefined): MemoryKind {
 	const candidate = value ?? "note";
 	if (!MEMORY_KINDS.has(candidate as MemoryKind)) {
@@ -1129,6 +1757,13 @@ function normalizeMemoryKind(value: string | undefined): MemoryKind {
 	return candidate as MemoryKind;
 }
 
+/**
+ * Normalizes and validates recall strategy parameter.
+ *
+ * @param value - The input strategy string.
+ * @returns Validated RecallStrategy or undefined.
+ * @throws {CliUsageError} If the strategy is invalid.
+ */
 function normalizeRecallStrategy(
 	value: string | undefined,
 ): RecallStrategy | undefined {
@@ -1138,6 +1773,13 @@ function normalizeRecallStrategy(
 	throw new CliUsageError("recall strategy must be local, vector, or hybrid.");
 }
 
+/**
+ * Normalizes and validates recall fallback mode.
+ *
+ * @param value - The input fallback mode string.
+ * @returns Validated RecallFallbackMode or undefined.
+ * @throws {CliUsageError} If the fallback mode is invalid.
+ */
 function normalizeRecallFallback(
 	value: string | undefined,
 ): RecallFallbackMode | undefined {
@@ -1147,6 +1789,13 @@ function normalizeRecallFallback(
 	throw new CliUsageError("recall fallback must be none or local.");
 }
 
+/**
+ * Normalizes and validates index mode selection.
+ *
+ * @param value - The index mode candidate.
+ * @returns Validated RecallIndexMode or undefined.
+ * @throws {CliUsageError} If the mode is invalid.
+ */
 function normalizeIndexMode(
 	value: string | undefined,
 ): RecallIndexMode | undefined {
@@ -1156,6 +1805,13 @@ function normalizeIndexMode(
 	throw new CliUsageError("index mode must be all, changed, core, or notes.");
 }
 
+/**
+ * Normalizes local conflict resolution commands to server-recognized codes.
+ *
+ * @param value - Local resolution option.
+ * @returns Server conflict resolution action.
+ * @throws {CliUsageError} If the option is invalid.
+ */
 function normalizeConflictResolution(
 	value: string,
 ): "keep_existing" | "use_incoming" | "merge" | "dismiss" {
@@ -1173,10 +1829,24 @@ function normalizeConflictResolution(
 	}
 }
 
+/**
+ * Normalizes and parses the confidence score.
+ *
+ * @param value - Score candidate.
+ * @returns Parsed confidence score number.
+ */
 function normalizeConfidence(value: string | number): number {
 	return parseConfidence(String(value));
 }
 
+/**
+ * Validates and normalizes optional positive integer parameters.
+ *
+ * @param value - Number candidate.
+ * @param name - Parameter name (for errors).
+ * @returns Parsed positive integer or undefined.
+ * @throws {CliUsageError} If parsing fails or value is negative.
+ */
 function normalizeOptionalPositiveInteger(
 	value: string | number | undefined,
 	name: string,
@@ -1189,6 +1859,14 @@ function normalizeOptionalPositiveInteger(
 	return parsed;
 }
 
+/**
+ * Validates and normalizes optional non-negative integer parameters.
+ *
+ * @param value - Number candidate.
+ * @param name - Parameter name.
+ * @returns Parsed non-negative integer or undefined.
+ * @throws {CliUsageError} If parsing fails or value is negative.
+ */
 function normalizeOptionalNonNegativeInteger(
 	value: string | number | undefined,
 	name: string,
@@ -1201,6 +1879,12 @@ function normalizeOptionalNonNegativeInteger(
 	return parsed;
 }
 
+/**
+ * Formats a note object into standard Markdown structure.
+ *
+ * @param note - Stored cloud note.
+ * @returns Formatted Markdown string.
+ */
 function renderNote(note: {
 	id: string;
 	kind: string;
@@ -1215,6 +1899,12 @@ function renderNote(note: {
 	return `## ${heading}\n- kind: ${note.kind}${created}${tags}\n\n${note.content.trim()}`;
 }
 
+/**
+ * Renders a list of search hits into user-friendly text blocks.
+ *
+ * @param items - Recall hits.
+ * @returns Text listing hits.
+ */
 function renderRecallHits(
 	items: Array<{ text: string; score?: number }>,
 ): string {
@@ -1227,11 +1917,25 @@ function renderRecallHits(
 		.join("\n\n");
 }
 
+/**
+ * Truncates text content to a maximum size in bytes, appending a truncation message.
+ *
+ * @param text - The string content.
+ * @param maxBytes - Maximum byte limit.
+ * @returns The potentially truncated string.
+ */
 function truncateText(text: string, maxBytes: number | undefined): string {
 	if (maxBytes === undefined || text.length <= maxBytes) return text;
 	return `${text.slice(0, Math.max(0, maxBytes - 40)).trimEnd()}\n\n[truncated by --max-bytes]`;
 }
 
+/**
+ * Resolves inline, stdin, or file arguments into parsed JSON payload.
+ *
+ * @param input - Setup details.
+ * @returns Parsed JSON unknown payload.
+ * @throws {CliUsageError} If JSON parsing fails.
+ */
 async function resolveJsonPayload(input: {
 	rootDir: string;
 	inline?: string;
@@ -1256,6 +1960,14 @@ async function resolveJsonPayload(input: {
 	}
 }
 
+/**
+ * Parses a string into a validated JsonObject.
+ *
+ * @param raw - Raw JSON string.
+ * @param fieldName - Parameter label.
+ * @returns Parsed JsonObject.
+ * @throws {CliUsageError} If parsing fails or parsed value is not an object.
+ */
 function parseJsonObject(raw: string, fieldName: string): JsonObject {
 	try {
 		const parsed = JSON.parse(raw) as unknown;
@@ -1268,6 +1980,13 @@ function parseJsonObject(raw: string, fieldName: string): JsonObject {
 	}
 }
 
+/**
+ * Extracts sync events from a parsed JSON payload array or envelope.
+ *
+ * @param payload - Parsed payload candidate.
+ * @returns Extracted SyncEventInput array.
+ * @throws {CliUsageError} If structure is invalid.
+ */
 function extractSyncEvents(payload: unknown): SyncEventInput[] {
 	const events = Array.isArray(payload)
 		? payload
@@ -1287,6 +2006,13 @@ function extractSyncEvents(payload: unknown): SyncEventInput[] {
 	});
 }
 
+/**
+ * Extracts a checkpoint descriptor from a sync push JSON payload.
+ *
+ * @param payload - Parsed payload candidate.
+ * @returns Structured checkpoint details, or undefined.
+ * @throws {CliUsageError} If checkpoint property is not an object.
+ */
 function extractCheckpoint(
 	payload: unknown,
 ):
@@ -1303,6 +2029,12 @@ function extractCheckpoint(
 	};
 }
 
+/**
+ * Asserts whether a value is a non-null, non-array object.
+ *
+ * @param value - Candidate value.
+ * @returns True if value is a JsonObject.
+ */
 function isJsonObject(value: unknown): value is JsonObject {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
 }

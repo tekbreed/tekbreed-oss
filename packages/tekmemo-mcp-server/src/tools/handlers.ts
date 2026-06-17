@@ -1,3 +1,9 @@
+/**
+ * MCP Tool dispatching, authorization, and execution handlers.
+ *
+ * @module handlers
+ */
+
 import {
 	McpAuthorizationError,
 	McpValidationError,
@@ -31,6 +37,17 @@ const DEFAULT_MAX_INPUT_BYTES = 256_000;
 const DEFAULT_MAX_OUTPUT_BYTES = 512_000;
 const DEFAULT_TIMEOUT_MS = 30_000;
 
+/**
+ * Main dispatcher to parse arguments, validate safety authorization, and run
+ * the matching TekMemo operation tool by name.
+ *
+ * @param options - Configuration options for the MCP runtime.
+ * @param toolName - Name of the MCP tool being called.
+ * @param rawArgs - Raw arguments object mapping inputs.
+ * @returns The structured McpToolResult payload.
+ * @throws {McpValidationError} If input arguments validation fails.
+ * @throws {McpAuthorizationError} If write operation is not authorized by the configuration.
+ */
 export async function callTekMemoTool(
 	options: TekMemoMcpOptions,
 	toolName: string,

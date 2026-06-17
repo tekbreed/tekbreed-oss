@@ -1,3 +1,9 @@
+/**
+ * Type declarations and interface definitions for MCP Server execution.
+ *
+ * @module types
+ */
+
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue =
 	| JsonPrimitive

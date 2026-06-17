@@ -1,29 +1,92 @@
+/**
+ * CLI workspace summary and health-inspection utility.
+ *
+ * @module summary
+ */
+
 import type { TekMemoFileSystem } from "../fs/tekmemo-fs";
 import { TEKMEMO_PATHS } from "./constants";
 import { parseJsonl } from "./jsonl";
 import { parseManifest, type TekMemoCliManifest } from "./manifest";
 
+/**
+ * Detailed diagnosis/inspection report of a TekMemo workspace repository.
+ */
 export interface TekMemoInspection {
+	/**
+	 * Normalized absolute workspace root directory path.
+	 */
 	rootDir: string;
+	/**
+	 * Whether the `.tekmemo` directory physically exists.
+	 */
 	exists: boolean;
+	/**
+	 * The parsed manifest.json object, if available.
+	 */
 	manifest?: TekMemoCliManifest;
+	/**
+	 * Array of stats for tracked repository files.
+	 */
 	files: Array<{
+		/**
+		 * Workspace-relative path to the file.
+		 */
 		path: string;
+		/**
+		 * Whether the file physically exists.
+		 */
 		exists: boolean;
+		/**
+		 * Size of the file in bytes.
+		 */
 		bytes: number;
+		/**
+		 * Total non-empty lines in the file.
+		 */
 		lines?: number;
+		/**
+		 * Total parsed records if the file format is JSONL.
+		 */
 		records?: number;
 	}>;
+	/**
+	 * Summary metadata counts of records across database files.
+	 */
 	summary: {
+		/**
+		 * Count of memory event records.
+		 */
 		eventCount: number;
+		/**
+		 * Count of conversation history records.
+		 */
 		conversationCount: number;
+		/**
+		 * Count of indexed chunks.
+		 */
 		chunkCount: number;
+		/**
+		 * Count of semantic graph nodes.
+		 */
 		graphNodeCount: number;
+		/**
+		 * Count of semantic graph edges.
+		 */
 		graphEdgeCount: number;
+		/**
+		 * Count of local snapshots created.
+		 */
 		snapshotCount: number;
 	};
 }
 
+/**
+ * Inspects a TekMemo workspace and constructs a detailed health report.
+ *
+ * @param fs - The TekMemo CLI filesystem wrapper instance.
+ * @returns Detailed TekMemoInspection health/status report.
+ */
 export async function inspectTekMemo(
 	fs: TekMemoFileSystem,
 ): Promise<TekMemoInspection> {

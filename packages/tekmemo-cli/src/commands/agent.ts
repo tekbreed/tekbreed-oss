@@ -1,3 +1,9 @@
+/**
+ * CLI command handlers for local AgentFS sessions.
+ *
+ * @module agent
+ */
+
 import {
 	type AgentfsLikeClient,
 	createNodeFsMemoryStore,
@@ -15,8 +21,17 @@ const LATEST_AGENT_SESSION_PATH = `${TEKMEMO_PATHS.tmpDir}/agent-sessions/latest
  * Shared options for local AgentFS session commands.
  */
 interface AgentCommandBaseOptions {
+	/**
+	 * The TekMemo filesystem wrapper.
+	 */
 	fs: TekMemoFileSystem;
+	/**
+	 * The CLI output console wrapper.
+	 */
 	output: CliOutput;
+	/**
+	 * If true, outputs results in structured JSON format.
+	 */
 	json?: boolean | undefined;
 }
 
@@ -24,9 +39,21 @@ interface AgentCommandBaseOptions {
  * Options for starting an agent session.
  */
 export interface AgentStartCommandOptions extends AgentCommandBaseOptions {
+	/**
+	 * The core task description the agent is assigned to perform.
+	 */
 	task: string;
+	/**
+	 * Optional identifier of the project context.
+	 */
 	projectId?: string | undefined;
+	/**
+	 * Optional actor identifier performing the operation.
+	 */
 	actorId?: string | undefined;
+	/**
+	 * Optional custom session identifier. If omitted, a UUID is generated.
+	 */
 	sessionId?: string | undefined;
 }
 
@@ -34,6 +61,9 @@ export interface AgentStartCommandOptions extends AgentCommandBaseOptions {
  * Options for session lookup commands.
  */
 export interface AgentSessionLookupOptions extends AgentCommandBaseOptions {
+	/**
+	 * Optional session identifier. If omitted, resolves to the latest session.
+	 */
 	session?: string | undefined;
 }
 
@@ -41,7 +71,13 @@ export interface AgentSessionLookupOptions extends AgentCommandBaseOptions {
  * Options for completing an agent session.
  */
 export interface AgentCompleteCommandOptions extends AgentSessionLookupOptions {
+	/**
+	 * If true, extracts memory from the session and appends it to notes.
+	 */
 	extract?: boolean | undefined;
+	/**
+	 * Optional label to tag the final repository checkpoint with.
+	 */
 	checkpointLabel?: string | undefined;
 }
 

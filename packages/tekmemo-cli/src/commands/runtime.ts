@@ -1,3 +1,9 @@
+/**
+ * CLI command handlers for routing actions based on the active runtime configuration (local, cloud, or hybrid).
+ *
+ * @module runtime
+ */
+
 import type {
 	ResolvedCliRuntimeConfig,
 	TekMemoReadPolicy,
@@ -22,49 +28,139 @@ import { runRememberCommand } from "./remember";
 import { runSnapshotCommand } from "./snapshot";
 import { runValidateCommand } from "./validate";
 
+/**
+ * Base options for all runtime-routed commands.
+ */
 export interface RuntimeCommandBaseOptions {
+	/**
+	 * The TekMemo filesystem wrapper.
+	 */
 	fs: TekMemoFileSystem;
+	/**
+	 * The CLI output console wrapper.
+	 */
 	output: CliOutput;
+	/**
+	 * If true, outputs results in structured JSON format.
+	 */
 	json?: boolean | undefined;
+	/**
+	 * Prefetched stdin content, if available.
+	 */
 	stdinContent?: string | undefined;
+	/**
+	 * The resolved CLI runtime configuration.
+	 */
 	config: ResolvedCliRuntimeConfig;
 }
 
+/**
+ * Options for the runtime-routed context command.
+ */
 export interface RuntimeContextCommandOptions
 	extends RuntimeCommandBaseOptions {
+	/**
+	 * Optional text query to filter matching memory files.
+	 */
 	query?: string | undefined;
+	/**
+	 * Maximum characters allowed in the formatted context output.
+	 */
 	maxChars?: number | string | undefined;
+	/**
+	 * If true, lists recent memory events.
+	 */
 	includeEvents?: boolean | undefined;
+	/**
+	 * If true, lists recent memory chunk index records.
+	 */
 	includeChunks?: boolean | undefined;
 }
 
+/**
+ * Options for the runtime-routed remember command.
+ */
 export interface RuntimeRememberCommandOptions
 	extends RuntimeCommandBaseOptions {
+	/**
+	 * Inline text content to remember.
+	 */
 	content?: string | undefined;
+	/**
+	 * If true, reads content to remember from stdin.
+	 */
 	stdin?: boolean | undefined;
+	/**
+	 * Workspace-relative path to a file containing content to remember.
+	 */
 	file?: string | undefined;
+	/**
+	 * The type of note: decision, constraint, goal, preference, reference, summary, or note.
+	 */
 	kind?: string | undefined;
+	/**
+	 * Optional header title for the note.
+	 */
 	title?: string | undefined;
+	/**
+	 * Optional list of tags to associate with the note.
+	 */
 	tags?: string[] | undefined;
+	/**
+	 * Confidence score (0 to 1) representing the validity of the fact.
+	 */
 	confidence?: string | number | undefined;
+	/**
+	 * Optional source identifier or URI.
+	 */
 	source?: string | undefined;
+	/**
+	 * Optional actor descriptor (e.g. user, agent:id).
+	 */
 	actor?: string | undefined;
+	/**
+	 * Optional JSON string of metadata key-value pairs.
+	 */
 	metadata?: string | undefined;
+	/**
+	 * If true, ignores warnings about potential secrets or API keys.
+	 */
 	allowSecrets?: boolean | undefined;
 }
 
+/**
+ * Options for the runtime-routed read command.
+ */
 export interface RuntimeReadCommandOptions extends RuntimeCommandBaseOptions {
+	/**
+	 * The memory file to target: 'core', 'notes', or 'manifest'.
+	 */
 	target: "core" | "notes" | "manifest";
 }
 
+/**
+ * Options for the runtime-routed validate command.
+ */
 export interface RuntimeValidateCommandOptions
 	extends RuntimeCommandBaseOptions {}
 
+/**
+ * Options for the runtime-routed snapshot command.
+ */
 export interface RuntimeSnapshotCommandOptions
 	extends RuntimeCommandBaseOptions {
+	/**
+	 * Optional descriptive label to tag the snapshot with.
+	 */
 	label?: string | undefined;
 }
 
+/**
+ * Routes context command execution to local, cloud, or hybrid handler based on configuration.
+ *
+ * @param options - Context command options.
+ * @returns CLI exit code.
+ */
 export async function runRuntimeContextCommand(
 	options: RuntimeContextCommandOptions,
 ): Promise<number> {
@@ -93,6 +189,12 @@ export async function runRuntimeContextCommand(
 	return runHybridContextCommand(options);
 }
 
+/**
+ * Routes remember command execution to local, cloud, or hybrid handler based on configuration.
+ *
+ * @param options - Remember command options.
+ * @returns CLI exit code.
+ */
 export async function runRuntimeRememberCommand(
 	options: RuntimeRememberCommandOptions,
 ): Promise<number> {
@@ -107,6 +209,12 @@ export async function runRuntimeRememberCommand(
 	);
 }
 
+/**
+ * Routes read command execution to local, cloud, or hybrid handler based on configuration.
+ *
+ * @param options - Read command options.
+ * @returns CLI exit code.
+ */
 export async function runRuntimeReadCommand(
 	options: RuntimeReadCommandOptions,
 ): Promise<number> {
@@ -122,6 +230,12 @@ export async function runRuntimeReadCommand(
 	);
 }
 
+/**
+ * Routes validation command execution to local, cloud, or hybrid handler based on configuration.
+ *
+ * @param options - Validate command options.
+ * @returns CLI exit code.
+ */
 export async function runRuntimeValidateCommand(
 	options: RuntimeValidateCommandOptions,
 ): Promise<number> {
@@ -183,6 +297,12 @@ export async function runRuntimeValidateCommand(
 	return localExit === 0 && cloudExit === 0 ? 0 : 1;
 }
 
+/**
+ * Routes snapshot command execution to local, cloud, or hybrid handler based on configuration.
+ *
+ * @param options - Snapshot command options.
+ * @returns CLI exit code.
+ */
 export async function runRuntimeSnapshotCommand(
 	options: RuntimeSnapshotCommandOptions,
 ): Promise<number> {
@@ -219,6 +339,12 @@ export async function runRuntimeSnapshotCommand(
 	);
 }
 
+/**
+ * Internal helper to aggregate hybrid local and cloud context queries.
+ *
+ * @param options - Context command options.
+ * @returns CLI exit code.
+ */
 async function runHybridContextCommand(
 	options: RuntimeContextCommandOptions,
 ): Promise<number> {
@@ -307,6 +433,12 @@ async function runHybridContextCommand(
 	return first.code === 0 || second.code === 0 ? 0 : 1;
 }
 
+/**
+ * Internal helper to run remember locally from runtime routing.
+ *
+ * @param options - Remember command options.
+ * @returns CLI exit code.
+ */
 async function runLocalRememberFromRuntime(
 	options: RuntimeRememberCommandOptions,
 ): Promise<number> {
@@ -329,6 +461,12 @@ async function runLocalRememberFromRuntime(
 	});
 }
 
+/**
+ * Internal helper to run remember in cloud from runtime routing.
+ *
+ * @param options - Remember command options.
+ * @returns CLI exit code.
+ */
 async function runCloudRememberFromRuntime(
 	options: RuntimeRememberCommandOptions,
 ): Promise<number> {
@@ -351,6 +489,12 @@ async function runCloudRememberFromRuntime(
 	});
 }
 
+/**
+ * Internal helper to read locally from runtime routing.
+ *
+ * @param options - Read command options.
+ * @returns CLI exit code.
+ */
 async function runLocalReadFromRuntime(
 	options: RuntimeReadCommandOptions,
 ): Promise<number> {
@@ -362,6 +506,13 @@ async function runLocalReadFromRuntime(
 	});
 }
 
+/**
+ * Internal helper to read from cloud from runtime routing.
+ *
+ * @param options - Read command options.
+ * @returns CLI exit code.
+ * @throws {Error} If attempting to read manifest from cloud.
+ */
 async function runCloudReadFromRuntime(
 	options: RuntimeReadCommandOptions,
 ): Promise<number> {
@@ -378,6 +529,14 @@ async function runCloudReadFromRuntime(
 	});
 }
 
+/**
+ * Internal helper evaluating read policies for hybrid routing.
+ *
+ * @param policy - Read policy name.
+ * @param local - Local read action callback.
+ * @param cloud - Cloud read action callback.
+ * @returns CLI exit code.
+ */
 async function runReadPolicy(
 	policy: TekMemoReadPolicy,
 	local: () => Promise<number>,
@@ -393,6 +552,14 @@ async function runReadPolicy(
 	return localCode === 0 ? localCode : cloud();
 }
 
+/**
+ * Internal helper evaluating write policies for hybrid routing.
+ *
+ * @param policy - Write policy name.
+ * @param local - Local write action callback.
+ * @param cloud - Cloud write action callback.
+ * @returns CLI exit code.
+ */
 async function runWritePolicy(
 	policy: TekMemoWritePolicy,
 	local: () => Promise<number>,

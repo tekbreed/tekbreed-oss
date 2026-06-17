@@ -1,3 +1,9 @@
+/**
+ * CLI command handler for diffing two snapshots.
+ *
+ * @module diff
+ */
+
 import { createHash } from "node:crypto";
 import type { TekMemoFileSystem } from "../fs/tekmemo-fs";
 import type { CliOutput } from "../output/output";
@@ -5,40 +11,120 @@ import { printJsonEnvelope } from "../output/output";
 import { TEKMEMO_PATHS } from "../protocol/constants";
 import { parseJsonl } from "../protocol/jsonl";
 
+/**
+ * Options configuration for the diff command.
+ */
 export interface DiffCommandOptions {
+	/**
+	 * The TekMemo filesystem wrapper.
+	 */
 	fs: TekMemoFileSystem;
+	/**
+	 * The CLI output console wrapper.
+	 */
 	output: CliOutput;
+	/**
+	 * If true, outputs results in structured JSON format.
+	 */
 	json?: boolean | undefined;
+	/**
+	 * The unique ID or label of the first snapshot (A).
+	 */
 	labelA: string;
+	/**
+	 * The unique ID or label of the second snapshot (B).
+	 */
 	labelB: string;
 }
 
+/**
+ * Represents the structured content of a snapshot bundle file.
+ */
 interface SnapshotBundle {
+	/**
+	 * Unique identifier of the snapshot.
+	 */
 	id: string;
+	/**
+	 * Optional descriptive label.
+	 */
 	label?: string;
+	/**
+	 * Optional legacy timestamp representation.
+	 */
 	timestamp?: string;
+	/**
+	 * ISO timestamp of snapshot creation.
+	 */
 	createdAt?: string;
+	/**
+	 * Map of relative file paths to their raw string content.
+	 */
 	files: Record<string, string>;
+	/**
+	 * MD5 or SHA256 checksum of the bundle content.
+	 */
 	checksum: string;
 }
 
+/**
+ * Represents a calculated difference for a single file.
+ */
 interface FileDiff {
+	/**
+	 * Workspace-relative path to the file.
+	 */
 	path: string;
+	/**
+	 * Difference status: added, removed, changed, or unchanged.
+	 */
 	status: "added" | "removed" | "changed" | "unchanged";
+	/**
+	 * File size in snapshot A, if applicable.
+	 */
 	bytesA?: number;
+	/**
+	 * File size in snapshot B, if applicable.
+	 */
 	bytesB?: number;
+	/**
+	 * Non-empty line count or JSONL record count in snapshot A.
+	 */
 	recordsA?: number;
+	/**
+	 * Non-empty line count or JSONL record count in snapshot B.
+	 */
 	recordsB?: number;
 }
 
+/**
+ * Counts the number of non-empty lines in a block of text.
+ *
+ * @param content - Target string content.
+ * @returns Non-empty line count.
+ */
 function lineCount(content: string): number {
 	return content.split(/\r?\n/).filter(Boolean).length;
 }
 
+/**
+ * Generates a SHA256 hash of a string.
+ *
+ * @param content - Target string content.
+ * @returns Hex-encoded SHA256 hash.
+ */
 function contentHash(content: string): string {
 	return createHash("sha256").update(content).digest("hex");
 }
 
+/**
+ * Loads and parses a snapshot bundle file from the filesystem.
+ *
+ * @param fs - The TekMemo filesystem wrapper.
+ * @param path - Absolute or relative path to the snapshot bundle.
+ * @returns Parsed SnapshotBundle.
+ * @throws {Error} If the bundle is malformed.
+ */
 async function loadBundle(
 	fs: TekMemoFileSystem,
 	path: string,
@@ -55,6 +141,13 @@ async function loadBundle(
 	return parsed;
 }
 
+/**
+ * Checks if a snapshot index record matches a lookup key (ID or label).
+ *
+ * @param record - Snapshot entry record from index.
+ * @param key - Lookup identifier or label.
+ * @returns True if matched, false otherwise.
+ */
 function snapshotMatches(
 	record: Record<string, unknown>,
 	key: string,
@@ -72,6 +165,12 @@ function snapshotMatches(
 	return false;
 }
 
+/**
+ * Runs the diff command, comparing two snapshot states.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runDiffCommand(
 	options: DiffCommandOptions,
 ): Promise<number> {

@@ -1,8 +1,19 @@
+/**
+ * MCP Resource definitions and read operation handlers.
+ *
+ * @module handlers
+ */
+
 import { McpNotFoundError, McpValidationError, toSafeError } from "../errors";
 import type { McpResourceDefinition, TekMemoMcpOptions } from "../types";
 import { safeJsonStringify } from "../utils/json";
 import { normalizeLimit } from "../utils/pagination";
 
+/**
+ * Creates and returns all available MCP Resource definitions.
+ *
+ * @returns An array of McpResourceDefinitions.
+ */
 export function createResourceDefinitions(): McpResourceDefinition[] {
 	return [
 		{
@@ -67,6 +78,15 @@ export function createResourceDefinitions(): McpResourceDefinition[] {
 	];
 }
 
+/**
+ * Reads a TekMemo resource by URI, resolving parameters and queries.
+ *
+ * @param options - Configuration options for the MCP server.
+ * @param uri - The requested resource URI.
+ * @returns The resolved resource contents array.
+ * @throws {McpValidationError} If URI is invalid or query parameters fail validation.
+ * @throws {McpNotFoundError} If the resource cannot be found or matched.
+ */
 export async function readTekMemoResource(
 	options: TekMemoMcpOptions,
 	uri: string,

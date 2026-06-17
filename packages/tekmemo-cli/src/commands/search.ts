@@ -1,21 +1,63 @@
+/**
+ * CLI command handler for performing text or regex searches across local memory files.
+ *
+ * @module search
+ */
+
 import type { TekMemoFileSystem } from "../fs/tekmemo-fs";
 import type { CliOutput } from "../output/output";
 import { TEKMEMO_PATHS } from "../protocol/constants";
 
+/**
+ * Options configuration for the search command.
+ */
 export interface SearchCommandOptions {
+	/**
+	 * The TekMemo filesystem wrapper.
+	 */
 	fs: TekMemoFileSystem;
+	/**
+	 * The CLI output console wrapper.
+	 */
 	output: CliOutput;
+	/**
+	 * If true, outputs results in structured JSON format.
+	 */
 	json?: boolean | undefined;
+	/**
+	 * The text query or regex pattern to search for.
+	 */
 	query: string;
+	/**
+	 * If true, treats the query string as a regular expression.
+	 */
 	regex?: boolean | undefined;
 }
 
+/**
+ * Represents a matched line with details on line number and parent file path.
+ */
 interface SearchMatch {
+	/**
+	 * The workspace-relative path of the matching file.
+	 */
 	file: string;
+	/**
+	 * The 1-based line number of the match.
+	 */
 	line: number;
+	/**
+	 * The trimmed text content of the matching line.
+	 */
 	content: string;
 }
 
+/**
+ * Runs the search command, searching local memory database files for a pattern.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runSearchCommand(
 	options: SearchCommandOptions,
 ): Promise<number> {

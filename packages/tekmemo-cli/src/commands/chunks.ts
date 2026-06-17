@@ -1,16 +1,46 @@
+/**
+ * CLI command handler for viewing workspace memory chunks.
+ *
+ * @module chunks
+ */
+
 import type { TekMemoFileSystem } from "../fs/tekmemo-fs";
 import type { CliOutput } from "../output/output";
 import { TEKMEMO_PATHS } from "../protocol/constants";
 import { parseJsonl } from "../protocol/jsonl";
 
+/**
+ * Options configuration for the chunks command.
+ */
 export interface ChunksCommandOptions {
+	/**
+	 * The TekMemo filesystem wrapper.
+	 */
 	fs: TekMemoFileSystem;
+	/**
+	 * The CLI output console wrapper.
+	 */
 	output: CliOutput;
+	/**
+	 * If true, outputs results in structured JSON format.
+	 */
 	json?: boolean | undefined;
+	/**
+	 * Maximum number of chunk records to display.
+	 */
 	limit?: number | undefined;
+	/**
+	 * If true, throws errors on malformed lines during JSONL parsing.
+	 */
 	strict?: boolean | undefined;
 }
 
+/**
+ * Runs the chunks command, listing memory chunk index entries.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runChunksCommand(
 	options: ChunksCommandOptions,
 ): Promise<number> {

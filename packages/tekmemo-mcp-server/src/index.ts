@@ -1,3 +1,10 @@
+/**
+ * @tekbreed/tekmemo-mcp-server — Model Context Protocol server for exposing TekMemo.
+ * Exposes core, notes, and graph memories via standard protocol transports.
+ *
+ * @public
+ */
+
 export * from "./errors";
 export * from "./prompts/handlers";
 export * from "./protocol/json-rpc";

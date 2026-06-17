@@ -1,3 +1,10 @@
+/**
+ * MCP Server Hybrid runtime implementation.
+ * Combines local (filesystem-backed) and cloud runtime operations with configurable read/write policies.
+ *
+ * @module hybrid
+ */
+
 import type {
 	GraphEdgeInput,
 	GraphNodeInput,
@@ -10,24 +17,52 @@ import { buildRuntimeContext } from "./helpers";
 
 type AnyRuntimeMethod = (...args: unknown[]) => Promise<unknown>;
 
+/**
+ * Configuration policy deciding how read actions are prioritized/routed between local and cloud runtimes.
+ */
 export type HybridReadPolicy =
 	| "local-first"
 	| "cloud-first"
 	| "local-only"
 	| "cloud-only";
+
+/**
+ * Configuration policy deciding how write actions are prioritized/routed between local and cloud runtimes.
+ */
 export type HybridWritePolicy =
 	| "local-first"
 	| "cloud-first"
 	| "local-only"
 	| "cloud-only";
 
+/**
+ * Configuration options for the Hybrid MCP Runtime.
+ */
 export interface HybridTekMemoMcpRuntimeOptions {
+	/**
+	 * Local runtime delegate instance.
+	 */
 	local: TekMemoMcpRuntime;
+	/**
+	 * Cloud runtime delegate instance.
+	 */
 	cloud: TekMemoMcpRuntime;
+	/**
+	 * Resolution policy for write actions.
+	 */
 	writePolicy?: HybridWritePolicy;
+	/**
+	 * Resolution policy for read actions.
+	 */
 	readPolicy?: HybridReadPolicy;
 }
 
+/**
+ * Creates an MCP runtime combining local and cloud runtimes under a routing policy.
+ *
+ * @param options - Config options mapping the runtimes and policies.
+ * @returns The instantiated hybrid TekMemoMcpRuntime.
+ */
 export function createHybridTekMemoMcpRuntime(
 	options: HybridTekMemoMcpRuntimeOptions,
 ): TekMemoMcpRuntime {

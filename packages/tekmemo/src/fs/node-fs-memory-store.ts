@@ -12,13 +12,13 @@ import fs from "node:fs/promises";
 import { PathLock } from "@repo/utils";
 import type { MemoryPath, MemoryStore } from "@tekbreed/tekmemo";
 import { MemoryNotFoundError } from "@tekbreed/tekmemo";
+import { assertString } from "../core/validation/assertions";
 import { isNotFoundError, wrapFsError } from "./errors/fs-memory-store-error";
 import type {
 	NodeFsMemoryStoreOptions,
 	NormalizedNodeFsMemoryStoreOptions,
 } from "./types/options";
 import { assertNoSymlinkPath } from "./utils/assert-no-symlink-path";
-import { assertString } from "../core/validation/assertions";
 import { ensureParentDir } from "./utils/ensure-parent-dir";
 import { ensureRootDir } from "./utils/ensure-root-dir";
 import { normalizeOptions } from "./utils/normalize-options";

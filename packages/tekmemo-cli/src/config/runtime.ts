@@ -1,3 +1,9 @@
+/**
+ * CLI Runtime config file loaders, options validation, and priority mergers.
+ *
+ * @module runtime
+ */
+
 import fs from "node:fs/promises";
 import path from "node:path";
 import { CliUsageError } from "../errors/cli-errors";
@@ -59,6 +65,14 @@ export interface ResolvedCliRuntimeConfig {
 	};
 }
 
+/**
+ * Resolves the CLI runtime configurations by parsing flags, process environment keys,
+ * and checking local config files.
+ *
+ * @param input - Setup variables mapping process cwd, CLI flags, and env variables.
+ * @returns The resolved CliRuntimeConfig object.
+ * @throws {CliUsageError} If policies or timeouts are invalid.
+ */
 export async function resolveCliRuntimeConfig(input: {
 	cwd: string;
 	flags?: CliRuntimeFlags;
@@ -139,6 +153,12 @@ export async function resolveCliRuntimeConfig(input: {
 	};
 }
 
+/**
+ * Seeds or overrides a local workspace config file (`.tekmemo/config.json`) with defaults.
+ *
+ * @param input - Config write instructions.
+ * @returns Status object detailing paths and whether file was created/overwritten.
+ */
 export async function writeDefaultCliConfig(input: {
 	cwd: string;
 	root?: string;
@@ -163,6 +183,13 @@ export async function writeDefaultCliConfig(input: {
 	return { path: configPath, created: !exists, overwritten: exists };
 }
 
+/**
+ * Reads an optional configuration file from the filesystem.
+ *
+ * @param configPath - The absolute path to the configuration file.
+ * @returns An object containing the load status and the parsed configuration if successful.
+ * @throws {CliUsageError} If the configuration JSON is invalid or malformed.
+ */
 async function readOptionalConfig(
 	configPath: string,
 ): Promise<{ loaded: boolean; value?: TekMemoConfigFile }> {
@@ -181,6 +208,14 @@ async function readOptionalConfig(
 	}
 }
 
+/**
+ * Validates the loaded configuration object structure and types.
+ *
+ * @param value - The parsed configuration candidate.
+ * @param configPath - Path to the config file (for descriptive errors).
+ * @returns The validated TekMemoConfigFile object.
+ * @throws {CliUsageError} If validation fails.
+ */
 function validateConfig(value: unknown, configPath: string): TekMemoConfigFile {
 	if (typeof value !== "object" || value === null || Array.isArray(value)) {
 		throw new CliUsageError(`TekMemo config must be an object: ${configPath}`);
@@ -196,12 +231,26 @@ function validateConfig(value: unknown, configPath: string): TekMemoConfigFile {
 	return record;
 }
 
+/**
+ * Validates and normalizes the runtime mode.
+ *
+ * @param value - The runtime mode candidate.
+ * @returns The normalized TekMemoRuntimeMode.
+ * @throws {CliUsageError} If the runtime mode is invalid.
+ */
 function normalizeRuntime(value: unknown): TekMemoRuntimeMode {
 	if (value === "local" || value === "cloud" || value === "hybrid")
 		return value;
 	throw new CliUsageError("runtime must be local, cloud, or hybrid.");
 }
 
+/**
+ * Validates and normalizes the read policy.
+ *
+ * @param value - The read policy candidate.
+ * @returns The normalized TekMemoReadPolicy.
+ * @throws {CliUsageError} If the read policy is invalid.
+ */
 function normalizeReadPolicy(value: unknown): TekMemoReadPolicy {
 	if (
 		value === "local-first" ||
@@ -215,6 +264,13 @@ function normalizeReadPolicy(value: unknown): TekMemoReadPolicy {
 	);
 }
 
+/**
+ * Validates and normalizes the write policy.
+ *
+ * @param value - The write policy candidate.
+ * @returns The normalized TekMemoWritePolicy.
+ * @throws {CliUsageError} If the write policy is invalid.
+ */
 function normalizeWritePolicy(value: unknown): TekMemoWritePolicy {
 	if (
 		value === "local-first" ||
@@ -228,6 +284,13 @@ function normalizeWritePolicy(value: unknown): TekMemoWritePolicy {
 	);
 }
 
+/**
+ * Validates and normalizes the cloud timeout value.
+ *
+ * @param value - The timeout candidate in milliseconds.
+ * @returns The normalized positive integer timeout, or undefined if not provided.
+ * @throws {CliUsageError} If the timeout value is negative or invalid.
+ */
 function normalizeTimeoutMs(value: unknown): number | undefined {
 	if (value === undefined || value === null || value === "") return undefined;
 	const parsed = typeof value === "number" ? value : Number(value);
@@ -239,6 +302,12 @@ function normalizeTimeoutMs(value: unknown): number | undefined {
 	return parsed;
 }
 
+/**
+ * Finds the first non-empty string value from the provided arguments.
+ *
+ * @param values - A list of candidates to inspect.
+ * @returns The first non-empty string, or undefined if none are found.
+ */
 function firstNonEmpty(...values: unknown[]): string | undefined {
 	for (const value of values) {
 		if (typeof value !== "string") continue;
@@ -248,6 +317,12 @@ function firstNonEmpty(...values: unknown[]): string | undefined {
 	return undefined;
 }
 
+/**
+ * Finds the first defined value from the provided arguments.
+ *
+ * @param values - A list of candidates to inspect.
+ * @returns The first defined value, or undefined if none are found.
+ */
 function firstDefined(...values: unknown[]): unknown {
 	for (const value of values) {
 		if (value !== undefined) return value;
@@ -255,6 +330,12 @@ function firstDefined(...values: unknown[]): unknown {
 	return undefined;
 }
 
+/**
+ * Compacts the cloud configuration by removing undefined properties.
+ *
+ * @param input - The raw cloud configuration details.
+ * @returns A consolidated cloud configuration object.
+ */
 function compactCloud(input: {
 	cloudUrl?: string;
 	apiKey?: string;
@@ -273,6 +354,12 @@ function compactCloud(input: {
 	};
 }
 
+/**
+ * Checks if a file exists at the specified path.
+ *
+ * @param filePath - The path to the file.
+ * @returns Promise resolving to true if the file exists, false otherwise.
+ */
 async function fileExists(filePath: string): Promise<boolean> {
 	try {
 		await fs.stat(filePath);
@@ -283,6 +370,12 @@ async function fileExists(filePath: string): Promise<boolean> {
 	}
 }
 
+/**
+ * Checks if an error is a NodeJS System/ErrnoException error.
+ *
+ * @param error - The error object to check.
+ * @returns True if the error is a NodeJS ErrnoException, false otherwise.
+ */
 function isNodeError(error: unknown): error is NodeJS.ErrnoException {
 	return error instanceof Error && "code" in error;
 }

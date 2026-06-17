@@ -1,3 +1,9 @@
+/**
+ * Helper utilities for assembling runtime context and UTF-8 truncations.
+ *
+ * @module helpers
+ */
+
 import type {
 	MemoryContextInput,
 	MemoryContextResult,
@@ -5,6 +11,13 @@ import type {
 	TekMemoMcpRuntime,
 } from "../types";
 
+/**
+ * Truncates a string to fit within a specific byte limit, appending a notice at the end.
+ *
+ * @param text - The string to truncate.
+ * @param maxBytes - The maximum byte limit constraint.
+ * @returns The original string or truncated string with truncation notice.
+ */
 export function truncateUtf8(text: string, maxBytes: number): string {
 	if (Buffer.byteLength(text, "utf8") <= maxBytes) return text;
 	let low = 0;
@@ -17,6 +30,16 @@ export function truncateUtf8(text: string, maxBytes: number): string {
 	return `${text.slice(0, low).trimEnd()}\n\n[Output truncated to ${maxBytes} bytes]`;
 }
 
+/**
+ * High-level orchestration helper to build the unified agent context.
+ * Queries core memory, recent memories, and executes semantic recall, then slices/truncates
+ * the results to fit within maxBytes limit.
+ *
+ * @param runtime - The active MCP runtime instance.
+ * @param input - Context building input configurations.
+ * @param signal - Optional AbortSignal.
+ * @returns The resolved MemoryContextResult object.
+ */
 export async function buildRuntimeContext(
 	runtime: TekMemoMcpRuntime,
 	input: MemoryContextInput,

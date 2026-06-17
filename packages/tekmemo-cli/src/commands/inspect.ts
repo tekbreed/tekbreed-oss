@@ -1,13 +1,37 @@
+/**
+ * CLI command handler for inspecting workspace status and displaying repository stats.
+ *
+ * @module inspect
+ */
+
 import type { TekMemoFileSystem } from "../fs/tekmemo-fs";
 import type { CliOutput } from "../output/output";
 import { inspectTekMemo } from "../protocol/summary";
 
+/**
+ * Options configuration for the inspect command.
+ */
 export interface InspectCommandOptions {
+	/**
+	 * The TekMemo filesystem wrapper.
+	 */
 	fs: TekMemoFileSystem;
+	/**
+	 * The CLI output console wrapper.
+	 */
 	output: CliOutput;
+	/**
+	 * If true, outputs results in structured JSON format.
+	 */
 	json?: boolean;
 }
 
+/**
+ * Runs the inspect command, outputting a high-level summary of the workspace files and metrics.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runInspectCommand(
 	options: InspectCommandOptions,
 ): Promise<number> {

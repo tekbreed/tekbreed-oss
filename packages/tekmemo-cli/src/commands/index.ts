@@ -1,3 +1,9 @@
+/**
+ * Main entry point exporting all CLI command runner functions.
+ *
+ * @module commands
+ */
+
 export {
 	runAgentCompleteCommand,
 	runAgentExtractCommand,

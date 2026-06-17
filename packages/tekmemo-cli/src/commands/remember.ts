@@ -1,3 +1,9 @@
+/**
+ * CLI command handler for writing/remembering a note/fact to the local notes file.
+ *
+ * @module remember
+ */
+
 import { CliUsageError } from "../errors/cli-errors";
 import type { TekMemoFileSystem } from "../fs/tekmemo-fs";
 import type { CliOutput } from "../output/output";
@@ -9,24 +15,75 @@ import { parseMetadataJson } from "../utils/metadata";
 import { parseConfidence } from "../utils/numbers";
 import { scanForSecrets } from "../utils/secrets";
 
+/**
+ * Options configuration for the remember command.
+ */
 export interface RememberCommandOptions {
+	/**
+	 * The TekMemo filesystem wrapper.
+	 */
 	fs: TekMemoFileSystem;
+	/**
+	 * The CLI output console wrapper.
+	 */
 	output: CliOutput;
+	/**
+	 * If true, outputs results in structured JSON format.
+	 */
 	json?: boolean | undefined;
+	/**
+	 * Inline text content to remember.
+	 */
 	content?: string | undefined;
+	/**
+	 * If true, reads content to remember from stdin.
+	 */
 	stdin?: boolean | undefined;
+	/**
+	 * Workspace-relative path to a file containing content to remember.
+	 */
 	file?: string | undefined;
+	/**
+	 * Prefetched stdin content, if available.
+	 */
 	stdinContent?: string | undefined;
+	/**
+	 * The type of note: decision, constraint, goal, preference, reference, summary, or note.
+	 */
 	kind?: string | undefined;
+	/**
+	 * Optional header title for the note.
+	 */
 	title?: string | undefined;
+	/**
+	 * Optional list of tags to associate with the note.
+	 */
 	tags?: string[] | undefined;
+	/**
+	 * Confidence score (0 to 1) representing the validity of the fact.
+	 */
 	confidence?: string | number | undefined;
+	/**
+	 * Optional source identifier or URI.
+	 */
 	source?: string | undefined;
+	/**
+	 * Optional actor descriptor (e.g. user, agent:id).
+	 */
 	actor?: string | undefined;
+	/**
+	 * Optional JSON string of metadata key-value pairs.
+	 */
 	metadata?: string | undefined;
+	/**
+	 * If true, ignores warnings about potential secrets or API keys in content.
+	 */
 	allowSecrets?: boolean | undefined;
 }
 
+/**
+ * Standard list of note categories.
+ */
 const NOTE_KINDS = new Set([
 	"decision",
 	"constraint",
@@ -37,6 +94,13 @@ const NOTE_KINDS = new Set([
 	"note",
 ]);
 
+/**
+ * Normalizes and validates the note kind input.
+ *
+ * @param kind - Input kind name.
+ * @returns Normalized kind.
+ * @throws {CliUsageError} If the kind is invalid.
+ */
 function normalizeKind(kind?: string): string {
 	const normalized = (kind ?? "note").trim();
 	if (!NOTE_KINDS.has(normalized)) {
@@ -47,6 +111,13 @@ function normalizeKind(kind?: string): string {
 	return normalized;
 }
 
+/**
+ * Parses the actor option string into structured type and optional ID.
+ *
+ * @param actor - Actor option string (e.g., 'agent:claude').
+ * @returns Structured actor details.
+ * @throws {CliUsageError} If the actor type is invalid.
+ */
 function parseActor(actor?: string): {
 	type: "user" | "agent" | "system" | "api";
 	id?: string;
@@ -66,6 +137,12 @@ function parseActor(actor?: string): {
 	return { type, ...(id ? { id } : {}) };
 }
 
+/**
+ * Formats a memory note with timestamp and metadata headers for Markdown storage.
+ *
+ * @param input - Note details including content and metadata.
+ * @returns Formatted Markdown string.
+ */
 function formatTimestampedNote(input: {
 	timestamp: string;
 	kind: string;
@@ -96,6 +173,12 @@ function formatTimestampedNote(input: {
 	return lines.filter((line): line is string => line !== undefined).join("\n");
 }
 
+/**
+ * Runs the remember command, appending the new note to markdown and logging a memory event.
+ *
+ * @param options - Command configuration options.
+ * @returns CLI exit code.
+ */
 export async function runRememberCommand(
 	options: RememberCommandOptions,
 ): Promise<number> {

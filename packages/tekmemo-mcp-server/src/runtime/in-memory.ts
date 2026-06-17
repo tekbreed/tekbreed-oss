@@ -1,3 +1,10 @@
+/**
+ * MCP Server In-Memory runtime implementation.
+ * Provides a volatile runtime memory store for tests and sandbox environments.
+ *
+ * @module in-memory
+ */
+
 import type {
 	GraphEdgeInput,
 	GraphNeighborsInput,
@@ -16,8 +23,17 @@ import type {
 import { paginateArray } from "../utils/pagination";
 import { buildRuntimeContext } from "./helpers";
 
+/**
+ * Options for configuring the In-Memory runtime.
+ */
 export interface InMemoryTekMemoRuntimeOptions {
+	/**
+	 * Optional custom name identifier.
+	 */
 	name?: string;
+	/**
+	 * Optional custom version identifier.
+	 */
 	version?: string;
 }
 
@@ -32,6 +48,12 @@ interface StoredNote {
 	createdAt: string;
 }
 
+/**
+ * Creates an in-memory MCP runtime (useful for testing or ephemeral processes).
+ *
+ * @param options - Configure name and version of the server.
+ * @returns The instantiated in-memory TekMemoMcpRuntime.
+ */
 export function createInMemoryTekMemoRuntime(
 	options: InMemoryTekMemoRuntimeOptions = {},
 ): TekMemoMcpRuntime {
