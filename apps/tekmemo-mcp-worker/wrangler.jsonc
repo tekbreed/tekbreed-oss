@@ -1,0 +1,13 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "tekmemo-mcp-worker",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-06-17",
+	"observability": {
+		"enabled": true,
+		"head_sampling_rate": 1
+	},
+	"vars": {
+		"TEKMEMO_MCP_READ_ONLY": "true"
+	}
+}
