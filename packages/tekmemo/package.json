@@ -63,12 +63,12 @@
 		"typescript"
 	],
 	"devDependencies": {
-		"@repo/test-utils": "workspace:*",
-		"@repo/tsdown-config": "workspace:*",
-		"@repo/typescript-config": "workspace:*",
+		"@tekbreed/tekmemo-testing": "workspace:^",
+		"@repo/tsdown": "workspace:*",
+		"@repo/typescript": "workspace:*",
 		"@repo/utils": "workspace:*",
-		"ai": "^6.0.174",
-		"openai": "^6.10.0"
+		"@types/node": "^25.9.2",
+		"ai": "^6.0.174"
 	},
 	"engines": {
 		"node": ">=22"
@@ -82,21 +82,13 @@
 	},
 	"peerDependencies": {
 		"@modelcontextprotocol/sdk": ">=1.29.0",
-		"@upstash/vector": ">=1.2.0",
-		"ai": ">=5.0.0 <7.0.0",
-		"openai": "^6.10.0"
+		"ai": ">=5.0.0 <7.0.0"
 	},
 	"peerDependenciesMeta": {
 		"@modelcontextprotocol/sdk": {
 			"optional": true
 		},
-		"@upstash/vector": {
-			"optional": true
-		},
 		"ai": {
-			"optional": true
-		},
-		"openai": {
 			"optional": true
 		}
 	}
