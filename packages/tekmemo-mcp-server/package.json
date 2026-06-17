@@ -73,9 +73,9 @@
 		"@tekbreed/tekmemo": "workspace:^"
 	},
 	"devDependencies": {
-		"@repo/test-utils": "workspace:*",
-		"@repo/tsdown-config": "workspace:*",
-		"@repo/typescript-config": "workspace:*",
+		"@tekbreed/tekmemo-testing": "workspace:^",
+		"@repo/tsdown": "workspace:*",
+		"@repo/typescript": "workspace:*",
 		"@repo/utils": "workspace:*",
 		"@types/node": "^25.9.2"
 	},
