@@ -4,12 +4,28 @@ const tekmemo = [
 	{ text: "Overview", link: "/packages/tekmemo/" },
 	{ text: "Getting started", link: "/packages/tekmemo/getting-started" },
 	{ text: "Installation", link: "/packages/tekmemo/installation" },
+	{ text: "The `Tekmemo` client", link: "/packages/tekmemo/client" },
 	{ text: "Core concepts", link: "/packages/tekmemo/concepts" },
+	{ text: "Configuration", link: "/packages/tekmemo/configuration" },
 	{ text: "File-first memory", link: "/packages/tekmemo/file-first-memory" },
 	{ text: "Memory filesystem", link: "/packages/tekmemo/filesystem-layout" },
 	{ text: "Memory records", link: "/packages/tekmemo/memory-records" },
-	{ text: "Configuration", link: "/packages/tekmemo/configuration" },
-
+	{
+		text: "AI SDK",
+		items: [
+			{ text: "Tools", link: "/packages/tekmemo/ai-sdk/tools" },
+			{ text: "Agent patterns", link: "/packages/tekmemo/ai-sdk/agent-patterns" },
+		],
+	},
+	{
+		text: "Cloud client",
+		link: "/packages/tekmemo/cloud-client",
+	},
+	{
+		text: "Errors",
+		link: "/packages/tekmemo/errors",
+	},
+	{ text: "Production checklist", link: "/packages/tekmemo/production-checklist" },
 	{
 		text: "Architecture",
 		items: [
@@ -37,15 +53,7 @@ const tekmemo = [
 			{ text: "Security", link: "/packages/tekmemo/architecture/security" },
 		],
 	},
-	{
-		text: "Cloud client",
-		link: "/packages/tekmemo/cloud-client",
-	},
-	{
-		text: "Errors",
-		link: "/packages/tekmemo/errors",
-	},
-	// { text: "FAQs", link: "/packages/tekmemo/faqs" },
+	{ text: "FAQ", link: "/packages/tekmemo/faq" },
 ];
 
 const tekmemoCli = [
@@ -56,6 +64,7 @@ const tekmemoCli = [
 ];
 const tekmemoMcp = [
 	{ text: "Getting started", link: "/packages/mcp/" },
+	{ text: "Hosted MCP", link: "/packages/mcp/hosted" },
 	{ text: "Client Setup", link: "/packages/mcp/client-setup" },
 	{ text: "Runtime modes", link: "/packages/mcp/runtime-modes" },
 	{ text: "Tools", link: "/packages/mcp/tools" },
@@ -66,30 +75,34 @@ const tekmemoMcp = [
 
 const tekMemoApi = [
 	{ text: "Overview", link: "/api/tekmemo/" },
+	{ text: "`Tekmemo` class", link: "/api/tekmemo/tekmemo" },
 	{
-		text: "Core Runtime",
+		text: "Integrations",
 		items: [
+			{ text: "AI SDK", link: "/api/tekmemo/ai-sdk" },
+			{ text: "Cloud client", link: "/api/tekmemo/cloud-client" },
+		],
+	},
+	{
+		text: "Modules",
+		items: [
+			{ text: "Core Primitives", link: "/api/tekmemo/core" },
 			{ text: "Filesystem Store", link: "/api/tekmemo/fs" },
 			{ text: "Agent Filesystem", link: "/api/tekmemo/agentfs" },
 			{ text: "Graph Memory", link: "/api/tekmemo/graph" },
 			{ text: "Recall", link: "/api/tekmemo/recall" },
-			{ text: "Recall & Vectors", link: "/api/tekmemo/vector-adapters" },
-			{ text: "Provider Adapters", link: "/api/tekmemo/provider-adapters" },
 			{ text: "Reranking", link: "/api/tekmemo/rerank" },
-			{ text: "Cloud client", link: "/api/tekmemo/cloud-client" },
 			{ text: "Benchmark Kit", link: "/api/tekmemo/benchmark-kit" },
 		],
 	},
-	// { text: "CLI", link: "/api/cli/" },
-	// { text: "MCP Server", link: "/api/mcp/" },
 ];
 
 const faqs = [{ text: "TekMemo", link: "/faqs/" }];
 
 export const sidebar: DefaultTheme.Sidebar = {
-	"/packages/tekmemo/": [{ text: "TekMemo", items: tekmemo }],
-	"/packages/cli/": [{ text: "TekMemo CLI", items: tekmemoCli }],
-	"/packages/mcp/": [{ text: "TekMemo MCP", items: tekmemoMcp }],
-	"/api/tekmemo/": [{ text: "TekMemo API", items: tekMemoApi }],
+	"/packages/tekmemo/": [{ text: "Core Runtime", items: tekmemo }],
+	"/packages/cli/": [{ text: "CLI", items: tekmemoCli }],
+	"/packages/mcp/": [{ text: "MCP", items: tekmemoMcp }],
+	"/api/tekmemo/": [{ text: "API", items: tekMemoApi }],
 	"/faqs/": [{ text: "Frequently Asked Questions", items: faqs }],
 };

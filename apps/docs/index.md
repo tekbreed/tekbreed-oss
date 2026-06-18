@@ -3,32 +3,40 @@ layout: home
 
 hero:
   name: "TekMemo"
-  text: "Your AI tools forget everything between sessions. They shouldn't."
+  text: "Your AI agents forget. TekMemo doesn't."
   image: /logo.svg
-  tagline: "Durable, project-scoped memory for AI agents and coding assistants. Plain text files in your repo. No cloud required."
+  tagline: "File-first memory that lives in your repo — so every session picks up where the last one left off."
   actions:
     - theme: brand
       text: "Install TekMemo"
       link: /packages/tekmemo/getting-started
     - theme: alt
-      text: "Read the Docs"
-      link: /packages/tekmemo/
+      text: "Star on GitHub"
+      link: https://github.com/tekbreed/tekbreed-oss
 
 features:
   - title: Memory you can read
     icon: 📁
     link: /packages/tekmemo/file-first-memory
-    details: Every memory is a plain text file in `.tekmemo/`. Read it in VS Code. Review it in PRs. Git-track it alongside your code.
-  - title: Start local, scale to cloud
-    icon: 🔌
+    details: Every memory is a markdown file in `.tekmemo/`. Read it in your editor, review it in PRs, track it in Git — alongside your source code.
+  - title: Local by default
+    icon: 🔒
+    link: /packages/tekmemo/configuration
+    details: Works offline with zero cloud setup. Your memory never leaves your repo unless you say so.
+  - title: Cloud when you need it
+    icon: ☁️
     link: /packages/tekmemo/cloud-client
-    details: Local mode works offline. Cloud mode adds sync and hosted search. Hybrid gives you both. One API, zero rewrites.
-  - title: Your agent plugs in directly
+    details: Add hosted sync and semantic search with one flag. Same API, same code — no rewrites.
+  - title: Works with your coding agent
     icon: 🧠
     link: /packages/mcp/
-    details: The MCP server ships in the box. Claude Code, Cursor, Codex, Opencode — add one config block and your agent remembers.
+    details: One config block and Claude Code, Cursor, Codex, or any MCP-compatible agent remembers your project — every session, automatically.
   - title: Ask, don't search
     icon: 💬
     link: /packages/tekmemo/architecture/indexing-recall
-    details: Semantic recall fetches the right memory for the task. No keyword guessing. No scrolling through old prompts.
+    details: Semantic recall finds the right memory for each task. No keyword guessing. No re-reading old transcripts.
+  - title: Roll back any decision
+    icon: 🕸️
+    link: /packages/tekmemo/architecture/graph-memory
+    details: Versioned snapshots and a knowledge graph let you restore any state. One bad edit never erases a good decision.
 ---

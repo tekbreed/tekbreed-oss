@@ -1,12 +1,67 @@
-# TekMemo Developer Docs
+# TekMemo
 
-TekMemo is a file-first memory runtime and package ecosystem specifically designed for AI apps and agents. It provides a structured sandbox (AgentFS), graph memory, and semantic recall for building autonomous tools and MCP clients.
+> TekMemo is a file-first memory runtime for AI agents and coding assistants. It gives LLMs durable, project-scoped context so they stay accurate and consistent across sessions. Memory lives as plain text and JSON in a `.tekmemo/` folder (local) or in TekMemo Cloud (hosted).
 
-Start here: /guide/getting-started
-Core Primitives & Modules: /packages/
-Agent & Local CLI: /cli/
-MCP Server & Tools: /mcp/
-Cloud Client & Sync: /cloud-client/
-AI SDK Integration: /ai-sdk/
+TekMemo is published as three packages:
+- `@tekbreed/tekmemo` — the core memory runtime (the `Tekmemo` client, filesystem store, graph memory, recall, cloud client, AI SDK helpers).
+- `@tekbreed/tekmemo-cli` — the `tekmemo` CLI for terminal and CI workflows.
+- `@tekbreed/tekmemo-mcp-server` — a self-hostable MCP server (stdio) for agent integration.
 
-Note: This documentation strictly covers public APIs and tools for users and developers. Internal implementations are abstracted away to provide a clean, safe interface for your AI workflows.
+## Quick start
+
+Install the core runtime and start recording memory in code:
+
+```bash
+npm install @tekbreed/tekmemo
+```
+
+```ts
+import { Tekmemo } from "@tekbreed/tekmemo";
+
+const memo = new Tekmemo({ rootDir: "./.tekmemo", projectId: "my-app" });
+await memo.notes.record({ content: "Use D1 for tenant metadata.", kind: "decision" });
+const hits = await memo.recall("database decisions");
+```
+
+## Docs
+
+- Overview & quick start: https://oss.tekbreed.com/packages/tekmemo/
+- Installation: https://oss.tekbreed.com/packages/tekmemo/installation
+- The `Tekmemo` client (modes, strategies, API surface): https://oss.tekbreed.com/packages/tekmemo/client
+- Configuration (resolution chain, env vars, config.json): https://oss.tekbreed.com/packages/tekmemo/configuration
+- Core concepts: https://oss.tekbreed.com/packages/tekmemo/concepts
+- Filesystem layout: https://oss.tekbreed.com/packages/tekmemo/filesystem-layout
+- Cloud client: https://oss.tekbreed.com/packages/tekmemo/cloud-client
+- Architecture: https://oss.tekbreed.com/packages/tekmemo/architecture/
+
+## Runtime modes
+
+`Tekmemo` supports four runtime modes, selected in config: `local` (filesystem), `cloud` (TekMemo Cloud), `hybrid` (local + cloud with read/write policies), and `memory` (volatile, for tests).
+
+- Local vs cloud vs hybrid: https://oss.tekbreed.com/packages/tekmemo/client
+- Configuration resolution: https://oss.tekbreed.com/packages/tekmemo/configuration
+
+## MCP (Model Context Protocol)
+
+Two ways to expose TekMemo to coding agents:
+
+- **Hosted server** (cloud-only): `https://mcp.memo.tekbreed.com/` over Streamable HTTP, bearer-token auth, read-only by default. Docs: https://oss.tekbreed.com/packages/mcp/hosted
+- **Self-hosted stdio server** (`@tekbreed/tekmemo-mcp-server`): supports `local`, `cloud`, `hybrid`, and `memory` modes for file-first memory. Docs: https://oss.tekbreed.com/packages/mcp/
+
+Client setup (Claude Code, Cursor, Codex, etc.) for both paths: https://oss.tekbreed.com/packages/mcp/client-setup
+
+## CLI
+
+- CLI guide: https://oss.tekbreed.com/packages/cli/
+- Local commands: https://oss.tekbreed.com/packages/cli/local-commands
+- Cloud commands: https://oss.tekbreed.com/packages/cli/cloud-commands
+
+## API reference
+
+- Modules overview: https://oss.tekbreed.com/api/tekmemo/
+- Cloud client API: https://oss.tekbreed.com/api/tekmemo/cloud-client
+- AI SDK helpers: https://oss.tekbreed.com/api/tekmemo/ai-sdk
+
+## Cloud
+
+TekMemo Cloud base URL: `https://api.tekbreed.com/memo/v1`. Authenticate with a TekMemo API key (`tk_live_...`), kept server-side. Cloud is optional — local file-first memory works with zero cloud setup.

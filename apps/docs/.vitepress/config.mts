@@ -7,7 +7,7 @@ import { site } from "./config/site.mts";
 export default defineConfig({
 	lang: "en-US",
 	title: site.title,
-	titleTemplate: ":title | TekBreed OSS Docs",
+	titleTemplate: ":title | TekMemo",
 	description: site.description,
 	base: "/",
 	cleanUrls: true,
@@ -24,8 +24,8 @@ export default defineConfig({
 		},
 	},
 	themeConfig: {
-		logo: { light: "/logo.svg", dark: "/logo.svg", alt: "TekBreed OSS" },
-		siteTitle: "TekBreed OSS",
+		logo: { light: "/logo.svg", dark: "/logo.svg", alt: "TekMemo" },
+		siteTitle: "TekMemo",
 		nav,
 		sidebar,
 		search: { provider: "local" },
@@ -46,7 +46,7 @@ export default defineConfig({
 		docFooter: { prev: "Previous", next: "Next" },
 		footer: {
 			message: `Released under the ${site.license} License.`,
-			copyright: "Copyright © 2026-present TekBreed",
+			copyright: "Copyright © 2026-present TekMemo",
 		},
 	},
 });
