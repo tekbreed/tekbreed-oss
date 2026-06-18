@@ -44,3 +44,6 @@ yarn-error.log*
 
 # Agent runtime data
 agent-sessions/
+
+# Wrangler build cache
+.wrangler/
