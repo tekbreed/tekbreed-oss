@@ -30,28 +30,42 @@ npx tekmemo remember "Use Cloudflare D1 for tenant metadata." --kind decision --
 npx tekmemo context --query "database schema work" --json
 ```
 
-## 5. Configure MCP for coding agents
+## 5. Connect coding agents via MCP
 
-Install `@tekbreed/tekmemo-mcp-server` to expose memory to coding agents:
+There are two ways to expose TekMemo to MCP-compatible agents (Claude Code, Cursor, Codex, etc.):
 
-```bash
-npm install -D @tekbreed/tekmemo-mcp-server
-```
+- **Hosted server (cloud-only, zero setup)** — point the client at the hosted endpoint with a bearer token:
 
-Then run the server with:
+  ```json
+  {
+    "mcpServers": {
+      "tekmemo": {
+        "url": "https://mcp.memo.tekbreed.com/",
+        "headers": {
+          "Authorization": "Bearer <your TEKMEMO_MCP_BEARER_TOKEN>"
+        }
+      }
+    }
+  }
+  ```
 
-```bash
-npx tekmemo-mcp --runtime local --root .
-```
+- **Self-hosted stdio server (local/cloud/hybrid)** — install and run `@tekbreed/tekmemo-mcp-server` for file-first memory in `.tekmemo/`:
 
-Then configure your MCP client (such as Claude Code or Cursor) to run `tekmemo-mcp` in local, cloud, or hybrid mode.
+  ```bash
+  npm install -D @tekbreed/tekmemo-mcp-server
+  npx tekmemo-mcp --runtime local --root .
+  ```
+
+  Then register the command with your MCP client.
+
+The hosted server can't read your local files, so use the stdio server when you want file-first `local` or `hybrid` memory with an agent. See the [MCP guide](../mcp/) and [Client setup](../mcp/client-setup) for per-client instructions.
 
 ## 6. Move to cloud when needed
 
 Configure the CLI or MCP server with your TekMemo Cloud credentials:
 
 ```bash
-export TEKMEMO_CLOUD_URL="https://memo.tekbreed.com/api/v1"
+export TEKMEMO_CLOUD_URL="https://api.tekbreed.com/memo/v1"
 export TEKMEMO_API_KEY="tk_live_..."
 export TEKMEMO_PROJECT_ID="proj_123"
 
