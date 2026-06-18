@@ -2,6 +2,7 @@
 	"name": "@tekbreed/tekmemo-testing",
 	"version": "1.0.0-alpha.0",
 	"private": false,
+	"license": "MIT",
 	"description": "Shared contract tests, fixtures, and fakes for TekMemo packages.",
 	"type": "module",
 	"sideEffects": false,
@@ -59,7 +60,8 @@
 	},
 	"files": [
 		"dist",
-		"README.md"
+		"README.md",
+		"LICENSE"
 	],
 	"scripts": {
 		"build": "tsdown",

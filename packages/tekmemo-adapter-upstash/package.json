@@ -2,6 +2,7 @@
 	"name": "@tekbreed/tekmemo-adapter-upstash",
 	"version": "1.0.0-alpha.0",
 	"private": false,
+	"license": "MIT",
 	"description": "Upstash Vector Recall Store adapter for TekMemo.",
 	"type": "module",
 	"sideEffects": false,
@@ -22,7 +23,8 @@
 	},
 	"files": [
 		"dist",
-		"README.md"
+		"README.md",
+		"LICENSE"
 	],
 	"publishConfig": {
 		"access": "public",
