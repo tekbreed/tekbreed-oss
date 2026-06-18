@@ -46,36 +46,7 @@
 /* Make the glow behind the hero image very minimal and soft */
 .VPHero .image-bg {
   transform: translate(-50%, -50%) scale(0.8);
-  opacity: 0.03;
-}
-
-/* Vite-style Pill Buttons */
-.VPButton.brand {
-  border-color: var(--vp-c-brand-1);
-  background-color: var(--vp-c-brand-1);
-  color: #ffffff;
-  border-radius: 24px;
-  font-weight: 600;
-  transition: background-color 0.25s, border-color 0.25s, color 0.25s;
-}
-
-.VPButton.brand:hover {
-  background-color: var(--vp-c-brand-2);
-  border-color: var(--vp-c-brand-2);
-}
-
-.VPButton.alt {
-  border: 1px solid var(--vp-c-border);
-  background-color: var(--vp-c-bg-mute);
-  color: var(--vp-c-text-1);
-  border-radius: 24px;
-  font-weight: 600;
-  transition: background-color 0.25s, border-color 0.25s, color 0.25s;
-}
-
-.VPButton.alt:hover {
-  background-color: var(--vp-c-bg-alt);
-  border-color: var(--vp-c-text-1);
+  opacity: 0.10;
 }
 
 /* Feature Cards with colored background box for the icon */
@@ -198,113 +169,9 @@
   --vp-c-green-soft: rgba(102, 187, 106, 0.14);
 }
 
-/* Trusted By Section */
-.trusted-by-section {
-  padding: 80px 24px;
-  text-align: center;
-  border-top: 1px solid var(--vp-c-border);
-  border-bottom: 1px solid var(--vp-c-border);
-  margin: 64px 0;
-}
-
-.trusted-by-content h3 {
-  font-size: 20px;
-  font-weight: 500;
-  color: var(--vp-c-text-2);
-  margin-bottom: 40px;
-}
-
-.trusted-by-logos {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 48px;
-  flex-wrap: wrap;
-  max-width: 1000px;
-  margin: 0 auto;
-}
-
-.logo-placeholder {
-  width: 120px;
-  height: 40px;
-  background: var(--vp-c-bg-soft);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--vp-c-text-3);
-  font-size: 12px;
-  opacity: 0.6;
-}
-
-
-/* Feature Showcase */
-.feature-showcase {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 64px 24px;
-}
-
+/* Feature Showcase Item (layout + animation; scoped styles in HomeLayout.vue handle the rest) */
 .feature-showcase-item {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 64px;
-  align-items: center;
-  margin-bottom: 96px;
-}
-
-.feature-showcase-item:last-child {
-  margin-bottom: 0;
-}
-
-.feature-showcase-content h3 {
-  font-size: 32px;
-  font-weight: 600;
-  color: var(--vp-c-text-1);
-  margin-bottom: 16px;
-  line-height: 1.2;
-}
-
-.feature-showcase-content p {
-  font-size: 18px;
-  color: var(--vp-c-text-2);
-  line-height: 1.6;
-  margin-bottom: 32px;
-}
-
-/* Code Block */
-.code-block {
-  background: var(--vp-c-bg-soft);
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px solid var(--vp-c-border);
-}
-
-.code-header {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--vp-c-border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.code-lang {
-  font-size: 12px;
-  color: var(--vp-c-text-3);
-  font-weight: 500;
-}
-
-.code-block pre {
-  margin: 0;
-  padding: 20px;
-  overflow-x: auto;
-}
-
-.code-block code {
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--vp-c-text-1);
+  animation: fadeInUp 0.6s ease-out;
 }
 
 /* Terminal Mockup */
@@ -355,15 +222,6 @@
     grid-template-columns: 1fr;
     gap: 40px;
   }
-  
-  .trusted-by-logos {
-    gap: 24px;
-  }
-  
-  .logo-placeholder {
-    width: 100px;
-    height: 32px;
-  }
 }
 
 /* Animations */
@@ -376,11 +234,6 @@
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.trusted-by-section,
-.feature-showcase-item {
-  animation: fadeInUp 0.6s ease-out;
 }
 
 /* Hero enhancements */
@@ -442,4 +295,142 @@
   border-color: var(--vp-c-brand-1);
   color: var(--vp-c-brand-1);
   transform: translateY(-2px);
+}
+
+/* Comparison Table */
+.comparison-table-wrapper {
+  overflow-x: auto;
+  margin-top: 28px;
+  border: 1px solid var(--vp-c-border);
+  border-radius: 12px;
+  background: var(--vp-c-bg-soft);
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.comparison-table th {
+  padding: 14px 18px;
+  font-weight: 600;
+  border-bottom: 2px solid var(--vp-c-border);
+  color: var(--vp-c-text-1);
+  background: var(--vp-c-bg-alt);
+}
+
+.comparison-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--vp-c-border);
+  color: var(--vp-c-text-2);
+}
+
+.comparison-table tr:last-child td {
+  border-bottom: none;
+}
+
+.comparison-table tr:hover {
+  background-color: var(--vp-c-bg-mute);
+}
+
+.comparison-table td:first-child,
+.comparison-table th:first-child {
+  font-weight: 600;
+  color: var(--vp-c-text-1);
+}
+
+.comparison-table-check {
+  color: var(--vp-c-brand-1);
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.comparison-table-cross {
+  color: var(--vp-c-text-3);
+  font-size: 14px;
+}
+
+/* Alpha Announcement Bar */
+.alpha-announcement-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: var(--vp-c-brand-soft);
+  border-bottom: 1px solid var(--vp-c-brand-soft);
+  padding: 8px 16px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  z-index: 100;
+}
+
+.alpha-announcement-bar .alpha-badge {
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--vp-c-brand-1);
+  background: var(--vp-c-bg);
+  border: 1px solid var(--vp-c-brand-1);
+  flex-shrink: 0;
+}
+
+.alpha-announcement-bar .alpha-link {
+  font-weight: 600;
+  color: var(--vp-c-brand-1);
+  text-decoration: none;
+}
+
+.alpha-announcement-bar .alpha-link:hover {
+  text-decoration: underline;
+  color: var(--vp-c-brand-2);
+}
+
+/* Push down VitePress elements to make space for the top announcement bar */
+:root {
+  --vp-announcement-height: 40px;
+  --vp-layout-top-height: 40px;
+}
+
+.alpha-announcement-bar {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
+}
+
+.VPNav {
+  transition: top 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.VPSidebar {
+  transition: top 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.VPLocalNav {
+  transition: top 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.VPContent {
+  transition: margin-top 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Scroll-based hiding behavior */
+.has-scrolled .alpha-announcement-bar {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.has-scrolled {
+  --vp-layout-top-height: 0px;
 }
