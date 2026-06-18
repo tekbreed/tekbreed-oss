@@ -7,7 +7,7 @@ The CLI gives you direct access to TekMemo Cloud APIs. You can read context, tri
 Set these variables before running cloud commands:
 
 ```bash
-export TEKMEMO_CLOUD_URL="https://memo.tekbreed.com/api/v1"
+export TEKMEMO_CLOUD_URL="https://api.tekbreed.com/memo/v1"
 export TEKMEMO_API_KEY="tk_live_..."
 export TEKMEMO_PROJECT_ID="proj_123"
 ```
