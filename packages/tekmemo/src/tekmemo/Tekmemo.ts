@@ -54,7 +54,6 @@ import {
 	type TekMemoCloudClient,
 } from "../index";
 import type { RecallFilter, RecallStore } from "../recall/types";
-import { createCloudStrategy } from "./cloud-strategy";
 import {
 	type ResolvedTekmemoConfig,
 	resolveTekmemoConfig,
@@ -63,6 +62,7 @@ import {
 import { createHybridStrategy } from "./hybrid-strategy";
 import { createLocalStrategy } from "./local-strategy";
 import { createMemoryStrategy } from "./memory-strategy";
+import { createFileSyncLayer } from "./sync/file-replication";
 import type {
 	AgentSessionCompleteInput,
 	AgentSessionFileInput,
@@ -81,24 +81,25 @@ import type {
 	RecentMemoryResult,
 	RuntimeReadPolicy,
 	RuntimeWritePolicy,
-	SnapshotMemoryInput,
-	SnapshotMemoryResult,
-	SyncPullInput,
-	SyncPullResult,
-	SyncPushInput,
-	SyncPushResult,
-	SyncStatusInput,
-	SyncStatusResult,
-	TekMemoHealthResult,
-	TekMemoRuntimeMode,
-	ValidateMemoryInput,
-	ValidateMemoryResult,
-	WriteMemoryInput,
-	WriteMemoryResult,
-} from "./types";
+		SnapshotMemoryInput,
+		SnapshotMemoryResult,
+		SyncPullInput,
+		SyncPullResult,
+		SyncPushCompleteInput,
+		SyncPushCompleteResult,
+		SyncPushInput,
+		SyncPushResult,
+		SyncStatusInput,
+		SyncStatusResult,
+		TekMemoHealthResult,
+		TekMemoRuntimeMode,
+		ValidateMemoryInput,
+		ValidateMemoryResult,
+		WriteMemoryInput,
+		WriteMemoryResult,
+	} from "./types";
 
-type Strategy = ReturnType<typeof createLocalStrategy> &
-	Partial<ReturnType<typeof createCloudStrategy>>;
+type Strategy = ReturnType<typeof createLocalStrategy>;
 
 /**
  * The high-level Tekmemo client — the single entry point for all memory operations.
@@ -351,6 +352,13 @@ export class Tekmemo {
 			return this.strategy.syncPush(input, signal);
 		},
 
+		complete: async (
+			input: SyncPushCompleteInput,
+			signal?: AbortSignal,
+		): Promise<SyncPushCompleteResult> => {
+			return this.strategy.syncComplete(input, signal);
+		},
+
 		pull: async (
 			input: SyncPullInput,
 			signal?: AbortSignal,
@@ -365,6 +373,7 @@ export class Tekmemo {
 			return this.strategy.syncStatus(input, signal);
 		},
 	};
+
 
 	readonly rerank = {
 		sort: stableSortRerankResults,
@@ -429,27 +438,30 @@ export class Tekmemo {
 			}) as Strategy;
 		}
 
-		if (this.resolved.mode === "cloud") {
-			if (!this.cloud) {
-				throw new Error(
-					"Cloud mode requires cloud configuration (baseUrl + apiKey) or a cloudClient instance.",
-				);
-			}
-			return createCloudStrategy({
-				client: this.cloud,
-				projectId: this.projectId,
-				name: this.name,
-				version: this.version,
-			}) as Strategy;
-		}
-
 		if (this.resolved.mode === "hybrid") {
 			if (!this.cloud) {
 				throw new Error(
 					"Hybrid mode requires cloud configuration (baseUrl + apiKey) or a cloudClient instance.",
 				);
 			}
-			const local = createLocalStrategy({
+			// The cloud is a file replica, not an engine: the only cloud-facing
+			// surface is the file-replication sync layer (§7/§8). The local
+			// engine handles recall/memory/graph/extraction/agent sessions.
+			//
+			// Lazy ref breaks the construction cycle: the sync layer needs the
+			// local strategy's `createSnapshot` for its pre-sync snapshot, and
+			// the local strategy needs the sync layer to wire the agentfs
+			// session hooks. Both callbacks are invoked lazily (only during an
+			// actual sync, after construction), so the ref is always set by then.
+			let local: ReturnType<typeof createLocalStrategy>;
+			const sync = createFileSyncLayer({
+				client: this.cloud,
+				store: this.store,
+				projectId: this.projectId,
+				snapshot: (input) => local.createSnapshot(input),
+				reindex: () => bootstrapMemoryStore(this.store, { projectId: this.projectId }),
+			});
+			local = createLocalStrategy({
 				store: this.store,
 				embedder: this.embedder,
 				recallStore: this.recallStore,
@@ -458,16 +470,11 @@ export class Tekmemo {
 				autoBootstrap: this.resolved.autoBootstrap,
 				name: this.name,
 				version: this.version,
-			});
-			const cloud = createCloudStrategy({
-				client: this.cloud,
-				projectId: this.projectId,
-				name: this.name,
-				version: this.version,
+				syncLayer: sync,
 			});
 			return createHybridStrategy({
 				local,
-				cloud,
+				sync,
 				readPolicy: this.readPolicy,
 				writePolicy: this.writePolicy,
 			}) as Strategy;

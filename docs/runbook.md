@@ -1,12 +1,12 @@
 # TekMemo Workspace Runbook
 
-Welcome to the `@tekbreed/oss` workspace runbook. This document provides an operational and architectural overview of the monorepo, its layout, internal module structure, development guidelines, and commands.
+Welcome to the `@tekbreed/tekmemo` workspace runbook. This document provides an operational and architectural overview of the monorepo, its layout, internal module structure, development guidelines, and commands.
 
 ---
 
 ## Workspace Overview
 
-The TekBreed OSS repository is structured as a **pnpm monorepo** containing:
+The TekMemo repository is structured as a **pnpm monorepo** containing:
 1. **Public Package**: `@tekbreed/tekmemo` (located in [packages/tekmemo](file:///Users/codingsimba/Desktop/projects/oss/packages/tekmemo)) — the unified file-first memory runtime.
 2. **Docs App**: `apps/docs` — the VitePress-based documentation site.
 3. **Tooling**: `@repo/*` packages in [tooling](file:///Users/codingsimba/Desktop/projects/oss/tooling) — private workspace support for builds, tests, and configuration.
@@ -14,7 +14,7 @@ The TekBreed OSS repository is structured as a **pnpm monorepo** containing:
 ### Workspace Layout
 
 ```txt
-tekbreed-oss/
+tekmemo/
 ├── apps/
 │   └── docs/                  # VitePress docs site
 ├── packages/
@@ -24,9 +24,9 @@ tekbreed-oss/
 │   ├── tekcode-cli/           # Future TekCode placeholder
 │   └── tekcode-desktop/       # Future TekCode placeholder
 ├── tooling/                   # Private `@repo/*` workspace tooling
-│   ├── test-utils/            # Contract tests, fakes, and fixtures
-│   ├── tsdown-config/         # Shared build configurations
-│   └── typescript-config/     # Shared TypeScript config base
+│   ├── tsdown/                # Shared build configurations (@repo/tsdown)
+│   ├── typescript/            # Shared TypeScript config base (@repo/typescript)
+│   └── utils/                 # Shared utility helpers (@repo/utils)
 ├── docs/                      # General repository and operational notes
 ├── projects/                  # Architectural notes and plans
 └── scripts/                   # Repository maintenance scripts

@@ -1,8 +1,8 @@
-# Contributing to TekBreed OSS
+# Contributing to TekMemo
 
-Thank you for your interest in contributing to TekBreed OSS.
+Thank you for your interest in contributing to TekMemo.
 
-This repository hosts TekBreed open-source work. TekMemo is the first product family: an open-source memory runtime for AI apps and agents. The project is designed to be useful to external developers, not only TekMemo Cloud.
+This repository hosts TekMemo open-source work. TekMemo is the first product family: an open-source memory runtime for AI apps and agents. The project is designed to be useful to external developers, not only TekMemo Cloud.
 
 This guide explains how to contribute code, docs, tests, and package improvements.
 
@@ -39,7 +39,7 @@ The public OSS repo should remain:
 
 All contributors must follow the project Code of Conduct.
 
-See [COUDE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)
+See [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)
 
 ---
 
@@ -72,8 +72,8 @@ corepack prepare pnpm@9 --activate
 Clone the repo:
 
 ```bash
-git clone https://github.com/tekbreed/tekbreed-oss.git
-cd tekbreed-oss
+git clone https://github.com/tekbreed/tekmemo.git
+cd tekmemo
 ```
 
 Install dependencies:

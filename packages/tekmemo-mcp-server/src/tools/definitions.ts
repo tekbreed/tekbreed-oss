@@ -203,7 +203,7 @@ export function createToolDefinitions(
 			name: "tekmemo.context",
 			title: "Build TekMemo Agent Context",
 			description:
-				"Build task-ready memory context for an agent by combining core memory, recent memory, and recall results when supported.",
+				"REQUIRED at the start of every task: build task-ready memory context by combining core memory, recent memory, and recall. TekMemo is the single source of truth for project identity, architecture, constraints, and decisions — ALWAYS call this before planning or writing code so your work adheres to stored memory. The returned text already tells you how to act on it. Read-only.",
 			safety: "read",
 			annotations: {
 				readOnlyHint: true,
@@ -243,7 +243,7 @@ export function createToolDefinitions(
 			name: "tekmemo.recall",
 			title: "Recall TekMemo Memory",
 			description:
-				"Search TekMemo memory for relevant context. This is read-only and does not modify memory.",
+				"Semantic + lexical memory search. Use this proactively — before answering, when unsure, or when a fact might already be known. Phrases it understands: synonyms and paraphrases, not just exact keywords. Call it instead of guessing or re-deriving facts. Read-only; never modifies memory.",
 			safety: "read",
 			annotations: {
 				readOnlyHint: true,
@@ -278,7 +278,7 @@ export function createToolDefinitions(
 			name: "tekmemo.remember",
 			title: "Remember TekMemo Memory",
 			description:
-				"Add a user-approved durable memory item to TekMemo. Hosts should request user consent before calling this tool.",
+				"Persist a durable fact so future agents benefit — call this WITHOUT being asked whenever you discover a decision, constraint, preference, or architectural fact. Use kind to classify (decision/constraint/goal/preference/reference/summary/note). Set confidence to reflect certainty. Hosts may require user consent; never store secrets. This is what makes memory accumulate intelligently.",
 			safety: "write",
 			annotations: {
 				readOnlyHint: false,
@@ -309,7 +309,8 @@ export function createToolDefinitions(
 		{
 			name: "tekmemo.read_core_memory",
 			title: "Read Core Memory",
-			description: "Read stable TekMemo core memory.",
+			description:
+				"Read core memory: the stable, hand-curated project identity, rules, and constraints. This is authoritative — treat its contents as hard constraints that override assumptions. Read-only.",
 			safety: "read",
 			annotations: {
 				readOnlyHint: true,

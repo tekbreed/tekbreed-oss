@@ -26,7 +26,7 @@ A hosted Worker runs in Cloudflare's edge and **cannot read a user's local files
 | Hybrid | ❌ | Requires local filesystem access. |
 | Memory | ❌ | Volatile and stateless across requests. |
 
-For **file-first local or hybrid memory** with an agent, self-host the stdio package (`@tekbreed/tekmemo-mcp-server`) instead. See the [MCP docs](https://oss.tekbreed.com/packages/mcp/) for both paths.
+For **file-first local or hybrid memory** with an agent, self-host the stdio package (`@tekbreed/tekmemo-mcp-server`) instead. See the [MCP docs](https://docs.memo.tekbreed.com/packages/mcp/) for both paths.
 
 ## Required configuration
 
@@ -76,7 +76,7 @@ Point any Streamable-HTTP-compatible client at the root URL with the bearer toke
 }
 ```
 
-See the [client setup guide](https://oss.tekbreed.com/packages/mcp/client-setup) for client-specific examples (Claude Code, Cursor, Codex, etc.).
+See the [client setup guide](https://docs.memo.tekbreed.com/packages/mcp/client-setup) for client-specific examples (Claude Code, Cursor, Codex, etc.).
 
 ## Local development
 

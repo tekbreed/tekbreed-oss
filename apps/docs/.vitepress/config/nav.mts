@@ -23,20 +23,12 @@ export const nav: DefaultTheme.NavItem[] = [
 	},
 	{
 		text: "Changelog",
-		items: [
-			{
-				text: "Core",
-				link: "https://github.com/tekbreed/tekbreed-oss/blob/main/packages/tekmemo/CHANGELOG.md",
-			},
-			{
-				text: "CLI",
-				link: "https://github.com/tekbreed/tekbreed-oss/blob/main/packages/tekmemo-cli/CHANGELOG.md",
-			},
-			{
-				text: "MCP Server",
-				link: "https://github.com/tekbreed/tekbreed-oss/blob/main/packages/tekmemo-mcp-server/CHANGELOG.md",
-			},
-		],
+		link: "/changelog/",
 		activeMatch: "/changelog/",
+	},
+	{
+		text: "Blog",
+		link: "/blog/",
+		activeMatch: "/blog/",
 	},
 ];

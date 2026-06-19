@@ -1,6 +1,6 @@
 # Recall Module
 
-The recall module provides semantic recall memory for AI agents. It defines the standard contracts and in-memory implementation for storing and querying text embeddings.
+The recall module retrieves the memory fragments most relevant to a query. In local and hybrid modes it runs a configurable **recall engine** that combines a lexical path (BM25 + fuzzy matching) with an optional semantic vector path (embeddings), then reranks and weights results by relevance, recency, and confidence.
 
 ## Import
 
@@ -10,25 +10,60 @@ import { createInMemoryRecallStore } from "@tekbreed/tekmemo";
 
 ## How it works
 
-"Recall" is the process of retrieving relevant memory fragments using vector similarity (semantic search).
+"Recall" is the process of retrieving relevant memory fragments so an agent's
+context window carries only what matters, instead of an entire `notes.md`.
 
-This module defines the `RecallStore` interface, which is implemented by various adapters (e.g., the [Upstash Vector adapter](./vector-adapters)). It also provides `InMemoryRecallStore` for testing and local ephemeral sessions.
+Local recall supports **four strategies**, chosen via `recall.engine`:
+
+| `engine` | How it retrieves | Requires an embedder? |
+| --- | --- | --- |
+| `lexical` | BM25 + fuzzy keyword matching only. | No |
+| `vector` | Semantic embeddings only. | Yes |
+| `hybrid` | Both paths merged, reranked, and weighted by recency + confidence. | Yes |
+| `auto` (default) | `hybrid` when an embedder is available, else `lexical`. | No (falls back to lexical) |
+
+With **no embedder configured**, local recall defaults to lexical — so memory is
+searchable with zero setup and no API keys. The `RecallStore` interface below is
+the vector-path contract implemented by adapters (e.g. the
+[Upstash Vector adapter](./vector-adapters)); `InMemoryRecallStore` is provided
+for testing and ephemeral local sessions.
 
 ## Quick start with Tekmemo
 
-The [`Tekmemo`](./tekmemo) class exposes recall through the top-level `recall` method, which handles embedding and store lookup automatically:
+The [`Tekmemo`](./tekmemo) class exposes recall through the top-level `recall` method, which handles engine selection, embedding, and store lookup automatically:
 
 ```ts
 import { Tekmemo } from "@tekbreed/tekmemo";
 
 const memo = new Tekmemo({ rootDir: "./.tekmemo", projectId: "my-app" });
 
-// Semantic recall — Tekmemo uses the configured embedder and recall store
+// Zero-config lexical recall — no embedder, no API keys required
 const hits = await memo.recall("How do I handle sync conflicts?");
 console.log(hits.results.map((r) => r.text));
 ```
 
-For recall with a custom embedder or store, pass them through the constructor:
+### Zero-API-key hybrid recall
+
+For semantic matching with no cloud, enable the local ONNX embedder — it runs
+in-process via [`@tekbreed/tekmemo-adapter-transformers`](./provider-adapters)
+and only downloads the model on the first recall:
+
+```ts
+import { Tekmemo } from "@tekbreed/tekmemo";
+
+const memo = new Tekmemo({
+  rootDir: "./.tekmemo",
+  projectId: "my-app",
+  recall: { engine: "auto", localEmbeddings: true },
+});
+```
+
+The vector path is an enhancement: if the embedder fails or the adapter is
+missing, recall (and writes) keep working on the lexical path.
+
+### Using a provider embedder
+
+For higher-quality semantic recall, pass a provider adapter through the constructor. With an embedder present, `engine: "auto"` upgrades to hybrid automatically:
 
 ```ts
 import { Tekmemo } from "@tekbreed/tekmemo";
@@ -87,6 +122,7 @@ console.log(results[0].text);
 
 ## Use cases
 
-- **Semantic Search:** Go beyond keyword matching by searching for meaning.
-- **Agent Grounding:** Provide the most relevant "memory hits" to an agent's context window.
+- **Zero-config recall:** Search memory by keyword (BM25 + fuzzy) with no embedder and no API keys.
+- **Semantic Search:** Go beyond keyword matching by searching for meaning (vector path).
+- **Hybrid Grounding:** Merge both paths and weight by recency + confidence so the freshest, most relevant memory reaches the agent's context window.
 - **Local Testing:** Use `InMemoryRecallStore` to test your retrieval logic without a live database.

@@ -2,10 +2,22 @@
 	"name": "@tekbreed/tekmemo-testing",
 	"version": "1.0.0-alpha.0",
 	"private": false,
-	"license": "MIT",
 	"description": "Shared contract tests, fixtures, and fakes for TekMemo packages.",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/tekbreed/tekmemo.git",
+		"directory": "packages/tekmemo-testing"
+	},
+	"homepage": "https://docs.memo.tekbreed.com/packages/tekmemo/",
+	"bugs": {
+		"url": "https://github.com/tekbreed/tekmemo/issues"
+	},
 	"type": "module",
 	"sideEffects": false,
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.mts",
 	"exports": {
 		".": {
 			"import": {
@@ -63,6 +75,11 @@
 		"README.md",
 		"LICENSE"
 	],
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/",
+		"provenance": true
+	},
 	"scripts": {
 		"build": "tsdown",
 		"build:watch": "tsdown --watch",
@@ -71,13 +88,29 @@
 		"test:run": "vitest run",
 		"test:watch": "vitest",
 		"test:coverage": "vitest run --coverage",
+		"clean": "rm -rf dist coverage .turbo",
 		"lint:package": "publint",
-		"clean": "rm -rf dist coverage"
+		"prepack": "pnpm build",
+		"pack:dry-run": "pnpm build && npm pack --dry-run",
+		"release:check": "pnpm build && pnpm typecheck && pnpm test:run && pnpm lint:package && npm pack --dry-run"
 	},
-	"publishConfig": {
-		"access": "public",
-		"registry": "https://registry.npmjs.org/",
-		"provenance": true
+	"keywords": [
+		"testing",
+		"tests",
+		"fixtures",
+		"fakes",
+		"ai",
+		"agents",
+		"memory",
+		"tekmemo",
+		"typescript"
+	],
+	"engines": {
+		"node": ">=22"
+	},
+	"funding": {
+		"type": "github",
+		"url": "https://github.com/sponsors/christophersesugh"
 	},
 	"peerDependencies": {
 		"@tekbreed/tekmemo": "workspace:^",

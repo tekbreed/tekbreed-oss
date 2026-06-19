@@ -10,8 +10,11 @@
 
 import fs from "node:fs/promises";
 import path from "node:path";
+import pkg from "../../package.json" with { type: "json" };
 
 export interface TekMemoConfigFile {
+	/** JSON Schema URL for editor validation of `.tekmemo/config.json`. */
+	$schema?: string;
 	runtime?: "local" | "cloud" | "hybrid" | "memory";
 	root?: string;
 	projectId?: string;
@@ -27,6 +30,16 @@ export interface TekMemoConfigFile {
 		readPolicy?: "local-first" | "cloud-first" | "local-only" | "cloud-only";
 		writePolicy?: "local-first" | "cloud-first" | "local-only" | "cloud-only";
 	};
+}
+
+/**
+ * Canonical JSON Schema URL for a given TekMemo version.
+ *
+ * Used as the `$schema` line in `.tekmemo/config.json` so editors validate
+ * against the version-appropriate schema.
+ */
+export function configSchemaUrl(version: string): string {
+	return `https://docs.memo.tekbreed.com/${version}/config.schema.json`;
 }
 
 /**
@@ -48,6 +61,7 @@ export async function writeDefaultCliConfig(input: {
 	if (exists && !input.force)
 		return { path: configPath, created: false, overwritten: false };
 	const config = input.config ?? {
+		$schema: configSchemaUrl(pkg.version),
 		runtime: "local",
 		root: ".",
 	};

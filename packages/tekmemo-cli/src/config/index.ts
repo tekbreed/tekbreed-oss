@@ -5,4 +5,4 @@
  */
 
 export type { TekMemoConfigFile } from "./runtime";
-export { writeDefaultCliConfig } from "./runtime";
+export { configSchemaUrl, writeDefaultCliConfig } from "./runtime";

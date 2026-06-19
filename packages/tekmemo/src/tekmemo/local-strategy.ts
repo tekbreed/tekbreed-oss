@@ -54,6 +54,7 @@ import {
 import type { BM25Store } from "../recall/lexical/bm25";
 import type { RecallStore } from "../recall/types";
 import { buildContext, paginateArray } from "./helpers";
+import type { FileSyncLayer } from "./sync/file-replication";
 import type {
 	AgentSessionCompleteInput,
 	AgentSessionExtractResult,
@@ -79,6 +80,8 @@ import type {
 	SnapshotMemoryResult,
 	SyncPullInput,
 	SyncPullResult,
+	SyncPushCompleteInput,
+	SyncPushCompleteResult,
 	SyncPushInput,
 	SyncPushResult,
 	SyncStatusInput,
@@ -131,6 +134,14 @@ export interface LocalStrategyOptions {
 	 * `true` so the graph accumulates without human intervention.
 	 */
 	autoExtractGraph?: boolean;
+	/**
+	 * Optional file-replication sync layer. In `hybrid` mode this wires the
+	 * agentfs session hooks (`sync-before-session`/`sync-after-session`) to the
+	 * file-replica cloud: `pull`/`push` go through this layer, and `checkpoint`
+	 * becomes a `pre-sync` snapshot. Omitted in `local`/`memory` modes, where
+	 * the hooks stay no-ops (see §6.7).
+	 */
+	syncLayer?: FileSyncLayer;
 }
 
 export function createLocalStrategy(options: LocalStrategyOptions) {
@@ -194,7 +205,55 @@ export function createLocalStrategy(options: LocalStrategyOptions) {
 		bootstrapped = true;
 	}
 
-	const agentfsClient = createLocalAgentfsClient(options);
+	/**
+	 * Snapshot creation, hoisted out of the strategy object so the agentfs
+	 * sync hooks (and the strategy's own `createSnapshot` method) share one
+	 * implementation. Depends only on closure locals (`ensureReady`, `store`).
+	 *
+	 * @internal
+	 */
+	async function createSnapshotImpl(
+		input?: SnapshotMemoryInput,
+		signal?: AbortSignal,
+	): Promise<SnapshotMemoryResult> {
+		if (signal?.aborted) throw new Error("Operation aborted.");
+		await ensureReady();
+		const id = snapshotId(input?.label);
+		const snapshotPath = createSnapshotPath(id);
+		const now = new Date().toISOString();
+		const files = {
+			core: await readCoreMemory(store),
+			notes: await readNotesMemory(store),
+			events: (
+				await readMemoryEventsWithIssues(store, { malformedLineMode: "skip" })
+			).entries,
+		};
+		await store.write(
+			snapshotPath,
+			`${JSON.stringify({ version: 1, id, createdAt: now, files }, null, 2)}\n`,
+		);
+		await appendSnapshotRecord(
+			store,
+			createSnapshotRecord({
+				id,
+				type: input?.type ?? "manual",
+				createdAt: now,
+				metadata: {
+					label: input?.label ?? null,
+					createdBy: "tekmemo",
+					...(input?.metadata ?? {}),
+				},
+			}),
+		);
+		return { id, path: snapshotPath, created: true };
+	}
+
+	const agentfsClient = createLocalAgentfsClient({
+		store: options.store,
+		projectId: options.projectId,
+		syncLayer: options.syncLayer,
+		createSnapshot: (input) => createSnapshotImpl(input),
+	});
 
 	function assertWritableAgentSessionPath(filePath: string): void {
 		if (!filePath.includes("/working/") && !filePath.includes("/output/")) {
@@ -597,36 +656,7 @@ export function createLocalStrategy(options: LocalStrategyOptions) {
 			input?: SnapshotMemoryInput,
 			signal?: AbortSignal,
 		): Promise<SnapshotMemoryResult> {
-			if (signal?.aborted) throw new Error("Operation aborted.");
-			await ensureReady();
-			const id = snapshotId(input?.label);
-			const path = createSnapshotPath(id);
-			const now = new Date().toISOString();
-			const files = {
-				core: await readCoreMemory(store),
-				notes: await readNotesMemory(store),
-				events: (
-					await readMemoryEventsWithIssues(store, { malformedLineMode: "skip" })
-				).entries,
-			};
-			await store.write(
-				path,
-				`${JSON.stringify({ version: 1, id, createdAt: now, files }, null, 2)}\n`,
-			);
-			await appendSnapshotRecord(
-				store,
-				createSnapshotRecord({
-					id,
-					type: input?.type ?? "manual",
-					createdAt: now,
-					metadata: {
-						label: input?.label ?? null,
-						createdBy: "tekmemo",
-						...(input?.metadata ?? {}),
-					},
-				}),
-			);
-			return { id, path, created: true };
+			return createSnapshotImpl(input, signal);
 		},
 
 		async startAgentSession(
@@ -912,6 +942,14 @@ export function createLocalStrategy(options: LocalStrategyOptions) {
 			throw new Error("sync.push is not available in local mode.");
 		},
 
+		async syncComplete(
+			_input: SyncPushCompleteInput,
+			signal?: AbortSignal,
+		): Promise<SyncPushCompleteResult> {
+			if (signal?.aborted) throw new Error("Operation aborted.");
+			throw new Error("sync.complete is not available in local mode.");
+		},
+
 		async syncPull(
 			_input: SyncPullInput,
 			signal?: AbortSignal,
@@ -1190,6 +1228,18 @@ function message(error: unknown): string {
 function createLocalAgentfsClient(opts: {
 	store: MemoryStore;
 	projectId: string;
+	/**
+	 * File-replication sync layer. In `hybrid` mode the agentfs session hooks
+	 * drive it: `pull`/`push` mirror file replicas of `.tekmemo/` (§6.7), and
+	 * `push` runs the full two-phase flow. Omitted in `local`/`memory` modes,
+	 * where the hooks stay no-ops.
+	 */
+	syncLayer?: FileSyncLayer;
+	/**
+	 * Creates a `pre-sync` snapshot. In `hybrid` mode this backs the agentfs
+	 * `checkpoint(label)` hook (D6 safety net before push).
+	 */
+	createSnapshot?(input?: SnapshotMemoryInput): Promise<SnapshotMemoryResult>;
 }): AgentfsLikeClient {
 	const rootDir =
 		opts.store instanceof Object &&
@@ -1197,6 +1247,7 @@ function createLocalAgentfsClient(opts: {
 		typeof opts.store.rootDir === "string"
 			? opts.store.rootDir
 			: process.cwd();
+	const { syncLayer, createSnapshot } = opts;
 
 	return {
 		async readText(remotePath: string) {
@@ -1220,10 +1271,36 @@ function createLocalAgentfsClient(opts: {
 				return false;
 			}
 		},
+		async deleteText(remotePath: string) {
+			const target = resolveAgentPath(rootDir, remotePath);
+			await fs.rm(target, { force: true });
+		},
 		sync: {
-			pull: async () => {},
-			push: async () => {},
-			checkpoint: async () => {},
+			// §6.7: in hybrid mode, pull = file-replica pull (download changed
+			// files, remove deleted ones, re-derive indexes). No-op otherwise.
+			pull: syncLayer
+				? async () => {
+						await syncLayer.pull();
+					}
+				: async () => {},
+			// §6.7 + §8: in hybrid mode, push = full two-phase push
+			// (compute manifest → upload → complete), with a pre-sync snapshot
+			// taken inside the layer. No-op otherwise.
+			push: syncLayer
+				? async () => {
+						await syncLayer.pushFull();
+					}
+				: async () => {},
+			// D6: checkpoint = pre-sync snapshot (the safety net before push).
+			// `syncAfterSession` calls `checkpoint(label)` before `push()`.
+			checkpoint: createSnapshot
+				? async (label: string) => {
+						await createSnapshot({
+							type: "pre-sync",
+							label: label || `agentfs-checkpoint-${new Date().toISOString()}`,
+						});
+					}
+				: async () => {},
 		},
 	};
 }

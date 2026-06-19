@@ -7,6 +7,21 @@ TekMemo is published as three packages:
 - `@tekbreed/tekmemo-cli` — the `tekmemo` CLI for terminal and CI workflows.
 - `@tekbreed/tekmemo-mcp-server` — a self-hostable MCP server (stdio) for agent integration.
 
+Official adapters live alongside it:
+- `@tekbreed/tekmemo-adapter-openai` — OpenAI embeddings.
+- `@tekbreed/tekmemo-adapter-voyage` — Voyage AI embedder + reranker.
+- `@tekbreed/tekmemo-adapter-transformers` — zero-config local ONNX embedder (Transformers.js) for hybrid recall with no API key, no cloud.
+- `@tekbreed/tekmemo-adapter-upstash` — Upstash Vector recall store.
+
+## Recall (local intelligence)
+
+Local and hybrid modes retrieve memory through a configurable recall engine. In local mode, recall works with zero configuration: the default is lexical-only retrieval (BM25 + fuzzy matching), so memory is searchable with no embedder and no API keys. Strategies (`recall.engine`): `lexical`, `vector`, `hybrid`, or `auto` (default — `hybrid` when an embedder is available, else `lexical`). When `recall.localEmbeddings` is on, the runtime lazy-loads the local ONNX adapter so `auto` upgrades to hybrid recall with zero API keys. The vector path is an enhancement: if the embedder fails or the adapter is missing, writes and recall keep working on the lexical path.
+
+Environment variables (same priority chain: constructor args > env > `.tekmemo/config.json` > defaults):
+- `TEKMEMO_RECALL_ENGINE` — `lexical` | `vector` | `hybrid` | `auto` (default `auto`).
+- `TEKMEMO_LOCAL_EMBEDDINGS` — `1`/`true` to lazy-load the local ONNX embedder.
+- `TEKMEMO_EMBEDDING_MODEL` — Transformers.js-compatible model id (default `Xenova/all-MiniLM-L6-v2`).
+
 ## Quick start
 
 Install the core runtime and start recording memory in code:
@@ -25,42 +40,42 @@ const hits = await memo.recall("database decisions");
 
 ## Docs
 
-- Overview & quick start: https://oss.tekbreed.com/packages/tekmemo/
-- Installation: https://oss.tekbreed.com/packages/tekmemo/installation
-- The `Tekmemo` client (modes, strategies, API surface): https://oss.tekbreed.com/packages/tekmemo/client
-- Configuration (resolution chain, env vars, config.json): https://oss.tekbreed.com/packages/tekmemo/configuration
-- Core concepts: https://oss.tekbreed.com/packages/tekmemo/concepts
-- Filesystem layout: https://oss.tekbreed.com/packages/tekmemo/filesystem-layout
-- Cloud client: https://oss.tekbreed.com/packages/tekmemo/cloud-client
-- Architecture: https://oss.tekbreed.com/packages/tekmemo/architecture/
+- Overview & quick start: https://docs.memo.tekbreed.com/packages/tekmemo/
+- Installation: https://docs.memo.tekbreed.com/packages/tekmemo/installation
+- The `Tekmemo` client (modes, strategies, API surface): https://docs.memo.tekbreed.com/packages/tekmemo/client
+- Configuration (resolution chain, env vars, config.json): https://docs.memo.tekbreed.com/packages/tekmemo/configuration
+- Core concepts: https://docs.memo.tekbreed.com/packages/tekmemo/concepts
+- Filesystem layout: https://docs.memo.tekbreed.com/packages/tekmemo/filesystem-layout
+- Cloud client: https://docs.memo.tekbreed.com/packages/tekmemo/cloud-client
+- Architecture: https://docs.memo.tekbreed.com/packages/tekmemo/architecture/
 
 ## Runtime modes
 
 `Tekmemo` supports four runtime modes, selected in config: `local` (filesystem), `cloud` (TekMemo Cloud), `hybrid` (local + cloud with read/write policies), and `memory` (volatile, for tests).
 
-- Local vs cloud vs hybrid: https://oss.tekbreed.com/packages/tekmemo/client
-- Configuration resolution: https://oss.tekbreed.com/packages/tekmemo/configuration
+- Local vs cloud vs hybrid: https://docs.memo.tekbreed.com/packages/tekmemo/client
+- Configuration resolution: https://docs.memo.tekbreed.com/packages/tekmemo/configuration
 
 ## MCP (Model Context Protocol)
 
 Two ways to expose TekMemo to coding agents:
 
-- **Hosted server** (cloud-only): `https://mcp.memo.tekbreed.com/` over Streamable HTTP, bearer-token auth, read-only by default. Docs: https://oss.tekbreed.com/packages/mcp/hosted
-- **Self-hosted stdio server** (`@tekbreed/tekmemo-mcp-server`): supports `local`, `cloud`, `hybrid`, and `memory` modes for file-first memory. Docs: https://oss.tekbreed.com/packages/mcp/
+- **Hosted server** (cloud-only): `https://mcp.memo.tekbreed.com/` over Streamable HTTP, bearer-token auth, read-only by default. Docs: https://docs.memo.tekbreed.com/packages/mcp/hosted
+- **Self-hosted stdio server** (`@tekbreed/tekmemo-mcp-server`): supports `local`, `cloud`, `hybrid`, and `memory` modes for file-first memory. Docs: https://docs.memo.tekbreed.com/packages/mcp/
 
-Client setup (Claude Code, Cursor, Codex, etc.) for both paths: https://oss.tekbreed.com/packages/mcp/client-setup
+Client setup (Claude Code, Cursor, Codex, etc.) for both paths: https://docs.memo.tekbreed.com/packages/mcp/client-setup
 
 ## CLI
 
-- CLI guide: https://oss.tekbreed.com/packages/cli/
-- Local commands: https://oss.tekbreed.com/packages/cli/local-commands
-- Cloud commands: https://oss.tekbreed.com/packages/cli/cloud-commands
+- CLI guide: https://docs.memo.tekbreed.com/packages/cli/
+- Local commands: https://docs.memo.tekbreed.com/packages/cli/local-commands
+- Cloud commands: https://docs.memo.tekbreed.com/packages/cli/cloud-commands
 
 ## API reference
 
-- Modules overview: https://oss.tekbreed.com/api/tekmemo/
-- Cloud client API: https://oss.tekbreed.com/api/tekmemo/cloud-client
-- AI SDK helpers: https://oss.tekbreed.com/api/tekmemo/ai-sdk
+- Modules overview: https://docs.memo.tekbreed.com/api/tekmemo/
+- Cloud client API: https://docs.memo.tekbreed.com/api/tekmemo/cloud-client
+- AI SDK helpers: https://docs.memo.tekbreed.com/api/tekmemo/ai-sdk
 
 ## Cloud
 

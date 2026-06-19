@@ -434,3 +434,10 @@
 .has-scrolled {
   --vp-layout-top-height: 0px;
 }
+
+/* img {
+  width:100%; 
+  max-height: 450px; 
+  margin: 16px auto; 
+  border-radius: 8px;
+} */

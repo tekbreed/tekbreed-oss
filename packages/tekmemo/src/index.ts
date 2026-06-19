@@ -11,15 +11,11 @@ export * from "./agentfs";
 // Explicit re-export resolves TS2308 ambiguity: isNotFoundError appears in multiple export * sources.
 export { isNotFoundError } from "./agentfs";
 export * from "./ai-sdk";
-// Explicit type exports to resolve ambiguities between cloud-client re-exports
-// and types of the same name from other sub-packages.
+// The cloud is a file replica: its file-manifest sync types are the canonical
+// public surface and are re-exported explicitly to win over the legacy
+// event-based types still exported from "./tekmemo" (removed in a later batch).
+// See docs/architecture/cloud-sync-and-refactor.md §6.5.
 export type {
-	MemoryKind,
-	Page,
-	RuntimeReadPolicy,
-	RuntimeWritePolicy,
-	SyncConflictResolution,
-	SyncEventInput,
 	SyncPullInput,
 	SyncPullResult,
 	SyncPushInput,

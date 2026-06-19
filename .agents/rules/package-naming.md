@@ -15,7 +15,6 @@ This repo uses **two namespace conventions** — keep them separate:
 
 | Package directory | Published name | Scope |
 |---|---|---|
-| `tooling/test-utils` | `@repo/test-utils` | `@repo` — internal tooling only |
 | `tooling/tsdown` | `@repo/tsdown` | `@repo` — internal tooling only |
 | `tooling/typescript` | `@repo/typescript` | `@repo` — internal tooling only |
 | `tooling/utils` | `@repo/utils` | `@repo` — internal tooling only |

@@ -1,6 +1,6 @@
 # TekMemo Project Notes
 
-TekMemo is the first project family in TekBreed OSS. It is published as one npm package, `@tekbreed/tekmemo`, with all public APIs exported directly from the root entrypoint instead of separate adapter packages or public subpath imports.
+TekMemo is the first project family in TekMemo. It is published as one npm package, `@tekbreed/tekmemo`, with all public APIs exported directly from the root entrypoint instead of separate adapter packages or public subpath imports.
 
 ## Public Package Shape
 

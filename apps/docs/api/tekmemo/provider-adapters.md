@@ -68,7 +68,45 @@ const results = await embedder.embedTexts({
 });
 ```
 
-## Shared Features
+---
+
+## Transformers.js — local (`@tekbreed/tekmemo-adapter-transformers`)
+
+A **zero-config local ONNX embedder** that runs in process via Transformers.js —
+**no API key, no cloud.** This is the adapter that powers TekMemo's zero-API-key
+hybrid recall: with `recall.localEmbeddings` enabled, the runtime lazy-loads it
+on the first recall and `recall.engine: "auto"` upgrades to hybrid retrieval.
+
+### Installation
+
+```bash
+npm install @tekbreed/tekmemo-adapter-transformers @tekbreed/tekmemo
+```
+
+### Usage
+
+```ts
+import { createTransformersEmbedder } from "@tekbreed/tekmemo-adapter-transformers";
+
+// Defaults to Xenova/all-MiniLM-L6-v2 (384-dim); model downloads once then runs offline
+const embedder = createTransformersEmbedder();
+
+const { embeddings } = await embedder.embedTexts({
+  texts: ["User prefers TypeScript.", "Authentication uses bearer tokens."],
+});
+```
+
+You usually do not need to construct it yourself — set `recall.localEmbeddings`
+(see [Configuration](../../packages/tekmemo/configuration#recall-engine)) and the
+runtime wires it up lazily. If the adapter is missing or fails, recall falls
+back to the lexical (BM25 + fuzzy) path.
+
+Best for offline/private/single-machine agent memory; for large shared indices,
+prefer a provider embedder above plus a managed vector store.
+
+## Shared provider features
+
+The OpenAI and Voyage adapters share:
 
 - **Batching:** Automatically handles large text arrays by splitting them into batches that fit the provider's limits.
 - **Retries:** Configurable exponential backoff for network and rate-limit errors.

@@ -6,12 +6,12 @@
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/tekbreed/tekbreed-oss.git",
+		"url": "git+https://github.com/tekbreed/tekmemo.git",
 		"directory": "packages/tekmemo"
 	},
-	"homepage": "https://oss.tekbreed.com/tekmemo",
+	"homepage": "https://docs.memo.tekbreed.com/packages/tekmemo/",
 	"bugs": {
-		"url": "https://github.com/tekbreed/tekbreed-oss/issues"
+		"url": "https://github.com/tekbreed/tekmemo/issues"
 	},
 	"type": "module",
 	"sideEffects": false,

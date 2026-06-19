@@ -13,8 +13,12 @@ const tekmemo = [
 	{
 		text: "AI SDK",
 		items: [
+			{ text: "Overview", link: "/packages/tekmemo/ai-sdk/" },
 			{ text: "Tools", link: "/packages/tekmemo/ai-sdk/tools" },
-			{ text: "Agent patterns", link: "/packages/tekmemo/ai-sdk/agent-patterns" },
+			{
+				text: "Agent patterns",
+				link: "/packages/tekmemo/ai-sdk/agent-patterns",
+			},
 		],
 	},
 	{
@@ -25,7 +29,10 @@ const tekmemo = [
 		text: "Errors",
 		link: "/packages/tekmemo/errors",
 	},
-	{ text: "Production checklist", link: "/packages/tekmemo/production-checklist" },
+	{
+		text: "Production checklist",
+		link: "/packages/tekmemo/production-checklist",
+	},
 	{
 		text: "Architecture",
 		items: [
@@ -92,17 +99,31 @@ const tekMemoApi = [
 			{ text: "Graph Memory", link: "/api/tekmemo/graph" },
 			{ text: "Recall", link: "/api/tekmemo/recall" },
 			{ text: "Reranking", link: "/api/tekmemo/rerank" },
+			{ text: "Embedder adapters", link: "/api/tekmemo/provider-adapters" },
+			{ text: "Vector recall stores", link: "/api/tekmemo/vector-adapters" },
 			{ text: "Benchmark Kit", link: "/api/tekmemo/benchmark-kit" },
 		],
 	},
 ];
 
-const faqs = [{ text: "TekMemo", link: "/faqs/" }];
+const blog = [
+	{ text: "Home", link: "/blog/" },
+	{
+		text: "Posts",
+		items: [{ text: "Introducing TekMemo", link: "/blog/introducing-tekmemo" }],
+	},
+];
+
+const changelog = [
+	{ text: "X", link: "https://x.com/tekbreed" },
+	{ text: "GitHub Repo", link: "https://github.com/tekbreed/tekmemo" },
+];
 
 export const sidebar: DefaultTheme.Sidebar = {
 	"/packages/tekmemo/": [{ text: "Core Runtime", items: tekmemo }],
 	"/packages/cli/": [{ text: "CLI", items: tekmemoCli }],
 	"/packages/mcp/": [{ text: "MCP", items: tekmemoMcp }],
 	"/api/tekmemo/": [{ text: "API", items: tekMemoApi }],
-	"/faqs/": [{ text: "Frequently Asked Questions", items: faqs }],
+	"/blog/": [{ text: "Blog", items: blog }],
+	"/changelog": [{ text: "Stay Updated", items: changelog }],
 };

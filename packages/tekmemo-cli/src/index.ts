@@ -7,7 +7,7 @@
 export type { CliTekmemoOptions } from "./cli/tekmemo";
 export { createTekmemoFromCli } from "./cli/tekmemo";
 export type { TekMemoConfigFile } from "./config";
-export { writeDefaultCliConfig } from "./config";
+export { configSchemaUrl, writeDefaultCliConfig } from "./config";
 export type { CliErrorCode } from "./errors/cli-errors";
 export {
 	CliError,

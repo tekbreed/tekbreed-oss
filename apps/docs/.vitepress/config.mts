@@ -31,8 +31,8 @@ export default defineConfig({
 		search: { provider: "local" },
 		outline: { level: [2, 3], label: "On this page" },
 		socialLinks: [
-			{ icon: "github", link: site.repo, ariaLabel: "TekBreed OSS on GitHub" },
-			{ icon: "npm", link: site.npm, ariaLabel: "TekBreed OSS on npm" },
+			{ icon: "github", link: site.repo, ariaLabel: "TekMemo on GitHub" },
+			{ icon: "npm", link: site.npm, ariaLabel: "TekMemo on npm" },
 			{ icon: "x", link: site.x, ariaLabel: "TekBreed on X" },
 		],
 		editLink: {

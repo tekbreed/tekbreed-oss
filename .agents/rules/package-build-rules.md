@@ -4,11 +4,11 @@ OSS packages use `tsdown` for building, **not** `tsc` alone.
 
 ### Shared config — always use the factory, never copy-paste options
 
-The base build options live in `@repo/tsdown-config`. Every package's `tsdown.config.ts` **must** import from there:
+The base build options live in `@repo/tsdown`. Every package's `tsdown.config.ts` **must** import from there:
 
 ```ts
 // packages/<name>/tsdown.config.ts
-import { pkgConfig } from "@repo/tsdown-config";
+import { pkgConfig } from "@repo/tsdown";
 
 export default pkgConfig({ entry: "src/index.ts" });
 ```

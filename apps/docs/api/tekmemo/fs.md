@@ -44,7 +44,8 @@ const core = await memo.core.read();
 
 ## Direct usage (advanced)
 
-If you need to create a store outside of `Tekmemo` (e.g. for passing to `createLocalAiSdkRuntime` or custom tooling):
+If you need a standalone store outside of `Tekmemo` (e.g. for custom tooling
+or tests):
 
 ```ts
 import { createNodeFsMemoryStore } from "@tekbreed/tekmemo";
@@ -55,4 +56,4 @@ const store = createNodeFsMemoryStore({ rootDir: process.cwd() });
 ## When to use
 
 - **Default:** Let [`Tekmemo`](./tekmemo) manage the store by specifying `rootDir` in the constructor.
-- **Advanced:** Use `createNodeFsMemoryStore` directly when you need a standalone store for AI SDK runtimes, custom tooling, or tests.
+- **Advanced:** Use `createNodeFsMemoryStore` directly for custom tooling or tests. Note: the AI SDK runtime requires a `Tekmemo` instance (`createAiSdkRuntimeFromTekmemo(memo)`), not a raw store.

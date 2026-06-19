@@ -1,23 +1,23 @@
-# @repo/tsdown-config
+# @repo/tsdown
 
 Shared tsdown configuration for TekMemo packages.
 
 This internal package provides the base tsdown configuration that all public packages use. It ensures consistent build output across the monorepo.
 
-## Usage;
+## Usage
 
 Import and use the factory function in your package's `tsdown.config.ts`:
 
 ```ts
 // packages/your-package/tsdown.config.ts
-import { pkgConfig } from "@repo/tsdown-config";
+import { pkgConfig } from "@repo/tsdown";
 
 export default pkgConfig({ entry: "src/index.ts" });
 ```
 
 ---
 
-## Default Options;
+## Default Options
 
 The `pkgConfig` factory applies these defaults:
 
@@ -34,7 +34,7 @@ The `pkgConfig` factory applies these defaults:
 
 ---
 
-## Customization;
+## Customization
 
 Only override what differs from defaults:
 
@@ -43,11 +43,11 @@ export default pkgConfig({
   entry: "src/index.ts",
   // Only override what you need:
   platform: "browser",  // Override for browser packages
-  format: ["esm"],        // ESM only
+  format: ["esm"],      // ESM only
 });
 ```
 
-### Available options;
+### Available options
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
@@ -63,7 +63,7 @@ export default pkgConfig({
 
 ---
 
-## Package boundary;
+## Package boundary
 
 **This package owns:**
 - Base tsdown configuration
@@ -72,12 +72,12 @@ export default pkgConfig({
 
 **This package does NOT own:**
 - Package-specific build logic
-- TypeScript configuration (see `@repo/typescript-config`)
+- TypeScript configuration (see `@repo/typescript`)
 - Runtime code
 
 ---
 
-## Related packages;
+## Related packages
 
-- `@repo/typescript-config` — Shared TypeScript configurations
+- `@repo/typescript` — Shared TypeScript configurations
 - `@repo/utils` — Shared utility helpers

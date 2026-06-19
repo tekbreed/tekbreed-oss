@@ -71,6 +71,9 @@ In hybrid mode, every read and write is routed through the [read/write policies]
 | `TEKMEMO_CLOUD_TIMEOUT_MS` | Cloud request timeout in milliseconds (positive integer). |
 | `TEKMEMO_READ_POLICY` | Hybrid read policy. |
 | `TEKMEMO_WRITE_POLICY` | Hybrid write policy. |
+| `TEKMEMO_RECALL_ENGINE` | Local recall strategy: `lexical`, `vector`, `hybrid`, or `auto` (default). |
+| `TEKMEMO_LOCAL_EMBEDDINGS` | Set to `1` or `true` to lazy-load a local ONNX embedder for hybrid recall with zero API keys. |
+| `TEKMEMO_EMBEDDING_MODEL` | Transformers.js-compatible local embedding model id (default `Xenova/all-MiniLM-L6-v2`). |
 
 ## `.tekmemo/config.json` properties
 
@@ -87,6 +90,66 @@ In hybrid mode, every read and write is routed through the [read/write policies]
 | `cloud.timeoutMs` | Timeout in milliseconds (positive integer). |
 | `hybrid.readPolicy` | `"local-first"`, `"cloud-first"`, `"local-only"`, or `"cloud-only"`. |
 | `hybrid.writePolicy` | `"local-first"`, `"cloud-first"`, `"local-only"`, or `"cloud-only"`. |
+| `recall.engine` | `"lexical"`, `"vector"`, `"hybrid"`, or `"auto"` (default). See [Recall engine](#recall-engine). |
+| `recall.localEmbeddings` | `true` to lazy-load a local ONNX embedder for zero-API-key hybrid recall. Defaults to `false`. |
+| `recall.embeddingModel` | Transformers.js-compatible model id (default `Xenova/all-MiniLM-L6-v2`). |
+
+## Recall engine
+
+Local and hybrid modes retrieve memory through a configurable **recall engine**. In local mode, recall works with **zero configuration**: by default it uses lexical-only retrieval (BM25 + fuzzy matching), so you can search memory with no embedder and no API keys.
+
+The engine has four strategies:
+
+| `engine` | How it retrieves | Requires an embedder? |
+| --- | --- | --- |
+| `lexical` | BM25 + fuzzy keyword matching only. | No |
+| `vector` | Semantic embeddings only. | Yes |
+| `hybrid` | Both paths merged, reranked, and weighted by recency + confidence. | Yes |
+| `auto` (default) | `hybrid` when an embedder is available, else `lexical`. | No (falls back to lexical) |
+
+### Zero-config hybrid recall
+
+To get hybrid (semantic + lexical) recall **without any API keys**, enable the
+local ONNX embedder. It runs in-process via
+[`@tekbreed/tekmemo-adapter-transformers`](https://docs.memo.tekbreed.com/api/tekmemo/provider-adapters)
+and only downloads the model on the first recall:
+
+```bash
+export TEKMEMO_RECALL_ENGINE=auto
+export TEKMEMO_LOCAL_EMBEDDINGS=true
+```
+
+```json
+{
+  "$schema": "https://docs.memo.tekbreed.com/1.0.0-alpha.0/config.schema.json",
+  "runtime": "local",
+  "recall": {
+    "engine": "auto",
+    "localEmbeddings": true
+  }
+}
+```
+
+If the local embedder fails or the adapter is not installed, writes and recall
+keep working — TekMemo falls back to lexical (BM25 + fuzzy) retrieval so memory
+stays discoverable. A failing embedder never breaks a write.
+
+### Using a provider embedder
+
+For higher-quality semantic recall, plug in a provider adapter instead. With an
+embedder configured, `engine: "auto"` automatically upgrades to hybrid:
+
+```ts
+import { Tekmemo } from "@tekbreed/tekmemo";
+import { createOpenAIEmbedder } from "@tekbreed/tekmemo-adapter-openai";
+
+const memo = new Tekmemo({
+  rootDir: "./.tekmemo",
+  projectId: "my-app",
+  embedder: createOpenAIEmbedder({ apiKey: process.env.OPENAI_API_KEY! }),
+  recall: { engine: "auto" },
+});
+```
 
 ## Configuration file
 
@@ -102,7 +165,7 @@ Reference the schema from your config file for editor validation:
 
 ```json
 {
-  "$schema": "https://oss.tekbreed.com/1.0.0-alpha.0/config.schema.json",
+  "$schema": "https://docs.memo.tekbreed.com/1.0.0-alpha.0/config.schema.json",
   "runtime": "hybrid",
   "root": ".",
   "cloud": {
@@ -114,6 +177,10 @@ Reference the schema from your config file for editor validation:
   "hybrid": {
     "readPolicy": "local-first",
     "writePolicy": "local-first"
+  },
+  "recall": {
+    "engine": "auto",
+    "localEmbeddings": true
   }
 }
 ```

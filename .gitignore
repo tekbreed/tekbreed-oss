@@ -1,5 +1,6 @@
 internal-docs
 CONTEXT.md
+todosss
 docs/adr
 .opencode
 # Dependencies
@@ -44,6 +45,9 @@ yarn-error.log*
 
 # Agent runtime data
 agent-sessions/
+
+# Example agent runtime stores (demo memory created by examples/*)
+examples/**/.tekmemo/
 
 # Wrangler build cache
 .wrangler/

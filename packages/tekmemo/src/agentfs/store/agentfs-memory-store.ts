@@ -250,6 +250,42 @@ export class AgentfsMemoryStore implements MemoryStore {
 	}
 
 	/**
+	 * Deletes the file at the given memory path. Idempotent: a missing file is
+	 * treated as success. Used by file-replication sync to apply server-side
+	 * removals.
+	 *
+	 * @param path - The memory path to delete.
+	 * @returns A promise that resolves when the delete completes.
+	 * @throws {@link MemoryStoreError} If the client does not support `deleteText`, or the delete fails.
+	 *
+	 * @public
+	 */
+	async delete(path: MemoryPath): Promise<void> {
+		assertMemoryPath(path);
+		const remotePath = this.absolute(path);
+
+		if (typeof this.client.deleteText !== "function") {
+			throw new MemoryStoreError(
+				"AgentFS client does not support deleteText; cannot delete memory file.",
+				{ path, remotePath },
+			);
+		}
+
+		try {
+			await this.client.deleteText(remotePath);
+		} catch (error) {
+			if (isNotFoundError(error)) {
+				return;
+			}
+			throw new MemoryStoreError(
+				"Failed to delete AgentFS memory file.",
+				{ path, remotePath },
+				error,
+			);
+		}
+	}
+
+	/**
 	 * Resolves a memory path to its absolute remote path.
 	 *
 	 * @param path - The memory path to resolve.

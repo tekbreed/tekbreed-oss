@@ -8,6 +8,7 @@
  */
 
 import {
+	createLazyLocalEmbedder,
 	type RuntimeReadPolicy,
 	type RuntimeWritePolicy,
 	Tekmemo,
@@ -36,6 +37,13 @@ export interface RuntimeFactoryOptions {
 	};
 	readPolicy?: RuntimeReadPolicy;
 	writePolicy?: RuntimeWritePolicy;
+	/**
+	 * Recall engine configuration. When `recall.localEmbeddings` is true (the
+	 * default for the MCP runtime), a local ONNX embedder is lazy-loaded so
+	 * hybrid (vector + lexical) recall works with zero API keys. Set
+	 * `localEmbeddings: false` to keep the runtime import-light (lexical-only).
+	 */
+	recall?: TekmemoConfig["recall"];
 }
 
 /**
@@ -48,6 +56,30 @@ export interface RuntimeFactoryOptions {
 export function createTekMemoMcpRuntimeFromConfig(
 	options: RuntimeFactoryOptions = {},
 ): TekMemoMcpRuntime {
+	const localEmbeddings =
+		options.recall?.localEmbeddings ??
+		(process.env.TEKMEMO_LOCAL_EMBEDDINGS !== "0" &&
+			process.env.TEKMEMO_LOCAL_EMBEDDINGS?.toLowerCase() !== "false");
+	const embeddingModel =
+		options.recall?.embeddingModel ??
+		(typeof process.env.TEKMEMO_EMBEDDING_MODEL === "string" &&
+		process.env.TEKMEMO_EMBEDDING_MODEL.length > 0
+			? process.env.TEKMEMO_EMBEDDING_MODEL
+			: undefined);
+
+	// Local ONNX embedder is lazy: constructing it is synchronous and cheap.
+	// The heavy runtime is imported on first recall. Memory/cloud modes don't
+	// use the local vector path, so skip wiring it there.
+	const useLocalEmbedder =
+		localEmbeddings &&
+		options.mode !== "memory" &&
+		options.mode !== "cloud";
+	const embedder = useLocalEmbedder
+		? createLazyLocalEmbedder({
+				...(embeddingModel === undefined ? {} : { model: embeddingModel }),
+			})
+		: undefined;
+
 	const memo = new Tekmemo({
 		...(options.rootDir !== undefined ? { rootDir: options.rootDir } : {}),
 		...(options.mode !== undefined ? { mode: options.mode } : {}),
@@ -66,6 +98,8 @@ export function createTekMemoMcpRuntimeFromConfig(
 		...(options.cloudClient !== undefined
 			? { cloudClient: options.cloudClient }
 			: {}),
+		...(embedder !== undefined ? { embedder } : {}),
+		...(options.recall !== undefined ? { recall: options.recall } : {}),
 		...(options.cloud !== undefined
 			? {
 					cloud: {

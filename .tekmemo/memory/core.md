@@ -1,8 +1,8 @@
 # Core Memory
 
 ## Project Identity
-TekBreed OSS — open-source AI infrastructure monorepo. MIT license. Founder: Christopher Sesugh.
-Docs: oss.tekbreed.com | Repo: github.com/tekbreed/tekbreed-oss
+TekMemo — open-source AI infrastructure monorepo. MIT license. Founder: Christopher Sesugh.
+Docs: docs.memo.tekbreed.com | Repo: github.com/tekbreed/tekmemo
 
 ## First Product: TekMemo
 File-first memory runtime for AI apps, agents, coding tools, MCP clients.

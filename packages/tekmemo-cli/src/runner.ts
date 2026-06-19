@@ -51,6 +51,7 @@ import {
 	runDiffCommand,
 	runDoctorCommand,
 	runEventsCommand,
+	runGenerateAgentRulesCommand,
 	runInitCommand,
 	runInspectCommand,
 	runReadCommand,
@@ -60,7 +61,7 @@ import {
 	runValidateCommand,
 } from "./commands";
 import type { TekMemoConfigFile } from "./config";
-import { writeDefaultCliConfig } from "./config";
+import { configSchemaUrl, writeDefaultCliConfig } from "./config";
 import { CliError, CliUsageError } from "./errors/cli-errors";
 import {
 	type CliOutput,
@@ -526,6 +527,40 @@ export async function runTekMemoCli(
 				json: g.json,
 				labelA,
 				labelB,
+			});
+		});
+
+	const generate = program
+		.command("generate")
+		.description("generate agent instruction files that enforce the TekMemo workflow");
+
+	generate
+		.command("agent-rules")
+		.description(
+			"emit a TekMemo-enforcing instructions file for an agent platform",
+		)
+		.argument(
+			"[target]",
+			"agents | claude | gemini | copilot | cursor (omit with --list)",
+		)
+		.option("--project-name <name>", "project name in the header")
+		.option("-f, --force", "overwrite an existing instructions file", false)
+		.option(
+			"--list",
+			"list supported targets and their MCP config locations",
+			false,
+		)
+		.action(async (target, options) => {
+			currentCommand = "generate.agent-rules";
+			const g = await globals();
+			exitCode = await runGenerateAgentRulesCommand({
+				memo: g.memo,
+				output,
+				json: g.json,
+				target,
+				projectName: options.projectName,
+				force: options.force,
+				list: options.list,
 			});
 		});
 
@@ -1373,6 +1408,7 @@ export async function runTekMemoCli(
 				root: g.root,
 				force: options.force,
 				config: {
+					$schema: configSchemaUrl(pkg.version),
 					runtime: options.runtime,
 					root: ".",
 					cloud: {

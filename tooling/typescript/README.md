@@ -1,10 +1,10 @@
-# @repo/typescript-config
+# @repo/typescript
 
 Shared TypeScript configurations for TekMemo packages.
 
 This internal package provides the base TypeScript configurations that all packages extend. It ensures consistent TypeScript settings across the monorepo.
 
-## Available Configs;
+## Available Configs
 
 | Config | Description |
 |--------|-------------|
@@ -12,9 +12,9 @@ This internal package provides the base TypeScript configurations that all packa
 
 ---
 
-## Usage;
+## Usage
 
-### In package.json;
+### In package.json
 
 ```json
 {
@@ -24,18 +24,17 @@ This internal package provides the base TypeScript configurations that all packa
 }
 ```
 
-### In tsconfig.json;
+### In tsconfig.json
 
 ```json
 {
-  "extends": "@repo/typescript-config/base.json"
+  "extends": "@repo/typescript/base.json"
 }
 ```
 
-
 ---
 
-## Base configuration;
+## Base configuration
 
 The `base.json` includes:
 
@@ -63,7 +62,7 @@ The `base.json` includes:
 
 ---
 
-## Requirements;
+## Requirements
 
 | Tool | Version |
 |------|---------|
@@ -72,7 +71,7 @@ The `base.json` includes:
 
 ---
 
-## Package boundary;
+## Package boundary
 
 **This package owns:**
 - Base TypeScript configuration
@@ -80,13 +79,13 @@ The `base.json` includes:
 - Future config variants (browser, etc.)
 
 **This package does NOT own:**
-- Build tool configuration (see `@repo/tsdown-config`)
+- Build tool configuration (see `@repo/tsdown`)
 - Runtime code
 - Package-specific settings
 
 ---
 
-## Related packages;
+## Related packages
 
-- `@repo/tsdown-config` — Shared tsdown build configuration
+- `@repo/tsdown` — Shared tsdown build configuration
 - `@repo/utils` — Shared utility helpers

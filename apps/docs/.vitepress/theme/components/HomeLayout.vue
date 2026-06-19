@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import DefaultTheme from "vitepress/theme";
-import { ref, onMounted, onUnmounted } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import AskAiBar from "./AskAiBar.vue";
 import HeroVisual from "./HeroVisual.vue";
 import SidebarBrand from "./SidebarBrand.vue";
@@ -10,25 +10,25 @@ const { Layout } = DefaultTheme;
 const activeMode = ref(0);
 
 const handleScroll = () => {
-  if (typeof window !== "undefined") {
-    if (window.scrollY > 0) {
-      document.documentElement.classList.add("has-scrolled");
-    } else {
-      document.documentElement.classList.remove("has-scrolled");
-    }
-  }
+	if (typeof window !== "undefined") {
+		if (window.scrollY > 0) {
+			document.documentElement.classList.add("has-scrolled");
+		} else {
+			document.documentElement.classList.remove("has-scrolled");
+		}
+	}
 };
 
 onMounted(() => {
-  window.addEventListener("scroll", handleScroll, { passive: true });
-  handleScroll();
+	window.addEventListener("scroll", handleScroll, { passive: true });
+	handleScroll();
 });
 
 onUnmounted(() => {
-  window.removeEventListener("scroll", handleScroll);
-  if (typeof document !== "undefined") {
-    document.documentElement.classList.remove("has-scrolled");
-  }
+	window.removeEventListener("scroll", handleScroll);
+	if (typeof document !== "undefined") {
+		document.documentElement.classList.remove("has-scrolled");
+	}
 });
 
 const modes = [
@@ -76,9 +76,9 @@ const memo = new Tekmemo({
   <Layout>
     <template #layout-top>
       <div class="alpha-announcement-bar">
-        <span class="alpha-badge">Alpha</span>
+        <span class="alpha-badge">Cloud</span>
         <span class="alpha-text">
-          TekMemo Cloud is in early access.
+          The TekMemo core runtime is open source and free. TekMemo Cloud (hosted sync, managed MCP, team features) is in early access.
           <a href="https://memo.tekbreed.com" class="alpha-link" target="_blank" rel="noopener noreferrer">Join the waitlist →</a>
         </span>
       </div>
@@ -394,9 +394,9 @@ const memo = new Tekmemo({
               <code>npx tekmemo init</code>
             </div>
             <div class="cta-buttons">
-              <a href="/packages/tekmemo/getting-started" class="cta-button primary">Read the Quick Start →</a>
+              <a href="/packages/tekmemo/" class="cta-button primary">Read the Quick Start →</a>
             </div>
-            <a href="https://github.com/tekbreed/tekbreed-oss" class="bottom-cta-link">
+            <a href="https://github.com/tekbreed/tekmemo" class="bottom-cta-link">
               View on GitHub
             </a>
           </div>

@@ -189,4 +189,33 @@ export class NodeFsMemoryStore implements MemoryStore {
 			);
 		}
 	}
+
+	/**
+	 * Deletes a file from the filesystem store. Idempotent: a missing file is
+	 * treated as success. Used by file-replication sync to apply server-side
+	 * removals.
+	 *
+	 * @param path - The memory path to delete.
+	 * @throws {@link FsMemoryStoreError} If the delete fails for a non-ENOENT reason.
+	 */
+	async delete(path: MemoryPath): Promise<void> {
+		const absolutePath = this.resolve(path);
+
+		await this.locks.runExclusive(absolutePath, async () => {
+			try {
+				await ensureRootDir(this.options);
+				await assertNoSymlinkPath(absolutePath, this.options);
+				await fs.rm(absolutePath, { force: true });
+			} catch (error) {
+				if (isNotFoundError(error)) {
+					return;
+				}
+				throw wrapFsError(
+					"Failed to delete memory file.",
+					{ path, absolutePath },
+					error,
+				);
+			}
+		});
+	}
 }

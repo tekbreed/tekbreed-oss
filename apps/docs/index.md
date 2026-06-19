@@ -8,11 +8,11 @@ hero:
   tagline: "File-first memory that lives in your repo — so every session picks up where the last one left off."
   actions:
     - theme: brand
-      text: "Install TekMemo"
-      link: /packages/tekmemo/getting-started
+      text: "Get Started"
+      link: /packages/tekmemo/overview
     - theme: alt
       text: "Star on GitHub"
-      link: https://github.com/tekbreed/tekbreed-oss
+      link: https://github.com/tekbreed/tekmemo
 
 features:
   - title: Memory you can read

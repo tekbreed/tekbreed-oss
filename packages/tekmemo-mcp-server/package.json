@@ -6,12 +6,12 @@
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/tekbreed/tekbreed-oss.git",
+		"url": "git+https://github.com/tekbreed/tekmemo.git",
 		"directory": "packages/tekmemo-mcp-server"
 	},
-	"homepage": "https://oss.tekbreed.com/tekmemo-mcp-server",
+	"homepage": "https://docs.memo.tekbreed.com/packages/mcp/",
 	"bugs": {
-		"url": "https://github.com/tekbreed/tekbreed-oss/issues"
+		"url": "https://github.com/tekbreed/tekmemo/issues"
 	},
 	"type": "module",
 	"sideEffects": false,
@@ -63,6 +63,7 @@
 		"clean": "rm -rf dist coverage .turbo",
 		"lint:package": "publint",
 		"prepack": "pnpm build",
+		"pack:dry-run": "pnpm build && npm pack --dry-run",
 		"release:check": "pnpm build && pnpm typecheck && pnpm test:run && pnpm lint:package && npm pack --dry-run"
 	},
 	"keywords": [
@@ -81,6 +82,17 @@
 	"dependencies": {
 		"@modelcontextprotocol/sdk": ">=1.29.0",
 		"@tekbreed/tekmemo": "workspace:^"
+	},
+	"optionalDependencies": {
+		"@tekbreed/tekmemo-adapter-transformers": "workspace:^"
+	},
+	"peerDependenciesMeta": {
+		"@huggingface/transformers": {
+			"optional": true
+		},
+		"@tekbreed/tekmemo-adapter-transformers": {
+			"optional": true
+		}
 	},
 	"devDependencies": {
 		"@tekbreed/tekmemo-testing": "workspace:^",

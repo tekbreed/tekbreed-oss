@@ -48,6 +48,11 @@ export {
 } from "./cloud";
 export { runContextCommand } from "./context";
 export { runDiffCommand } from "./diff";
+export {
+	AGENT_RULES_TARGETS,
+	MAX_AGENT_RULES_LINES,
+	runGenerateAgentRulesCommand,
+} from "./generate";
 export { runDoctorCommand } from "./doctor";
 export { runEventsCommand } from "./events";
 export { runInitCommand } from "./init";

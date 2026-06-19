@@ -1,7 +1,7 @@
 ## Monorepo Structure
 
 ```
-tekbreed-oss/
+tekmemo/
 ├── .agents/                      # workspace agents rules and skills
 ├── .changeset/                   # code version and publish
 ├── .github/
@@ -10,16 +10,15 @@ tekbreed-oss/
 │   ├── dependabot.yml
 │   └── PULL_REQUEST_TEMPLATE.md  # Pull request template
 ├── apps/
-│   └── docs/                     # TekBreed OSS docs site, with TekMemo as the first project
+│   └── docs/                     # TekMemo docs site, with TekMemo as the first project
 ├── benchmarks/                   # TekMemo benchmark runners
 ├── packages/
 │   ├── tekmemo/                  # @tekbreed/tekmemo - tekmemo core runtime
 │   ├── tekmemo-cli/              # @tekbreed/tekmemo-cli - tekmemo CLI for local development and memory inspection
 │   └── tekmemo-mcp-server/       # @tekbreed/tekmemo-mcp-server - tekmemo MCP server for for AI agents
 ├── tooling/
-│   ├── test-utils/               # @repo/test-utils - testing utilities
-│   ├── tsdown-config/            # @repo/tsdown-config - shared tsdown base
-│   ├── typescript-config/        # @repo/typescript-config - shared tsconfig bases
+│   ├── tsdown/                   # @repo/tsdown - shared tsdown base
+│   ├── typescript/               # @repo/typescript - shared tsconfig bases
 │   └── utils/                    # @repo/utils - shared utility helpers
 ├── biome.json                    # Linting + formatting (Biome)
 ├── turbo.json                    # Turborepo pipeline config

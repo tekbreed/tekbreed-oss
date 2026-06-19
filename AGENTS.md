@@ -1,4 +1,4 @@
-# AGENTS.md - TekBreed OSS
+# AGENTS.md - TekMemo
 
 This file is the bootstrap for agents working in this repo.
 **All project knowledge lives in TekMemo** — use MCP tools, not this file.
@@ -24,7 +24,7 @@ This file contains only behavioral rules and pointers — no project facts.
 - **Do not** run `pnpm build` during a code-editing session unless you are explicitly validating production correctness
 - **Do not** add `prettier` — it has been removed; all formatting goes through Biome
 - **Do not** use `@repo/` for public OSS packages — that scope is for internal tooling only
-- **Do not** copy-paste tsdown options into new packages — import `pkgConfig` from `@repo/tsdown-config` instead
+- **Do not** copy-paste tsdown options into new packages — import `pkgConfig` from `@repo/tsdown` instead
 - **DRY & SSOT**: Do not duplicate knowledge in this file that already exists in TekMemo memory
 
 ## Pointers

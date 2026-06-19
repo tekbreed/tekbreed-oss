@@ -30,8 +30,6 @@ export type MemoryKind =
 	| "summary"
 	| "note";
 
-export type SyncConflictResolution = "keep_cloud" | "use_client" | "ignore";
-
 export interface Page<T> {
 	items: T[];
 	nextCursor?: string;
@@ -199,88 +197,36 @@ export interface AgentSessionExtractResult {
 	extracted: JsonObject;
 }
 
-export interface SyncEventInput {
-	clientEventId: string;
-	type: string;
-	path?: string;
-	payload?: JsonObject;
-	payloadHash?: string;
-	createdAt?: string;
-	baseServerVersion?: number;
-}
-
-export interface SyncPushInput extends ReadMemoryInput {
-	clientId: string;
-	events: SyncEventInput[];
-	checkpoint?: {
-		localVersion?: number;
-		serverVersion?: number;
-		hash?: string;
-	};
-}
-
-export interface SyncPushResult {
-	accepted: Array<{
-		clientEventId: string;
-		serverEventId: string;
-		serverVersion: number;
-	}>;
-	duplicates: string[];
-	rejected: Array<{ clientEventId: string; code: string; message: string }>;
-	conflicts: Array<{
-		conflictId: string;
-		clientEventId: string;
-		reason: string;
-	}>;
-	serverVersion: number;
-}
-
-export interface SyncPullInput extends ReadMemoryInput {
-	clientId: string;
-	sinceServerVersion?: number;
-	limit?: number;
-}
-
-export interface SyncPullResult {
-	events: Array<{
-		serverEventId: string;
-		serverVersion: number;
-		type: string;
-		path?: string;
-		payload?: JsonObject;
-		createdAt?: string;
-	}>;
-	serverVersion: number;
-	nextCursor?: string;
-}
-
-export interface SyncStatusInput extends ReadMemoryInput {
-	clientId?: string;
-}
-
-export interface SyncStatusResult {
-	serverVersion: number;
-	clients: Array<{
-		clientId: string;
-		lastSeenAt?: string;
-		serverVersion?: number;
-		status?: string;
-	}>;
-	openConflicts: number;
-	recentEvents?: number;
-}
-
-export interface ResolveSyncConflictInput extends ReadMemoryInput {
-	conflictId: string;
-	resolution: SyncConflictResolution;
-	content?: JsonObject;
-}
-
-export interface ResolveSyncConflictResult {
-	conflictId: string;
-	resolved: boolean;
-	serverVersion?: number;
-}
+/**
+ * File-based sync types — single source of truth.
+ *
+ * These are re-exported from the cloud-client, which freezes the four-method
+ * file-replica contract (`push`, `complete`, `pull`, `status`) into
+ * `v1.0.0-alpha.0` (see `docs/architecture/cloud-sync-and-refactor.md` §7).
+ * The cloud is a file replica, never an engine: there are no event-level
+ * types, no conflict-resolution types, and no `serverVersion`/`openConflicts`
+ * fields. All engine operations (recall, memory CRUD, graph, extraction,
+ * agent sessions) run locally.
+ *
+ * @public
+ */
+export type {
+	CloudFileSyncEntry,
+	CloudFileManifest,
+	FileManifest,
+	FileSyncEntry,
+	SyncPullInput,
+	SyncPullResult,
+	SyncPushCompleteInput,
+	SyncPushCompleteResult,
+	SyncPushInput,
+	SyncPushResult,
+	SyncStatusInput,
+	SyncStatusResult,
+	SyncUploadTarget,
+	SyncDownloadTarget,
+	SyncCursor,
+} from "../cloud-client/types";
 
 export interface GraphNodeInput {
 	id: string;

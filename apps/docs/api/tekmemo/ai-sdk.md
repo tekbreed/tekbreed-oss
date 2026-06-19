@@ -19,7 +19,7 @@ import {
   buildRuntimeMemoryToolDefinition,
   buildRuntimeMemoryContext,
   runRuntimeMemoryTool,
-  createLocalAiSdkRuntime,
+  createAiSdkRuntimeFromTekmemo,
   buildAgentSessionInstructions,
 } from "@tekbreed/tekmemo";
 ```
@@ -30,28 +30,76 @@ Use this package to expose TekMemo memory as AI SDK tools. The module provides:
 
 - `buildRuntimeMemoryToolDefinition()` for a ready-to-use AI SDK tool with memory operations
 - `runRuntimeMemoryTool()` for executing memory tool commands with scope enforcement
-- `createLocalAiSdkRuntime()` for local file-backed memory runtime
+- `createAiSdkRuntimeFromTekmemo()` for adapting a `Tekmemo` instance to the AI SDK runtime contract
 - `buildRuntimeMemoryContext()` for building memory-aware context (system prompt)
 - `buildAgentSessionInstructions()` for agent session instruction blocks
 - Scope enforcement for project, user, conversation, and participant memory
 
 ## Quick start with Tekmemo
 
-The [`Tekmemo`](./tekmemo) class is the recommended way to set up the memory store. Pass its `store` property to the AI SDK runtime:
+The [`Tekmemo`](./tekmemo) class is the recommended way to set up memory. Pass
+the instance to `createAiSdkRuntimeFromTekmemo()` and every runtime call —
+recall, context, writes — is delegated back to the `Tekmemo` class, so you get
+the full hybrid engine rather than a naive search:
+
+```ts
+import { generateText, stepCountIs } from "ai";
+import { openai } from "@ai-sdk/openai";
+import {
+  Tekmemo,
+  buildRuntimeMemoryContext,
+  buildRuntimeMemoryToolDefinition,
+  createAiSdkRuntimeFromTekmemo,
+} from "@tekbreed/tekmemo";
+
+const memo = new Tekmemo({ rootDir: "./.tekmemo", projectId: "demo" });
+const runtime = createAiSdkRuntimeFromTekmemo(memo);
+const access = { projectId: "demo", userId: "user_123" };
+
+const { text: system } = await buildRuntimeMemoryContext({
+  runtime,
+  access,
+  query: prompt,
+  baseInstructions: "You are a helpful assistant.",
+});
+
+await generateText({
+  model: openai("gpt-4.1-mini"),
+  system,
+  prompt,
+  tools: {
+    memory: buildRuntimeMemoryToolDefinition({ runtime, access, allowWrites: true }),
+  },
+  stopWhen: stepCountIs(6),
+});
+```
+
+## Cloud-backed tools
+
+For cloud-backed memory tools, construct a `Tekmemo` client in cloud mode and
+pass it to the same factory — the agent code does not change:
 
 ```ts
 import { generateText } from "ai";
 import { openai } from "@ai-sdk/openai";
 import {
   Tekmemo,
+  createAiSdkRuntimeFromTekmemo,
   buildRuntimeMemoryContext,
   buildRuntimeMemoryToolDefinition,
-  createLocalAiSdkRuntime,
 } from "@tekbreed/tekmemo";
 
-const memo = new Tekmemo({ rootDir: "./.tekmemo", projectId: "demo" });
-const runtime = createLocalAiSdkRuntime({ workspace: memo.store });
-const access = { projectId: "demo", userId: "user_123" };
+const memo = new Tekmemo({
+  mode: "cloud",
+  projectId: "proj_123",
+  cloud: {
+    baseUrl: "https://api.tekbreed.com/memo/v1",
+    apiKey: process.env.TEKMEMO_API_KEY!,
+  },
+});
+
+const runtime = createAiSdkRuntimeFromTekmemo(memo);
+const access = { projectId: "proj_123", userId: "user_123" };
 
 const { text: system } = await buildRuntimeMemoryContext({
   runtime,
@@ -70,35 +118,12 @@ await generateText({
 });
 ```
 
-## Cloud-backed tools
-
-For cloud-backed memory tools, construct a `Tekmemo` client in cloud mode:
-
-```ts
-import { Tekmemo } from "@tekbreed/tekmemo";
-
-const memo = new Tekmemo({
-  mode: "cloud",
-  projectId: "proj_123",
-  cloud: {
-    baseUrl: "https://api.tekbreed.com/memo/v1",
-    apiKey: process.env.TEKMEMO_API_KEY!,
-  },
-});
-```
-
-Then use `memo.store` or `memo.cloud` with the appropriate AI SDK runtime adapter.
-
 ## Direct usage (advanced)
 
-If you need to bypass `Tekmemo` and wire the AI SDK helpers manually, you can use the store directly:
-
-```ts
-import { createNodeFsMemoryStore, createLocalAiSdkRuntime } from "@tekbreed/tekmemo";
-
-const store = createNodeFsMemoryStore({ rootDir: "./.tekmemo" });
-const runtime = createLocalAiSdkRuntime({ workspace: store });
-```
+`createAiSdkRuntimeFromTekmemo()` is the supported entry point — it delegates
+recall and writes to the `Tekmemo` class. There is intentionally no lower-level
+"runtime from a raw store" factory: bypassing `Tekmemo` would lose the hybrid
+recall engine, so we recommend always constructing a `Tekmemo` instance first.
 
 ## See also
 
