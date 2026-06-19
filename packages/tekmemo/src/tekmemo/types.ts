@@ -82,8 +82,19 @@ export interface MemoryContextInput extends RecallInput {
 
 export interface MemoryContextResult {
 	text: string;
+	/**
+	 * Ordered context sections. The first section is a `directive` that tells
+	 * the agent how to act on the rest of the context; the remaining sections
+	 * carry the memory content (core, recent, recall, notes, graph).
+	 */
 	sections: Array<{
-		type: "core" | "notes" | "recent" | "recall" | "graph";
+		type:
+			| "directive"
+			| "core"
+			| "notes"
+			| "recent"
+			| "recall"
+			| "graph";
 		title: string;
 		content: string;
 	}>;

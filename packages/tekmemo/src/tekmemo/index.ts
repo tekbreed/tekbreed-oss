@@ -5,6 +5,11 @@
  */
 
 export {
+	type LazyLocalEmbedderOptions,
+	createLazyLocalEmbedder,
+} from "./local-embedder";
+export {
+	type RecallEngineConfig,
 	type ResolvedTekmemoConfig,
 	resolveTekmemoConfig,
 	type TekmemoCloudOptions,

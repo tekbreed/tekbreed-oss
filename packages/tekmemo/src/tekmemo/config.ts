@@ -50,6 +50,39 @@ export interface TekmemoConfig {
 	autoBootstrap?: boolean;
 	name?: string;
 	version?: string;
+	/**
+	 * Recall engine configuration for local/hybrid modes. When omitted, local
+	 * mode defaults to lexical-only recall (no embedder, zero config).
+	 */
+	recall?: RecallEngineConfig;
+}
+
+/**
+ * Local recall engine configuration.
+ *
+ * @public
+ */
+export interface RecallEngineConfig {
+	/**
+	 * Retrieval strategy.
+	 * - `"lexical"` — BM25 + fuzzy only, no embeddings, zero config (default).
+	 * - `"vector"` — semantic embeddings only (requires an embedder).
+	 * - `"hybrid"` — both paths merged and reranked (requires an embedder).
+	 * - `"auto"` — `"hybrid"` when an embedder is available, else `"lexical"`.
+	 * @defaultValue `"auto"`
+	 */
+	engine?: "lexical" | "vector" | "hybrid" | "auto";
+	/**
+	 * When true (default in the MCP runtime), a local ONNX embedder is
+	 * lazy-loaded so hybrid recall works with zero API keys. Disable to keep
+	 * the runtime import-light.
+	 */
+	localEmbeddings?: boolean;
+	/**
+	 * Optional local embedding model id (Transformers.js compatible).
+	 * @defaultValue `"Xenova/all-MiniLM-L6-v2"`
+	 */
+	embeddingModel?: string;
 }
 
 export interface ResolvedTekmemoConfig {
@@ -68,6 +101,7 @@ export interface ResolvedTekmemoConfig {
 	autoBootstrap: boolean;
 	name: string;
 	version: string;
+	recall: Required<RecallEngineConfig>;
 }
 
 interface TekMemoConfigFile {
@@ -87,6 +121,11 @@ interface TekMemoConfigFile {
 	hybrid?: {
 		readPolicy?: RuntimeReadPolicy;
 		writePolicy?: RuntimeWritePolicy;
+	};
+	recall?: {
+		engine?: "lexical" | "vector" | "hybrid" | "auto";
+		localEmbeddings?: boolean;
+		embeddingModel?: string;
 	};
 }
 
@@ -141,6 +180,8 @@ export function resolveTekmemoConfig(input: {
 		projectId,
 	});
 
+	const recall = resolveRecallEngine(config, env, fileConfig);
+
 	return {
 		rootDir,
 		...(config.store !== undefined ? { store: config.store } : {}),
@@ -161,7 +202,66 @@ export function resolveTekmemoConfig(input: {
 		autoBootstrap: config.autoBootstrap ?? true,
 		name: config.name ?? "tekmemo",
 		version: config.version ?? "0.1.0",
+		recall,
 	};
+}
+
+/**
+ * Resolve the recall engine config from constructor args > env > file > defaults.
+ *
+ * Priority: constructor `config.recall` > env vars > `.tekmemo/config.json` `recall`.
+ *
+ * - `TEKMEMO_RECALL_ENGINE` → engine
+ * - `TEKMEMO_LOCAL_EMBEDDINGS` → localEmbeddings ("1"/"true" on, else off)
+ * - `TEKMEMO_EMBEDDING_MODEL` → embeddingModel
+ */
+function resolveRecallEngine(
+	config: TekmemoConfig,
+	env: NodeJS.ProcessEnv,
+	file: TekMemoConfigFile,
+): Required<RecallEngineConfig> {
+	const cfg = config.recall ?? {};
+	const fileRecall = file.recall ?? {};
+
+	const engineRaw =
+		cfg.engine ??
+		env.TEKMEMO_RECALL_ENGINE ??
+		fileRecall.engine ??
+		"auto";
+	const engine: RecallEngineConfig["engine"] = isRecallEngine(engineRaw)
+		? engineRaw
+		: "auto";
+
+	const localEmbeddingsRaw =
+		cfg.localEmbeddings ??
+		(env.TEKMEMO_LOCAL_EMBEDDINGS !== undefined
+			? env.TEKMEMO_LOCAL_EMBEDDINGS === "1" ||
+				env.TEKMEMO_LOCAL_EMBEDDINGS.toLowerCase() === "true"
+			: undefined) ??
+		fileRecall.localEmbeddings ??
+		false;
+
+	const embeddingModel =
+		cfg.embeddingModel ??
+		(typeof env.TEKMEMO_EMBEDDING_MODEL === "string" &&
+		env.TEKMEMO_EMBEDDING_MODEL.length > 0
+			? env.TEKMEMO_EMBEDDING_MODEL
+			: undefined) ??
+		fileRecall.embeddingModel ??
+		"Xenova/all-MiniLM-L6-v2";
+
+	return { engine, localEmbeddings: localEmbeddingsRaw, embeddingModel };
+}
+
+function isRecallEngine(
+	value: unknown,
+): value is RecallEngineConfig["engine"] {
+	return (
+		value === "lexical" ||
+		value === "vector" ||
+		value === "hybrid" ||
+		value === "auto"
+	);
 }
 
 function resolveMode(
@@ -241,6 +341,7 @@ function extractConfigFile(parsed: Record<string, unknown>): TekMemoConfigFile {
 	const cloud = objectValue(parsed.cloud);
 	const hybrid = objectValue(parsed.hybrid);
 	const mcp = objectValue(parsed.mcp);
+	const recall = objectValue(parsed.recall);
 	const mode = isRuntimeMode(parsed.runtime)
 		? parsed.runtime
 		: isRuntimeMode(mcp.runtime)
@@ -280,6 +381,23 @@ function extractConfigFile(parsed: Record<string, unknown>): TekMemoConfigFile {
 	result.hybrid = {};
 	if (readPolicy !== undefined) result.hybrid.readPolicy = readPolicy;
 	if (writePolicy !== undefined) result.hybrid.writePolicy = writePolicy;
+
+	const recallEngineRaw = recall.engine;
+	const recallEngine =
+		isRecallEngine(recallEngineRaw) ? recallEngineRaw : undefined;
+	if (
+		recallEngine !== undefined ||
+		typeof recall.localEmbeddings === "boolean" ||
+		typeof recall.embeddingModel === "string"
+	) {
+		result.recall = {};
+		if (recallEngine !== undefined) result.recall.engine = recallEngine;
+		if (typeof recall.localEmbeddings === "boolean")
+			result.recall.localEmbeddings = recall.localEmbeddings;
+		const embeddingModel = stringValue(recall.embeddingModel);
+		if (embeddingModel !== undefined)
+			result.recall.embeddingModel = embeddingModel;
+	}
 
 	return result;
 }

@@ -26,12 +26,22 @@ import {
 	bootstrapMemoryStore,
 	CORE_MEMORY_PATH,
 	createAgentWorkspacePaths,
+	createBM25Store,
+	createDeterministicFallbackReranker,
+	createFsGraphStore,
+	createInMemoryGraphStore,
 	createMemoryEvent,
 	createNodeFsMemoryStore,
 	createSnapshotPath,
 	createSnapshotRecord,
 	createTekMemoAgentSession,
+	DeterministicFallbackReranker,
+	extractGraphFactsRuleBased,
 	extractSessionMemory,
+	type GraphNode,
+	type GraphEdge,
+	type InMemoryGraphStore,
+	mergeHybridCandidates,
 	NOTES_MEMORY_PATH,
 	readCoreMemory,
 	readManifest,
@@ -41,6 +51,7 @@ import {
 	searchMemoryText,
 	writeCoreMemory,
 } from "../index";
+import type { BM25Store } from "../recall/lexical/bm25";
 import type { RecallStore } from "../recall/types";
 import { buildContext, paginateArray } from "./helpers";
 import type {
@@ -79,6 +90,27 @@ import type {
 	WriteMemoryResult,
 } from "./types";
 
+/**
+ * Minimal store surface the local strategy consumes. Both
+ * {@link InMemoryGraphStore} and {@link FsGraphStore} satisfy it; the
+ * persistent store additionally exposes `hydrate()`.
+ *
+ * @internal
+ */
+type LocalGraphStore = Pick<
+	InMemoryGraphStore,
+	| "upsertNodes"
+	| "upsertEdges"
+	| "queryNodes"
+	| "queryEdges"
+	| "neighbors"
+	| "fewestHopsPath"
+	| "weightedShortestPath"
+	| "stats"
+	| "exportSnapshot"
+	| "importSnapshot"
+> & { hydrate?: () => Promise<void> };
+
 export interface LocalStrategyOptions {
 	store: MemoryStore;
 	embedder?: MemoryEmbedder;
@@ -88,10 +120,45 @@ export interface LocalStrategyOptions {
 	autoBootstrap: boolean;
 	name: string;
 	version: string;
+	/**
+	 * Optional injected graph store. When omitted, a persistent
+	 * {@link createFsGraphStore} is created so the local graph survives
+	 * restarts. Pass an in-memory store for tests.
+	 */
+	graphStore?: LocalGraphStore;
+	/**
+	 * Whether to auto-extract graph facts from written memories. Defaults to
+	 * `true` so the graph accumulates without human intervention.
+	 */
+	autoExtractGraph?: boolean;
 }
 
 export function createLocalStrategy(options: LocalStrategyOptions) {
 	const { store, projectId } = options;
+	// Persistent graph store: survives restarts by hydrating from / persisting
+	// to .tekmemo/graph/{nodes,edges}.jsonl. Falls back to a plain in-memory
+	// store when one is injected (tests).
+	const graphStore: LocalGraphStore =
+		options.graphStore ?? createFsGraphStore({ store });
+	const lexicalStore: BM25Store = createBM25Store();
+	// Sidecar map from lexical document id -> text, so BM25 search results
+	// (which return only id + score) can be resolved back to their content for
+	// reranking and display.
+	const lexicalTextById = new Map<string, string>();
+	const reranker = new DeterministicFallbackReranker();
+
+	/**
+	 * Index a document into the lexical store and remember its text so BM25
+	 * search results can be resolved back to content.
+	 *
+	 * @internal
+	 */
+	function indexLexical(doc: { id: string; text: string }): void {
+		lexicalTextById.set(doc.id, doc.text);
+		lexicalStore.upsert([doc]);
+	}
+	// Keep the legacy in-memory maps in sync with the persistent store so the
+	// existing list/neighbors/path fast paths keep working without a rewrite.
 	const graphNodes = new Map<string, GraphNodeInput>();
 	const graphEdges = new Map<string, GraphEdgeInput>();
 	let bootstrapped = false;
@@ -100,6 +167,29 @@ export function createLocalStrategy(options: LocalStrategyOptions) {
 		if (bootstrapped) return;
 		if (options.autoBootstrap) {
 			await bootstrapMemoryStore(store, { projectId });
+			// Rehydrate the persistent graph into the fast-path maps.
+			try {
+				await graphStore.hydrate?.();
+				const nodes = await graphStore.queryNodes();
+				const edges = await graphStore.queryEdges();
+				for (const node of nodes) {
+					graphNodes.set(node.id, toGraphNodeInput(node));
+				}
+				for (const edge of edges) {
+					const id = stableEdgeKey(edge.from, edge.type, edge.to);
+					graphEdges.set(id, toGraphEdgeInput(edge));
+				}
+				// Seed the lexical index from rehydrated graph node labels so graph
+				// concepts participate in lexical recall alongside memory chunks.
+				for (const node of nodes) {
+					indexLexical({
+						id: `graph:${node.id}`,
+						text: `${node.label}${node.summary ? ` ${node.summary}` : ""}`,
+					});
+				}
+			} catch {
+				// Hydration is best-effort; never block boot.
+			}
 		}
 		bootstrapped = true;
 	}
@@ -128,49 +218,125 @@ export function createLocalStrategy(options: LocalStrategyOptions) {
 		await ensureReady();
 		if (signal?.aborted) throw new Error("Operation aborted.");
 
-		if (options.embedder && options.recallStore) {
-			const embedResult = await options.embedder.embedText(input.query);
-			const results = await options.recallStore.query({
-				embedding: embedResult.embedding,
-				topK: input.limit ?? 10,
-			});
-			return {
-				items: results.map((r) => ({
-					id: r.id,
-					text: r.text ?? "",
-					...(r.score === undefined ? {} : { score: r.score }),
-					...(r.metadata === undefined
-						? {}
-						: { metadata: r.metadata as JsonObject }),
-				})),
-			};
-		}
-
 		const limit = input.limit ?? 10;
-		const core = await readCoreMemory(store);
-		const notes = await readNotesMemory(store);
-		const items: RecallItem[] = [];
-		for (const [source, content] of [
-			["core", core],
-			["notes", notes],
-		] as const) {
-			const results = searchMemoryText({
-				content,
-				query: input.query,
-				limit,
-				mode: "auto",
-			});
-			for (const result of results) {
-				items.push({
-					id: `${source}_${result.index}_${hash(result.text).slice(0, 12)}`,
-					text: result.text,
-					score: result.score,
-					metadata: { source, index: result.index },
+
+		// --- Lexical path: always available, zero-config ---
+		// Index current core + notes on the fly (cheap at local scale) so lexical
+		// recall reflects the latest memory even when no embedder is configured.
+		const lexicalCandidates = await runLexicalRecall(input.query, limit);
+
+		// --- Vector path: only when an embedder is configured ---
+		let vectorCandidates = new Map<string, { text: string; score: number; metadata?: Record<string, unknown> }>();
+		if (options.embedder && options.recallStore) {
+			try {
+				const embedResult = await options.embedder.embedText(input.query);
+				const results = await options.recallStore.query({
+					embedding: embedResult.embedding,
+					topK: limit * 3,
 				});
+				for (const r of results) {
+					vectorCandidates.set(r.id, {
+						text: r.text ?? "",
+						score: r.score ?? 0,
+						...(r.metadata === undefined ? {} : { metadata: r.metadata as Record<string, unknown> }),
+					});
+				}
+			} catch {
+				// Vector path is an enhancement; fall through to lexical-only.
 			}
 		}
-		items.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
-		return { items: items.slice(0, limit) };
+
+		// --- Merge: when only one path ran, short-circuit; otherwise hybrid-merge ---
+		const hasVector = vectorCandidates.size > 0;
+		const hasLexical = lexicalCandidates.size > 0;
+
+		if (!hasVector && !hasLexical) {
+			return { items: [] };
+		}
+
+		// Build the unified candidate map for the hybrid merger.
+		const ids = new Set<string>([
+			...vectorCandidates.keys(),
+			...lexicalCandidates.keys(),
+		]);
+		const candidates = new Map<string, ReturnType<typeof candidateShape>>();
+		for (const id of ids) {
+			const v = vectorCandidates.get(id);
+			const l = lexicalCandidates.get(id);
+			candidates.set(id, candidateShape(id, v, l));
+		}
+
+		const items = await mergeHybridCandidates(candidates as never, {
+			query: input.query,
+			topK: limit,
+			reranker,
+		});
+
+		return { items };
+	}
+
+	/**
+	 * Run the lexical (BM25 + fuzzy) path over core + notes memory, returning
+	 * candidates keyed by a stable id. This is the zero-config baseline that
+	 * works with no embedder.
+	 */
+	async function runLexicalRecall(
+		query: string,
+		limit: number,
+	): Promise<Map<string, { text: string; score: number; metadata?: Record<string, unknown> }>> {
+		const out = new Map<string, { text: string; score: number; metadata?: Record<string, unknown> }>();
+
+		// Primary lexical path: query the BM25 store (token + fuzzy matching).
+		// It is populated on every write and on boot rehydration, so it reflects
+		// the current memory set without re-reading notes.md each call.
+		try {
+			const bm25Results = lexicalStore.search(query, { topK: limit * 2 });
+			for (const result of bm25Results) {
+				const text = lexicalTextById.get(result.id) ?? "";
+				out.set(result.id, {
+					text,
+					score: result.score,
+					metadata: { source: "bm25" },
+				});
+			}
+		} catch {
+			// Best-effort BM25.
+		}
+
+		// Secondary lexical path: substring search over core + notes memory.
+		// Catches exact-phrase matches BM25 tokenization might split, and covers
+		// memories written before this process started (cold start).
+		try {
+			const core = await readCoreMemory(store);
+			const notes = await readNotesMemory(store);
+			for (const [source, content] of [
+				["core", core],
+				["notes", notes],
+			] as const) {
+				const results = searchMemoryText({
+					content,
+					query,
+					limit: limit * 2,
+					mode: "auto",
+				});
+				for (const result of results) {
+					const id = `${source}_${result.index}_${hash(result.text).slice(0, 12)}`;
+					// Prefer the higher of the two signals when both fire.
+					const existing = out.get(id);
+					const score = result.score / 10; // normalize substring score toward [0,1]
+					if (!existing || score > existing.score) {
+						out.set(id, {
+							text: result.text,
+							score,
+							metadata: { source, index: result.index },
+						});
+					}
+				}
+			}
+		} catch {
+			// Best-effort substring recall.
+		}
+		return out;
 	}
 
 	return {
@@ -291,6 +457,18 @@ export function createLocalStrategy(options: LocalStrategyOptions) {
 				});
 			}
 
+			// Always index into the lexical store so zero-config recall (no
+			// embedder) still surfaces this memory, and so the lexical path stays
+			// warm even when a vector index exists.
+			const noteText = `${input.title ?? input.content.slice(0, 80)}\n${input.content}`;
+			indexLexical({ id, text: noteText });
+
+			// Auto-extract graph facts from the written memory so the graph
+			// accumulates without human intervention. Best-effort.
+			if (options.autoExtractGraph !== false) {
+				await autoExtractGraph(noteText, { sourceType: "note", sourceId: id });
+			}
+
 			return {
 				id,
 				created: true,
@@ -335,6 +513,17 @@ export function createLocalStrategy(options: LocalStrategyOptions) {
 					sourceId: "core",
 					sourcePath: CORE_MEMORY_PATH,
 					memoryType: "core",
+				});
+			}
+
+			// Keep the lexical index in sync with core memory edits.
+			indexLexical({ id: "core:document", text: content });
+
+			// Auto-extract graph facts from core memory edits too.
+			if (options.autoExtractGraph !== false) {
+				await autoExtractGraph(content, {
+					sourceType: "document",
+					sourceId: "core",
 				});
 			}
 
@@ -540,7 +729,20 @@ export function createLocalStrategy(options: LocalStrategyOptions) {
 			signal?: AbortSignal,
 		): Promise<{ nodes: GraphNodeInput[] }> {
 			if (signal?.aborted) throw new Error("Operation aborted.");
+			await ensureReady();
 			for (const node of input.nodes) graphNodes.set(node.id, node);
+			// Persist + index for lexical recall. Best-effort: never break writes.
+			try {
+				await graphStore.upsertNodes(input.nodes as GraphNode[]);
+				for (const node of input.nodes) {
+					indexLexical({
+						id: `graph:${node.id}`,
+						text: `${node.label}${node.summary ? ` ${node.summary}` : ""}`,
+					});
+				}
+			} catch {
+				// Fall back to in-memory only.
+			}
 			return { nodes: input.nodes };
 		},
 
@@ -553,8 +755,14 @@ export function createLocalStrategy(options: LocalStrategyOptions) {
 			signal?: AbortSignal,
 		): Promise<{ edges: GraphEdgeInput[] }> {
 			if (signal?.aborted) throw new Error("Operation aborted.");
+			await ensureReady();
 			for (const edge of input.edges)
 				graphEdges.set(edgeId(edge), { directed: true, weight: 1, ...edge });
+			try {
+				await graphStore.upsertEdges(input.edges as GraphEdge[]);
+			} catch {
+				// Fall back to in-memory only.
+			}
 			return { edges: input.edges };
 		},
 
@@ -723,6 +931,14 @@ export function createLocalStrategy(options: LocalStrategyOptions) {
 		store,
 	};
 
+	/**
+	 * Index a memory's chunks into the vector store. Best-effort: the embedder
+	 * may be a lazy local ONNX adapter whose optional runtime is missing, or the
+	 * recall store may be unavailable. Neither must break the caller's write —
+	 * lexical recall (always available) keeps the memory discoverable.
+	 *
+	 * @internal
+	 */
 	async function indexDocument(
 		text: string,
 		meta: {
@@ -736,50 +952,110 @@ export function createLocalStrategy(options: LocalStrategyOptions) {
 		},
 	): Promise<void> {
 		if (!options.embedder || !options.recallStore) return;
-		const chunks = chunkText(text, {
-			source: {
-				projectId,
-				...(options.tenantId !== undefined
-					? { tenantId: options.tenantId }
-					: {}),
-				sourceType: meta.sourceType,
-				sourceId: meta.sourceId,
-				sourcePath: meta.sourcePath,
-			},
-			memoryType: meta.memoryType,
-			metadata: {
-				...(meta.tags !== undefined ? { tags: meta.tags } : {}),
-				...(meta.kind !== undefined ? { kind: meta.kind } : {}),
-				...(meta.confidence !== undefined
-					? { confidence: meta.confidence }
-					: {}),
-			},
-		});
-		if (chunks.length === 0) return;
-		const texts = chunks.map((c) => c.text);
-		const embedResult = await options.embedder.embedTexts({ texts });
-		const docs = chunks.map((c, i) => {
-			const embRecord = embedResult.embeddings[i];
-			if (!embRecord)
-				throw new Error("Mismatch between chunk index and embedding output.");
-			const safeRecallId = c.id.replace(/[^A-Za-z0-9._:@#-]/g, "_");
-			return {
-				id: safeRecallId,
-				text: c.text,
-				embedding: embRecord.embedding,
-				metadata: {
+		try {
+			const chunks = chunkText(text, {
+				source: {
 					projectId,
 					...(options.tenantId !== undefined
 						? { tenantId: options.tenantId }
 						: {}),
 					sourceType: meta.sourceType,
 					sourceId: meta.sourceId,
-					memoryType: meta.memoryType,
-					...c.metadata,
+					sourcePath: meta.sourcePath,
 				},
+				memoryType: meta.memoryType,
+				metadata: {
+					...(meta.tags !== undefined ? { tags: meta.tags } : {}),
+					...(meta.kind !== undefined ? { kind: meta.kind } : {}),
+					...(meta.confidence !== undefined
+						? { confidence: meta.confidence }
+						: {}),
+				},
+			});
+			if (chunks.length === 0) return;
+			const texts = chunks.map((c) => c.text);
+			const embedResult = await options.embedder.embedTexts({ texts });
+			const docs = chunks.map((c, i) => {
+				const embRecord = embedResult.embeddings[i];
+				if (!embRecord)
+					throw new Error("Mismatch between chunk index and embedding output.");
+				const safeRecallId = c.id.replace(/[^A-Za-z0-9._:@#-]/g, "_");
+				return {
+					id: safeRecallId,
+					text: c.text,
+					embedding: embRecord.embedding,
+					metadata: {
+						projectId,
+						...(options.tenantId !== undefined
+							? { tenantId: options.tenantId }
+							: {}),
+						sourceType: meta.sourceType,
+						sourceId: meta.sourceId,
+						memoryType: meta.memoryType,
+						...c.metadata,
+					},
+				};
+			});
+			await options.recallStore.upsert(docs);
+		} catch {
+			// The vector index is an enhancement over lexical recall; a missing
+			// or failing embedder must never break a write.
+		}
+	}
+
+	/**
+	 * Run rule-based graph extraction over a text blob and persist any facts
+	 * (nodes + edges) to the graph store and lexical index. Best-effort:
+	 * extraction or persistence failures never break the caller.
+	 *
+	 * @internal
+	 */
+	async function autoExtractGraph(
+		text: string,
+		source: { sourceType: string; sourceId: string },
+	): Promise<void> {
+		try {
+			const sourceRef = {
+				sourceType: source.sourceType,
+				sourceId: source.sourceId,
 			};
-		});
-		await options.recallStore.upsert(docs);
+			const extracted = extractGraphFactsRuleBased({
+				text,
+				sourceRef,
+				defaultNodeType: "concept",
+			});
+			if (extracted.nodes.length === 0 && extracted.edges.length === 0) {
+				return;
+			}
+			// Persist nodes first, then mirror into the fast-path map + lexical
+			// index so a later edge failure does not discard the nodes.
+			if (extracted.nodes.length > 0) {
+				await graphStore.upsertNodes(extracted.nodes);
+				for (const node of extracted.nodes) {
+					graphNodes.set(node.id, toGraphNodeInput(node));
+					indexLexical({
+						id: `graph:${node.id}`,
+						text: `${node.label}${node.summary ? ` ${node.summary}` : ""}`,
+					});
+				}
+			}
+			// Edges reference the nodes above; persist best-effort (the store
+			// validates references and may reject self-loops or duplicates).
+			for (const edge of extracted.edges) {
+				try {
+					await graphStore.upsertEdges([edge]);
+					graphEdges.set(stableEdgeKey(edge.from, edge.type, edge.to), {
+						directed: true,
+						weight: 1,
+						...toGraphEdgeInput(edge),
+					});
+				} catch {
+					// Skip an edge that the store rejects; keep the rest.
+				}
+			}
+		} catch {
+			// Graph extraction is an enhancement; never block writes/recall.
+		}
 	}
 
 	async function listRecentMemories(
@@ -820,6 +1096,81 @@ import type { JsonObject } from "./types";
 
 function hash(value: string): string {
 	return createHash("sha256").update(value).digest("hex");
+}
+
+/**
+ * Build a {@link HybridCandidate}-shaped object from vector + lexical hits.
+ *
+ * @internal
+ */
+function candidateShape(
+	id: string,
+	vector: { text: string; score: number; metadata?: Record<string, unknown> } | undefined,
+	lexical: { text: string; score: number; metadata?: Record<string, unknown> } | undefined,
+) {
+	return {
+		id,
+		text: (vector?.text ?? lexical?.text ?? ""),
+		vectorScore: vector?.score ?? 0,
+		lexicalScore: lexical?.score ?? 0,
+		...(vector?.metadata ?? lexical?.metadata === undefined
+			? {}
+			: { metadata: (vector?.metadata ?? lexical?.metadata) as Record<string, unknown> }),
+	};
+}
+
+/**
+ * Stable key for an edge used by the in-memory fast-path maps.
+ *
+ * @internal
+ */
+function stableEdgeKey(
+	from: string,
+	type: string,
+	to: string,
+): string {
+	return `${from}|${type}|${to}`;
+}
+
+/**
+ * Coerce a stored graph node into the strategy's lightweight input shape.
+ *
+ * @internal
+ */
+function toGraphNodeInput(node: GraphNode): GraphNodeInput {
+	return {
+		id: node.id,
+		type: node.type,
+		label: node.label,
+		...(node.summary === undefined ? {} : { summary: node.summary }),
+		...(node.aliases === undefined ? {} : { aliases: node.aliases }),
+		...(node.confidence === undefined ? {} : { confidence: node.confidence }),
+		...(node.importance === undefined ? {} : { importance: node.importance }),
+		...(node.status === undefined ? {} : { status: node.status }),
+		...(node.metadata === undefined ? {} : { metadata: node.metadata }),
+		...(node.sourceRefs === undefined ? {} : { sourceRefs: node.sourceRefs }),
+	} as GraphNodeInput;
+}
+
+/**
+ * Coerce a stored graph edge into the strategy's lightweight input shape.
+ *
+ * @internal
+ */
+function toGraphEdgeInput(edge: GraphEdge): GraphEdgeInput {
+	return {
+		id: edge.id,
+		from: edge.from,
+		to: edge.to,
+		type: edge.type,
+		directed: edge.directed ?? true,
+		...(edge.weight === undefined ? {} : { weight: edge.weight }),
+		...(edge.confidence === undefined ? {} : { confidence: edge.confidence }),
+		...(edge.dedupeKey === undefined ? {} : { dedupeKey: edge.dedupeKey }),
+		...(edge.status === undefined ? {} : { status: edge.status }),
+		...(edge.metadata === undefined ? {} : { metadata: edge.metadata }),
+		...(edge.sourceRefs === undefined ? {} : { sourceRefs: edge.sourceRefs }),
+	} as GraphEdgeInput;
 }
 
 function snapshotId(label?: string): string {

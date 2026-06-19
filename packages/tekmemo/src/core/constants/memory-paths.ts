@@ -33,6 +33,7 @@ export const TEKMEMO_PATHS = Object.freeze({
 	}),
 	indexes: Object.freeze({
 		chunks: `${TEKMEMO_DIR}/indexes/chunks.jsonl`,
+		embeddings: `${TEKMEMO_DIR}/indexes/embeddings.jsonl`,
 	}),
 	graph: Object.freeze({
 		nodes: `${TEKMEMO_DIR}/graph/nodes.jsonl`,
@@ -56,6 +57,8 @@ export const MEMORY_EVENTS_PATH = TEKMEMO_PATHS.events.memoryEvents;
 export const CONVERSATIONS_MEMORY_PATH = TEKMEMO_PATHS.events.conversations;
 /** Path to the chunks index JSONL file. */
 export const CHUNKS_INDEX_PATH = TEKMEMO_PATHS.indexes.chunks;
+/** Path to the persisted embeddings index JSONL file. */
+export const EMBEDDINGS_INDEX_PATH = TEKMEMO_PATHS.indexes.embeddings;
 /** Path to the graph nodes JSONL file. */
 export const GRAPH_NODES_PATH = TEKMEMO_PATHS.graph.nodes;
 /** Path to the graph edges JSONL file. */
@@ -70,6 +73,7 @@ export const CANONICAL_TEKMEMO_FILES = [
 	MEMORY_EVENTS_PATH,
 	CONVERSATIONS_MEMORY_PATH,
 	CHUNKS_INDEX_PATH,
+	EMBEDDINGS_INDEX_PATH,
 	GRAPH_NODES_PATH,
 	GRAPH_EDGES_PATH,
 	SNAPSHOTS_INDEX_PATH,
@@ -180,6 +184,7 @@ export type PathKind =
 	| "memory-event"
 	| "conversation"
 	| "chunk"
+	| "embedding"
 	| "graph-node"
 	| "graph-edge"
 	| "snapshot-index"
@@ -207,6 +212,8 @@ export function memoryTypeFromPath(path: MemoryPath): PathKind {
 			return "conversation";
 		case CHUNKS_INDEX_PATH:
 			return "chunk";
+		case EMBEDDINGS_INDEX_PATH:
+			return "embedding";
 		case GRAPH_NODES_PATH:
 			return "graph-node";
 		case GRAPH_EDGES_PATH:

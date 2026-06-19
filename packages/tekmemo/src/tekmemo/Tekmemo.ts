@@ -22,6 +22,7 @@ import type { BootstrapMemoryStoreOptions } from "../core/bootstrap/bootstrap-me
 import type { ReadConversationHistoryOptions } from "../core/documents/conversations-memory";
 import { writeCoreMemory } from "../core/documents/core-memory";
 import type { MemoryEmbedder } from "../core/types/embeddings";
+import { createFsRecallStore } from "../recall/stores/fs-recall-store";
 import type { MemoryCommand } from "../core/types/memory-commands";
 import type {
 	ConversationEntry,
@@ -117,6 +118,8 @@ export class Tekmemo {
 	readonly writePolicy: RuntimeWritePolicy;
 	readonly name: string;
 	readonly version: string;
+	/** Resolved recall engine configuration. */
+	readonly recallConfig: ResolvedTekmemoConfig["recall"];
 
 	private readonly strategy: Strategy;
 	private readonly resolved: ResolvedTekmemoConfig;
@@ -382,6 +385,7 @@ export class Tekmemo {
 		this.writePolicy = this.resolved.writePolicy;
 		this.name = this.resolved.name;
 		this.version = this.resolved.version;
+		this.recallConfig = this.resolved.recall;
 
 		if (this.resolved.store) {
 			this.store = this.resolved.store;
@@ -395,8 +399,15 @@ export class Tekmemo {
 
 		this.embedder = this.resolved.embedder;
 		if (this.embedder) {
+			// When an embedder is configured, a recall store is needed to persist
+			// embeddings. Default to the file-backed store so embeddings survive
+			// process restarts (file-first identity); fall back to in-memory for
+			// the volatile "memory" mode or when explicitly injected.
 			this.recallStore =
-				this.resolved.recallStore ?? createInMemoryRecallStore();
+				this.resolved.recallStore ??
+				(this.resolved.mode === "memory"
+					? createInMemoryRecallStore()
+					: createFsRecallStore({ store: this.store }));
 		} else {
 			this.recallStore = this.resolved.recallStore;
 		}

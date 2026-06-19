@@ -36,6 +36,23 @@ export interface PaginationOptions {
 	maxLimit: number;
 }
 
+/**
+ * The agent-facing directive emitted at the top of every context block. It
+ * tells the model how to act on the memory sections that follow, so the
+ * returned context is self-explaining rather than a bare data dump.
+ *
+ * Keep this short, imperative, and tool-agnostic so it reads correctly under
+ * any host (MCP client, AI SDK runtime, CLI). It mirrors the guidance already
+ * baked into the `tekmemo.context` / `tekmemo.recall` / `tekmemo.remember`
+ * tool descriptions.
+ */
+export const AGENT_CONTEXT_DIRECTIVE = `TekMemo is your long-term memory — treat it as the single source of truth for project identity, architecture, constraints, and decisions.
+
+- Adhere to memory: follow the constraints, decisions, and preferences below. Stored facts override assumptions and guesses.
+- Recall before answering: when a fact, convention, or prior decision might exist, call tekmemo.recall instead of re-deriving it.
+- Persist discoveries: when you learn a durable decision, constraint, preference, or architectural fact, call tekmemo.remember (classify with kind, set confidence) without waiting to be asked.
+- Never store secrets, credentials, or environment values. Respect read-only intent where indicated.`;
+
 export function normalizeLimit(
 	limit: number | undefined,
 	defaultLimit: number,
@@ -125,6 +142,16 @@ export async function buildContext(
 	const sections: MemoryContextResult["sections"] = [];
 	const warnings: string[] = [];
 	let recallItems: RecallItem[] = [];
+
+	// Lead with an agent directive so the returned context is self-explaining:
+	// the model learns how to USE the sections below (adhere, recall before
+	// guessing, persist discoveries) from the very first block. Placed here so
+	// all strategies — local, cloud, hybrid — emit the same instructions.
+	sections.push({
+		type: "directive",
+		title: "How to use TekMemo context",
+		content: AGENT_CONTEXT_DIRECTIVE,
+	});
 
 	if (input.includeCore !== false && operations.readCoreMemory) {
 		try {

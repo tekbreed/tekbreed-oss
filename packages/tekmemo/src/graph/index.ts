@@ -4,6 +4,7 @@ export * from "./extraction/rule-based-extractor";
 export * from "./filters/metadata-filter";
 export * from "./invalidation/invalidate-superseded-edges";
 export * from "./jsonl/jsonl";
+export * from "./store/fs-graph-store";
 export * from "./store/in-memory-graph-store";
 export * from "./temporal/resolve-current-facts";
 export * from "./types";

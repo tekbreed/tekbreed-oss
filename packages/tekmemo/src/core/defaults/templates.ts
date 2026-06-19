@@ -41,6 +41,7 @@ export interface MemoryTemplates {
 	memoryEvents: string;
 	conversations: string;
 	chunks: string;
+	embeddings: string;
 	graphNodes: string;
 	graphEdges: string;
 	snapshots: string;
@@ -62,6 +63,7 @@ export function createDefaultMemoryTemplates(
 		memoryEvents: DEFAULT_JSONL,
 		conversations: DEFAULT_JSONL,
 		chunks: DEFAULT_JSONL,
+		embeddings: DEFAULT_JSONL,
 		graphNodes: DEFAULT_JSONL,
 		graphEdges: DEFAULT_JSONL,
 		snapshots: DEFAULT_JSONL,
