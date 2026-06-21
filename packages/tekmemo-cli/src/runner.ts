@@ -14,39 +14,11 @@ import {
 	runAgentPathsCommand,
 	runAgentStartCommand,
 	runChunksCommand,
-	runCloudBenchmarksRunCommand,
-	runCloudContextCommand,
-	runCloudContextComposeCommand,
-	runCloudEvalsRunCommand,
-	runCloudExportsCreateCommand,
-	runCloudExportsDownloadCommand,
-	runCloudExtractionJobsCommand,
-	runCloudExtractionRunCommand,
-	runCloudGraphCreateEdgeCommand,
-	runCloudGraphCreateNodeCommand,
-	runCloudGraphListEdgesCommand,
-	runCloudGraphListNodesCommand,
-	runCloudGraphNeighborsCommand,
-	runCloudGraphPathCommand,
 	runCloudHealthCommand,
-	runCloudProvidersCreateCommand,
-	runCloudProvidersListCommand,
-	runCloudProvidersTestCommand,
-	runCloudReadCommand,
 	runCloudReadinessCommand,
-	runCloudRecallCommand,
-	runCloudRecallIndexCommand,
-	runCloudRecentCommand,
-	runCloudRememberCommand,
-	runCloudSnapshotCommand,
-	runCloudSnapshotsCreateCommand,
-	runCloudSnapshotsDownloadCommand,
 	runCloudSyncPullCommand,
 	runCloudSyncPushCommand,
-	runCloudSyncResolveCommand,
 	runCloudSyncStatusCommand,
-	runCloudUpdateCoreCommand,
-	runCloudValidateCommand,
 	runContextCommand,
 	runDiffCommand,
 	runDoctorCommand,
@@ -195,7 +167,10 @@ export async function runTekMemoCli(
 			"project root containing .tekmemo/",
 			input.cwd ?? process.cwd(),
 		)
-		.option("--runtime <mode>", "runtime mode: local, cloud, or hybrid")
+		.option(
+			"--runtime <mode>",
+			"runtime mode: local, hybrid, or memory",
+		)
 		.option(
 			"--cloud-url <url>",
 			"TekMemo Cloud API URL; defaults to config or TEKMEMO_CLOUD_URL",
@@ -213,11 +188,11 @@ export async function runTekMemoCli(
 		)
 		.option(
 			"--read-policy <policy>",
-			"hybrid read policy: local-first, cloud-first, local-only, cloud-only",
+			"hybrid read policy: local-first, cloud-first, or local-only",
 		)
 		.option(
 			"--write-policy <policy>",
-			"hybrid write policy: local-first, cloud-first, local-only, cloud-only",
+			"hybrid write policy: local-first, cloud-first, or local-only",
 		)
 		.option("-j, --json", "output machine-readable JSON", false)
 		.option("-v, --verbose", "show detailed output", input.verbose ?? false)
@@ -650,13 +625,15 @@ export async function runTekMemoCli(
 
 	const cloud = program
 		.command("cloud")
-		.description("use TekMemo Cloud through @tekbreed/tekmemo/cloud");
+		.description(
+			"use TekMemo Cloud file-replica sync through @tekbreed/tekmemo/cloud",
+		);
 
 	async function cloudGlobals() {
 		const g = await globals();
 		if (!g.memo.cloud) {
 			throw new CliUsageError(
-				"Cloud mode requires --cloud-url and --api-key or TEKMEMO_CLOUD_URL/TEKMEMO_API_KEY",
+				"Cloud sync requires --cloud-url and --api-key or TEKMEMO_CLOUD_URL/TEKMEMO_API_KEY",
 			);
 		}
 		return {
@@ -679,311 +656,6 @@ export async function runTekMemoCli(
 		});
 
 	cloud
-		.command("context")
-		.description("pack cloud memory into an agent-friendly context block")
-		.requiredOption("-q, --query <query>", "task/query used to build context")
-		.option("-l, --limit <n>", "maximum recall items", parsePositiveOption)
-		.option("--max-bytes <n>", "maximum response bytes", parsePositiveOption)
-		.option("--include-core", "include core memory", true)
-		.option("--include-notes", "include notes memory", true)
-		.option("--include-recent", "include recent memory", true)
-		.action(async (options) => {
-			currentCommand = "cloud.context";
-			const g = await cloudGlobals();
-			exitCode = await runCloudContextCommand({
-				output,
-				json: g.json,
-				client: g.client,
-				query: options.query,
-				limit: options.limit,
-				maxBytes: options.maxBytes,
-				includeCore: options.includeCore,
-				includeNotes: options.includeNotes,
-				includeRecent: options.includeRecent,
-			});
-		});
-
-	cloud
-		.command("recall")
-		.description("search TekMemo Cloud memory")
-		.argument("<query>", "text to search for")
-		.option("-l, --limit <n>", "maximum recall items", parsePositiveOption)
-		.option("--strategy <strategy>", "local | vector | hybrid")
-		.option("--fallback <mode>", "none | local")
-		.option("--rerank", "request reranking", false)
-		.action(async (query, options) => {
-			currentCommand = "cloud.recall";
-			const g = await cloudGlobals();
-			exitCode = await runCloudRecallCommand({
-				output,
-				json: g.json,
-				client: g.client,
-				query,
-				limit: options.limit,
-				strategy: options.strategy,
-				fallback: options.fallback,
-				rerank: options.rerank,
-			});
-		});
-
-	cloud
-		.command("index")
-		.description("request TekMemo Cloud recall indexing for the project")
-		.option("--mode <mode>", "all | changed | core | notes", "changed")
-		.option("--force", "force re-indexing", false)
-		.action(async (options) => {
-			currentCommand = "cloud.index";
-			const g = await cloudGlobals();
-			exitCode = await runCloudRecallIndexCommand({
-				output,
-				json: g.json,
-				client: g.client,
-				mode: options.mode,
-				force: options.force,
-			});
-		});
-
-	cloud
-		.command("remember")
-		.description("store durable memory in TekMemo Cloud")
-		.argument("[content]", "memory content")
-		.option("--stdin", "read memory content from stdin", false)
-		.option(
-			"--file <path>",
-			"read memory content from a file inside the selected root",
-		)
-		.option(
-			"-k, --kind <kind>",
-			"decision | constraint | goal | preference | reference | summary | note",
-			"note",
-		)
-		.option("--title <title>", "optional note title")
-		.option("-t, --tag <tag>", "tag to attach; repeatable", collect, [])
-		.option("--confidence <n>", "confidence from 0 to 1")
-		.option("--source <source>", "source identifier, file, URL, or agent name")
-		.option("--metadata-json <json>", "metadata JSON object")
-		.option(
-			"--allow-secrets",
-			"allow content that looks like a secret after manual review",
-			false,
-		)
-		.action(async (content, options) => {
-			currentCommand = "cloud.remember";
-			const g = await cloudGlobals();
-			exitCode = await runCloudRememberCommand({
-				output,
-				json: g.json,
-				rootDir: g.root,
-				stdinContent: input.stdinContent,
-				client: g.client,
-				content,
-				stdin: options.stdin,
-				file: options.file,
-				kind: options.kind,
-				title: options.title,
-				tags: options.tag,
-				confidence: options.confidence,
-				source: options.source,
-				metadata: options.metadataJson,
-				allowSecrets: options.allowSecrets,
-			});
-		});
-
-	cloud
-		.command("read")
-		.description("read a TekMemo Cloud memory document")
-		.argument("<target>", "core | notes")
-		.option(
-			"-l, --limit <n>",
-			"maximum notes when target is notes",
-			parsePositiveOption,
-		)
-		.action(async (target, options) => {
-			currentCommand = "cloud.read";
-			const g = await cloudGlobals();
-			if (target !== "core" && target !== "notes") {
-				output.error("cloud read target must be core or notes");
-				exitCode = 1;
-				return;
-			}
-			exitCode = await runCloudReadCommand({
-				output,
-				json: g.json,
-				client: g.client,
-				target,
-				limit: options.limit,
-			});
-		});
-
-	cloud
-		.command("update-core")
-		.description("replace TekMemo Cloud core memory")
-		.argument("[content]", "new core memory content")
-		.option("--stdin", "read core memory from stdin", false)
-		.option(
-			"--file <path>",
-			"read core memory from a file inside the selected root",
-		)
-		.option(
-			"--allow-secrets",
-			"allow content that looks like a secret after manual review",
-			false,
-		)
-		.action(async (content, options) => {
-			currentCommand = "cloud.update-core";
-			const g = await cloudGlobals();
-			exitCode = await runCloudUpdateCoreCommand({
-				output,
-				json: g.json,
-				rootDir: g.root,
-				stdinContent: input.stdinContent,
-				client: g.client,
-				content,
-				stdin: options.stdin,
-				file: options.file,
-				allowSecrets: options.allowSecrets,
-			});
-		});
-
-	cloud
-		.command("recent")
-		.description("list recent TekMemo Cloud memory events")
-		.option("-l, --limit <n>", "maximum recent items", parsePositiveOption)
-		.action(async (options) => {
-			currentCommand = "cloud.recent";
-			const g = await cloudGlobals();
-			exitCode = await runCloudRecentCommand({
-				output,
-				json: g.json,
-				client: g.client,
-				limit: options.limit,
-			});
-		});
-
-	cloud
-		.command("validate")
-		.description("validate TekMemo Cloud memory")
-		.option("-s, --strict", "strict protocol validation", false)
-		.action(async (options) => {
-			currentCommand = "cloud.validate";
-			const g = await cloudGlobals();
-			exitCode = await runCloudValidateCommand({
-				output,
-				json: g.json,
-				client: g.client,
-				strict: options.strict,
-			});
-		});
-
-	cloud
-		.command("snapshot")
-		.description("explain TekMemo Cloud snapshot availability")
-		.option("-l, --label <name>", "snapshot label", "manual")
-		.option(
-			"--type <type>",
-			"manual | automatic | pre-sync | pre-restore",
-			"manual",
-		)
-		.action(async (options) => {
-			currentCommand = "cloud.snapshot";
-			const g = await cloudGlobals();
-			exitCode = await runCloudSnapshotCommand({
-				output,
-				json: g.json,
-				client: g.client,
-				label: options.label,
-				type: options.type,
-			});
-		});
-
-	const sync = cloud
-		.command("sync")
-		.description("use TekMemo Cloud memory sync APIs");
-
-	sync
-		.command("status")
-		.description("read cloud sync status")
-		.option("--client-id <id>", "optional sync client ID")
-		.action(async (options) => {
-			currentCommand = "cloud.sync.status";
-			const g = await cloudGlobals();
-			exitCode = await runCloudSyncStatusCommand({
-				output,
-				json: g.json,
-				client: g.client,
-				clientId: options.clientId,
-			});
-		});
-
-	sync
-		.command("pull")
-		.description("pull cloud sync events")
-		.requiredOption("--client-id <id>", "sync client ID")
-		.option(
-			"--since-server-version <n>",
-			"pull events after this server version",
-			parseNonNegativeOption,
-		)
-		.option("-l, --limit <n>", "maximum events to return", parsePositiveOption)
-		.action(async (options) => {
-			currentCommand = "cloud.sync.pull";
-			const g = await cloudGlobals();
-			exitCode = await runCloudSyncPullCommand({
-				output,
-				json: g.json,
-				client: g.client,
-				clientId: options.clientId,
-				sinceServerVersion: options.sinceServerVersion,
-				limit: options.limit,
-			});
-		});
-
-	sync
-		.command("push")
-		.description("push local sync events to TekMemo Cloud")
-		.requiredOption("--client-id <id>", "sync client ID")
-		.option("--events-json <json>", "event array or object with events array")
-		.option("--checkpoint-json <json>", "optional checkpoint JSON object")
-		.option("--stdin", "read events JSON from stdin", false)
-		.option(
-			"--file <path>",
-			"read events JSON from a file inside the selected root",
-		)
-		.action(async (options) => {
-			currentCommand = "cloud.sync.push";
-			const g = await cloudGlobals();
-			exitCode = await runCloudSyncPushCommand({
-				output,
-				json: g.json,
-				rootDir: g.root,
-				stdinContent: input.stdinContent,
-				client: g.client,
-				clientId: options.clientId,
-				eventsJson: options.eventsJson,
-				checkpointJson: options.checkpointJson,
-				stdin: options.stdin,
-				file: options.file,
-			});
-		});
-
-	sync
-		.command("resolve")
-		.description("resolve a cloud sync conflict")
-		.requiredOption("--conflict-id <id>", "conflict ID to resolve")
-		.requiredOption("--resolution <type>", "keep_cloud | use_client | ignore")
-		.action(async (options) => {
-			currentCommand = "cloud.sync.resolve";
-			const g = await cloudGlobals();
-			exitCode = await runCloudSyncResolveCommand({
-				output,
-				json: g.json,
-				client: g.client,
-				conflictId: options.conflictId,
-				resolution: options.resolution,
-			});
-		});
-
-	cloud
 		.command("readiness")
 		.description("check TekMemo Cloud readiness")
 		.action(async () => {
@@ -996,367 +668,58 @@ export async function runTekMemoCli(
 			});
 		});
 
-	cloud
-		.command("context-compose")
-		.description("compose full context package from cloud")
-		.requiredOption("-q, --query <query>", "task/query used to build context")
-		.option("-l, --limit <n>", "maximum recall items", parsePositiveOption)
-		.option("--strategy <strategy>", "auto | vector | local")
-		.option("--rerank", "request reranking", false)
-		.option("--include-core-memory", "include core memory", true)
-		.option("--include-recall-results", "include recall results", true)
-		.option("--include-graph-context", "include graph context", true)
-		.action(async (options) => {
-			currentCommand = "cloud.context-compose";
-			const g = await cloudGlobals();
-			exitCode = await runCloudContextComposeCommand({
-				output,
-				json: g.json,
-				client: g.client,
-				query: options.query,
-				topK: options.limit,
-				strategy: options.strategy,
-				rerank: options.rerank,
-				includeCoreMemory: options.includeCoreMemory,
-				includeRecallResults: options.includeRecallResults,
-				includeGraphContext: options.includeGraphContext,
-			});
-		});
+	const sync = cloud
+		.command("sync")
+		.description("use TekMemo Cloud file-replica sync APIs");
 
-	const graph = cloud.command("graph").description("graph memory operations");
-
-	graph
-		.command("list-nodes")
-		.description("list graph nodes")
-		.option("-l, --limit <n>", "maximum nodes to return", parsePositiveOption)
-		.option("--cursor <string>", "pagination cursor")
-		.option("--status <status>", "active | deprecated | conflicted | deleted")
-		.action(async (options) => {
-			currentCommand = "cloud.graph.list-nodes";
-			const g = await cloudGlobals();
-			exitCode = await runCloudGraphListNodesCommand({
-				output,
-				json: g.json,
-				client: g.client,
-				limit: options.limit,
-				cursor: options.cursor,
-				status: options.status,
-			});
-		});
-
-	graph
-		.command("create-node")
-		.description("create a graph node")
-		.requiredOption("--node-id <id>", "node ID")
-		.requiredOption("--type <type>", "node type")
-		.requiredOption("--label <label>", "node label")
-		.option("--summary <summary>", "node summary")
-		.option("--aliases <aliases>", "comma-separated aliases")
-		.option("--metadata-json <json>", "metadata JSON object")
-		.action(async (options) => {
-			currentCommand = "cloud.graph.create-node";
-			const g = await cloudGlobals();
-			const aliases = options.aliases
-				? options.aliases.split(",").map((s: string) => s.trim())
-				: undefined;
-			exitCode = await runCloudGraphCreateNodeCommand({
-				output,
-				json: g.json,
-				client: g.client,
-				nodeId: options.nodeId,
-				type: options.type,
-				label: options.label,
-				summary: options.summary,
-				aliases,
-				metadataJson: options.metadataJson,
-			});
-		});
-
-	graph
-		.command("list-edges")
-		.description("list graph edges")
-		.option("-l, --limit <n>", "maximum edges to return", parsePositiveOption)
-		.option("--cursor <string>", "pagination cursor")
-		.option("--status <status>", "active | deprecated | conflicted | deleted")
-		.action(async (options) => {
-			currentCommand = "cloud.graph.list-edges";
-			const g = await cloudGlobals();
-			exitCode = await runCloudGraphListEdgesCommand({
-				output,
-				json: g.json,
-				client: g.client,
-				limit: options.limit,
-				cursor: options.cursor,
-				status: options.status,
-			});
-		});
-
-	graph
-		.command("create-edge")
-		.description("create a graph edge")
-		.option("--edge-id <id>", "edge ID")
-		.requiredOption("--from <id>", "from node ID")
-		.requiredOption("--to <id>", "to node ID")
-		.requiredOption("--type <type>", "edge type")
-		.option("--directed", "directed edge", true)
-		.option("--weight <n>", "edge weight (0-1)", parsePositiveOption)
-		.option("--metadata-json <json>", "metadata JSON object")
-		.action(async (options) => {
-			currentCommand = "cloud.graph.create-edge";
-			const g = await cloudGlobals();
-			exitCode = await runCloudGraphCreateEdgeCommand({
-				output,
-				json: g.json,
-				client: g.client,
-				edgeId: options.edgeId,
-				fromNodeId: options.from,
-				toNodeId: options.to,
-				type: options.type,
-				directed: options.directed,
-				weight: options.weight,
-				metadataJson: options.metadataJson,
-			});
-		});
-
-	graph
-		.command("neighbors")
-		.description("find graph neighbors")
-		.requiredOption("--node-id <id>", "seed node ID")
-		.option("--direction <dir>", "in | out | both")
-		.option("--depth <n>", "search depth", parsePositiveOption)
-		.option("-l, --limit <n>", "maximum results", parsePositiveOption)
-		.action(async (options) => {
-			currentCommand = "cloud.graph.neighbors";
-			const g = await cloudGlobals();
-			exitCode = await runCloudGraphNeighborsCommand({
-				output,
-				json: g.json,
-				client: g.client,
-				nodeId: options.nodeId,
-				direction: options.direction,
-				depth: options.depth,
-				limit: options.limit,
-			});
-		});
-
-	graph
-		.command("path")
-		.description("find graph path between nodes")
-		.requiredOption("--from <id>", "start node ID")
-		.requiredOption("--to <id>", "target node ID")
-		.option("--max-depth <n>", "maximum search depth", parsePositiveOption)
-		.action(async (options) => {
-			currentCommand = "cloud.graph.path";
-			const g = await cloudGlobals();
-			exitCode = await runCloudGraphPathCommand({
-				output,
-				json: g.json,
-				client: g.client,
-				fromNodeId: options.from,
-				toNodeId: options.to,
-				maxDepth: options.maxDepth,
-			});
-		});
-
-	const extraction = cloud
-		.command("extraction")
-		.description("extraction operations");
-
-	extraction
-		.command("run")
-		.description("run graph extraction")
-		.option("--mode <mode>", "full | core | notes | sync | connectors")
-		.option("--force", "force re-extraction", false)
-		.action(async (options) => {
-			currentCommand = "cloud.extraction.run";
-			const g = await cloudGlobals();
-			exitCode = await runCloudExtractionRunCommand({
-				output,
-				json: g.json,
-				client: g.client,
-				mode: options.mode,
-				force: options.force,
-			});
-		});
-
-	extraction
-		.command("jobs")
-		.description("list extraction jobs")
-		.option("-l, --limit <n>", "maximum jobs to return", parsePositiveOption)
-		.action(async (options) => {
-			currentCommand = "cloud.extraction.jobs";
-			const g = await cloudGlobals();
-			exitCode = await runCloudExtractionJobsCommand({
-				output,
-				json: g.json,
-				client: g.client,
-				limit: options.limit,
-			});
-		});
-
-	cloud
-		.command("evals")
-		.description("run context quality evals")
-		.option("--fixture-ids <ids>", "comma-separated fixture IDs")
-		.option("--iterations <n>", "number of iterations", parsePositiveOption)
-		.option("--thresholds-json <json>", "thresholds JSON object")
-		.action(async (options) => {
-			currentCommand = "cloud.evals.run";
-			const g = await cloudGlobals();
-			exitCode = await runCloudEvalsRunCommand({
-				output,
-				json: g.json,
-				client: g.client,
-				fixtureIds: options.fixtureIds,
-				iterations: options.iterations,
-				thresholdsJson: options.thresholdsJson,
-			});
-		});
-
-	cloud
-		.command("benchmarks")
-		.description("run context benchmarks")
-		.option("--fixture-ids <ids>", "comma-separated fixture IDs")
-		.option("--iterations <n>", "number of iterations", parsePositiveOption)
-		.option("--thresholds-json <json>", "thresholds JSON object")
-		.action(async (options) => {
-			currentCommand = "cloud.benchmarks.run";
-			const g = await cloudGlobals();
-			exitCode = await runCloudBenchmarksRunCommand({
-				output,
-				json: g.json,
-				client: g.client,
-				fixtureIds: options.fixtureIds,
-				iterations: options.iterations,
-				thresholdsJson: options.thresholdsJson,
-			});
-		});
-
-	const exports = cloud.command("exports").description("export operations");
-
-	exports
-		.command("create")
-		.description("create memory export")
-		.option("--label <name>", "export label")
-		.action(async (options) => {
-			currentCommand = "cloud.exports.create";
-			const g = await cloudGlobals();
-			exitCode = await runCloudExportsCreateCommand({
-				output,
-				json: g.json,
-				client: g.client,
-				label: options.label,
-			});
-		});
-
-	exports
-		.command("download")
-		.description("download export archive")
-		.requiredOption("--export-id <id>", "export ID")
-		.action(async (options) => {
-			currentCommand = "cloud.exports.download";
-			const g = await cloudGlobals();
-			exitCode = await runCloudExportsDownloadCommand({
-				output,
-				json: g.json,
-				client: g.client,
-				exportId: options.exportId,
-			});
-		});
-
-	const snapshots = cloud
-		.command("snapshots")
-		.description("snapshot operations");
-
-	snapshots
-		.command("create")
-		.description("create memory snapshot")
-		.option("--label <name>", "snapshot label")
-		.option("--trigger <trigger>", "manual | sync | system")
-		.action(async (options) => {
-			currentCommand = "cloud.snapshots.create";
-			const g = await cloudGlobals();
-			exitCode = await runCloudSnapshotsCreateCommand({
-				output,
-				json: g.json,
-				client: g.client,
-				label: options.label,
-				trigger: options.trigger,
-			});
-		});
-
-	snapshots
-		.command("download")
-		.description("download snapshot archive")
-		.requiredOption("--snapshot-id <id>", "snapshot ID")
-		.action(async (options) => {
-			currentCommand = "cloud.snapshots.download";
-			const g = await cloudGlobals();
-			exitCode = await runCloudSnapshotsDownloadCommand({
-				output,
-				json: g.json,
-				client: g.client,
-				snapshotId: options.snapshotId,
-			});
-		});
-
-	const providers = cloud
-		.command("providers")
-		.description("provider operations");
-
-	providers
-		.command("list")
-		.description("list provider credentials")
+	sync
+		.command("status")
+		.description("read cloud sync status (manifest, cursor, storage)")
 		.action(async () => {
-			currentCommand = "cloud.providers.list";
+			currentCommand = "cloud.sync.status";
 			const g = await cloudGlobals();
-			exitCode = await runCloudProvidersListCommand({
+			exitCode = await runCloudSyncStatusCommand({
 				output,
 				json: g.json,
 				client: g.client,
 			});
 		});
 
-	providers
-		.command("create")
-		.description("create provider credential")
-		.requiredOption(
-			"--provider <provider>",
-			"voyageai | openai | upstash-vector",
+	sync
+		.command("pull")
+		.description("pull file replicas from the cloud")
+		.option("--since <cursor>", "pull everything changed since this cursor")
+		.action(async (options) => {
+			currentCommand = "cloud.sync.pull";
+			const g = await cloudGlobals();
+			exitCode = await runCloudSyncPullCommand({
+				output,
+				json: g.json,
+				rootDir: g.root,
+				client: g.client,
+				since: options.since,
+			});
+		});
+
+	sync
+		.command("push")
+		.description(
+			"push local .tekmemo/ file replicas to the cloud (two-phase push→complete)",
 		)
-		.requiredOption("--key-name <name>", "key name")
-		.requiredOption("--secret <secret>", "provider secret")
-		.option("--rest-url <url>", "REST URL (required for upstash-vector)")
-		.option("--embedding-model <model>", "embedding model")
-		.option("--rerank-model <model>", "rerank model")
+		.option(
+			"--base-cursor <cursor>",
+			"cursor the client last synced at",
+		)
 		.action(async (options) => {
-			currentCommand = "cloud.providers.create";
+			currentCommand = "cloud.sync.push";
 			const g = await cloudGlobals();
-			exitCode = await runCloudProvidersCreateCommand({
+			exitCode = await runCloudSyncPushCommand({
 				output,
 				json: g.json,
+				rootDir: g.root,
+				stdinContent: input.stdinContent,
 				client: g.client,
-				provider: options.provider,
-				keyName: options.keyName,
-				secret: options.secret,
-				restUrl: options.restUrl,
-				embeddingModel: options.embeddingModel,
-				rerankModel: options.rerankModel,
-			});
-		});
-
-	providers
-		.command("test")
-		.description("test provider credential")
-		.requiredOption("--credential-id <id>", "credential ID")
-		.action(async (options) => {
-			currentCommand = "cloud.providers.test";
-			const g = await cloudGlobals();
-			exitCode = await runCloudProvidersTestCommand({
-				output,
-				json: g.json,
-				client: g.client,
-				credentialId: options.credentialId,
+				baseCursor: options.baseCursor,
 			});
 		});
 
@@ -1392,7 +755,7 @@ export async function runTekMemoCli(
 		.option("-f, --force", "overwrite existing config", false)
 		.option(
 			"--runtime <mode>",
-			"runtime mode: local, cloud, or hybrid",
+			"runtime mode: local, hybrid, or memory",
 			"local",
 		)
 		.option("--cloud-url <url>", "TekMemo Cloud API URL")

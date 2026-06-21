@@ -15,7 +15,7 @@ import pkg from "../../package.json" with { type: "json" };
 export interface TekMemoConfigFile {
 	/** JSON Schema URL for editor validation of `.tekmemo/config.json`. */
 	$schema?: string;
-	runtime?: "local" | "cloud" | "hybrid" | "memory";
+	runtime?: "local" | "hybrid" | "memory";
 	root?: string;
 	projectId?: string;
 	workspaceId?: string;
@@ -27,8 +27,8 @@ export interface TekMemoConfigFile {
 		timeoutMs?: number;
 	};
 	hybrid?: {
-		readPolicy?: "local-first" | "cloud-first" | "local-only" | "cloud-only";
-		writePolicy?: "local-first" | "cloud-first" | "local-only" | "cloud-only";
+		readPolicy?: "local-first" | "cloud-first" | "local-only";
+		writePolicy?: "local-first" | "cloud-first" | "local-only";
 	};
 }
 
