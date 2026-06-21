@@ -1,7 +1,4 @@
-internal-docs
-CONTEXT.md
 todosss
-docs/adr
 .opencode
 # Dependencies
 node_modules
@@ -48,6 +45,9 @@ agent-sessions/
 
 # Example agent runtime stores (demo memory created by examples/*)
 examples/**/.tekmemo/
+
+# Local working glossary (per grill-with-docs; lives in repo but is not committed)
+docs/CONTEXT.md
 
 # Wrangler build cache
 .wrangler/
