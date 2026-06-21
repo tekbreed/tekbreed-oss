@@ -24,9 +24,8 @@ Local recall supports **four strategies**, chosen via `recall.engine`:
 
 With **no embedder configured**, local recall defaults to lexical — so memory is
 searchable with zero setup and no API keys. The `RecallStore` interface below is
-the vector-path contract implemented by adapters (e.g. the
-[Upstash Vector adapter](./vector-adapters)); `InMemoryRecallStore` is provided
-for testing and ephemeral local sessions.
+the vector-path contract; `InMemoryRecallStore` and `FsRecallStore` are provided
+for testing and persistent local sessions.
 
 ## Quick start with Tekmemo
 
@@ -98,7 +97,7 @@ const memo = new Tekmemo({
 | Helper | Package | Purpose |
 | --- | --- | --- |
 | `createInMemoryRecallStore()` | `@tekbreed/tekmemo` | Volatile in-memory store for tests. |
-| `createUpstashRecallStore()` | `@tekbreed/tekmemo-adapter-upstash` | Production Upstash Vector store. |
+| `createFsRecallStore()` | `@tekbreed/tekmemo` | Persistent local-first store (`.tekmemo/indexes/embeddings.jsonl`). |
 
 ## Direct usage (advanced)
 

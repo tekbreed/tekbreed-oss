@@ -15,7 +15,7 @@
 
 ## What is this?
 
-**Unified core memory runtime.** Core memory contracts, records, chunks, source references, manifest validation, local protocol helpers, and provider-neutral runtime primitives. Consolidates file-based storage, embeddings (OpenAI, VoyageAI), vector store integration (Upstash Vector), and reranking providers into a single package.
+**Unified core memory runtime.** Core memory contracts, records, chunks, source references, manifest validation, local protocol helpers, and provider-neutral runtime primitives — the `Tekmemo` client, hybrid recall (BM25 + fuzzy + vector channel via file-based and in-memory stores), graph, snapshots, sync, and the provider-neutral `MemoryEmbedder` / `Reranker` / `RecallStore` contracts that adapters (OpenAI, Voyage, Transformers) implement.
 
 ## Installation
 
@@ -47,7 +47,7 @@ The `@tekbreed/tekmemo` package is designed to be highly modular. You can import
 - **Filesystem Store**: `import { createNodeFsMemoryStore } from "@tekbreed/tekmemo"`
 - **Agent Sandbox**: `import { createTekMemoAgentSession } from "@tekbreed/tekmemo"`
 - **Graph Memory**: `import { createInMemoryGraphStore } from "@tekbreed/tekmemo"`
-- **Vector Adapters**: `import { createUpstashRecallStore } from "@tekbreed/tekmemo"`
+- **Recall Stores**: `import { createFsRecallStore, createInMemoryRecallStore } from "@tekbreed/tekmemo"`
 - **Provider Adapters**: `import { createOpenAIEmbedder } from "@tekbreed/tekmemo"`
 
 For a complete breakdown of configuration options, interfaces, and architecture, see our [Full Documentation](https://docs.memo.tekbreed.com/api/tekmemo/).

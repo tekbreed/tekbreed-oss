@@ -12,7 +12,6 @@
       "type": "string",
       "enum": [
         "local",
-        "cloud",
         "hybrid",
         "memory"
       ],
@@ -55,8 +54,7 @@
           "enum": [
             "local-first",
             "cloud-first",
-            "local-only",
-            "cloud-only"
+            "local-only"
           ],
           "description": "The read fallback policy."
         },
@@ -65,8 +63,7 @@
           "enum": [
             "local-first",
             "cloud-first",
-            "local-only",
-            "cloud-only"
+            "local-only"
           ],
           "description": "The write fallback policy."
         }

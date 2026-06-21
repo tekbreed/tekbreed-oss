@@ -125,10 +125,12 @@ createTransformersEmbedder({ model: "Xenova/all-MiniLM-L12-v2" });
 |------|-----|
 | Offline / private / zero-cost semantic recall | **This package** (local ONNX) |
 | Highest-quality embeddings, can call an API | [`@tekbreed/tekmemo-adapter-openai`](../tekmemo-adapter-openai) or [`-voyage`](../tekmemo-adapter-voyage) |
-| Production-scale vector storage | pair any embedder with [`@tekbreed/tekmemo-adapter-upstash`](../tekmemo-adapter-upstash) |
+| Persistent local vector recall | pair any embedder with `createFsRecallStore` from `@tekbreed/tekmemo` |
 
-The local embedder is best for single-machine agent memory; for large shared
-indices, prefer a provider embedder plus a managed vector store.
+The local embedder pairs with TekMemo's built-in filesystem recall store
+(`createFsRecallStore`, backed by `.tekmemo/indexes/embeddings.jsonl`) for a
+fully local vector memory. For large shared indices, prefer a provider embedder
+plus a managed vector store.
 
 ## Testing
 

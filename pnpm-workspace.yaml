@@ -1,6 +1,6 @@
 packages:
+  - "apps/cloud"
   - "apps/docs"
-  - "apps/tekmemo-mcp-worker"
   - "benchmarks"
   - "examples"
   - "packages/*"

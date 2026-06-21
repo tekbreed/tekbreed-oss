@@ -81,9 +81,11 @@ Your App / Agent / MCP client
         ▼
    Tekmemo   (local-first runtime)
      ├─ .core / .notes / .conversations
-     ├─ .graph   ├─ .recall   ├─ .agentfs
+     ├─ .graph   ├─ .rerank   ├─ .agentfs
      ├─ .snapshots
      └─ .sync *  (cloud/hybrid only)
+
+   recall() / context() / writeMemory() — query-time + write methods on Tekmemo
         │
         ▼
    .tekmemo/   (plain files on disk)
@@ -95,10 +97,11 @@ Your App / Agent / MCP client
    TekMemo Cloud
 ```
 
-The runtime supports four modes resolved from constructor args → env vars →
-`.tekmemo/config.json`: **`local`** (filesystem, default), **`cloud`**
-(TekMemo Cloud API), **`hybrid`** (local + cloud with read/write policies), and
-**`memory`** (volatile, for tests).
+The runtime resolves its mode from constructor args → env vars →
+`.tekmemo/config.json`. Three modes: **`local`** (filesystem, default),
+**`hybrid`** (local + cloud sync with read/write policies), and **`memory`**
+(volatile, for tests). **TekMemo Cloud is reached via the sync client and the
+hosted MCP endpoint** — not a runtime mode.
 
 ## Packages
 
@@ -106,13 +109,13 @@ TekMemo ships as focused packages under the `@tekbreed/` scope.
 
 | Package | Purpose |
 | --- | --- |
-| [`@tekbreed/tekmemo`](packages/tekmemo) | Core memory runtime — the `Tekmemo` client, file stores, recall, graph, snapshots, sync, AI SDK helpers. |
+| [`@tekbreed/tekmemo`](packages/tekmemo) | Core memory runtime — the `Tekmemo` client, file stores, recall, graph, snapshots, sync. |
 | [`@tekbreed/tekmemo-cli`](packages/tekmemo-cli) | The `tekmemo` CLI for local + cloud memory operations. |
 | [`@tekbreed/tekmemo-mcp-server`](packages/tekmemo-mcp-server) | Model Context Protocol server (stdio + HTTP) for coding agents. |
+| [`@tekbreed/tekmemo-adapter-ai-sdk`](packages/tekmemo-adapter-ai-sdk) | Vercel AI SDK integration — the memory tool, runtime bridge, agent-session helpers. |
 | [`@tekbreed/tekmemo-adapter-openai`](packages/tekmemo-adapter-openai) | OpenAI embeddings adapter. |
 | [`@tekbreed/tekmemo-adapter-voyage`](packages/tekmemo-adapter-voyage) | Voyage AI embedder + reranker adapter. |
 | [`@tekbreed/tekmemo-adapter-transformers`](packages/tekmemo-adapter-transformers) | Zero-config local ONNX embedder — hybrid recall with no API key, no cloud. |
-| [`@tekbreed/tekmemo-adapter-upstash`](packages/tekmemo-adapter-upstash) | Upstash Vector recall-store adapter. |
 | [`@tekbreed/tekmemo-benchmark-kit`](packages/tekmemo-benchmark-kit) | Benchmark workloads + runners. |
 | [`@tekbreed/tekmemo-testing`](packages/tekmemo-testing) | Shared contract tests, fakes, and fixtures. |
 
@@ -133,18 +136,18 @@ The **core runtime is free and open source** (MIT) and usable today in public
 beta: file-based memory, the CLI, the stdio MCP server, all adapters, and the
 sync client. You can run TekMemo forever without ever talking to a cloud.
 
-**TekMemo Cloud** adds hosted convenience on top of the *same* runtime. It is a
-**separate product in early access** — you do not need it to use TekMemo.
+**TekMemo Cloud** adds hosted convenience on top of the *same* runtime — it
+launches alongside the OSS 1.0. You do not need it to use TekMemo.
 
-| | Open source (this repo) | TekMemo Cloud (early access) |
+| | Open source (this repo) | TekMemo Cloud |
 | --- | --- | --- |
 | Local file-first memory | ✅ | ✅ |
 | CLI + stdio MCP server | ✅ | ✅ |
-| All adapters (OpenAI, Voyage, Transformers, Upstash) | ✅ | ✅ |
-| Sync client | ✅ (client only) | ✅ hosted sync |
-| Hosted managed MCP endpoint | — | 🌱 early access |
-| Hosted vector recall / graph / evals | — | 🌱 early access |
+| All adapters (OpenAI, Voyage, Transformers) | ✅ | ✅ |
+| Hosted sync (keep memory in sync across devices) | ✅ client | ✅ hosted |
+| Hosted managed MCP endpoint | — | ✅ available |
 | Workspaces, observability, audit logs | — | Planned |
+| Managed-runtime tier (hosted recall / graph / evals) | — | Roadmap (v1.x/v2) |
 
 The conversion path is intentional: start local, add hosted sync when you need
 it, move to team features later — without changing your code.
@@ -156,7 +159,7 @@ it, move to team features later — without changing your code.
 tekmemo/
 ├── apps/
 │   ├── docs/                  # VitePress docs site (docs.memo.tekbreed.com)
-│   └── tekmemo-mcp-worker/    # Hosted MCP endpoint (Cloudflare Worker)
+│   └── cloud/                   # TekMemo Cloud — Hono API + React Router v8 dashboard (Cloudflare Worker target, per ADR 0005)
 ├── examples/                  # Runnable examples
 ├── packages/                  # 9 published @tekbreed/* packages
 ├── tooling/                   # private @repo/* workspace tooling

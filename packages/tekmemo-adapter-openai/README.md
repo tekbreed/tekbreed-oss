@@ -67,9 +67,8 @@ console.log(result.usage);      // { promptTokens, totalTokens }
 ## Integration with TekMemo Core
 
 ```ts
-import { bootstrapMemoryStore } from "@tekbreed/tekmemo";
+import { bootstrapMemoryStore, createFsRecallStore } from "@tekbreed/tekmemo";
 import { createOpenAIEmbedder } from "@tekbreed/tekmemo-adapter-openai";
-import { createUpstashRecallStore } from "@tekbreed/tekmemo";
 
 const store = await bootstrapMemoryStore({ rootDir: "./.tekmemo" });
 
@@ -79,10 +78,8 @@ const embedder = createOpenAIEmbedder({
   dimensions: 1536, // Optional: reduce dimensions for speed
 });
 
-const recallStore = createUpstashRecallStore({
-  url: process.env.UPSTASH_VECTOR_URL!,
-  token: process.env.UPSTASH_VECTOR_TOKEN!,
-}, embedder);
+// Local-first persistent recall store backed by .tekmemo/indexes/embeddings.jsonl
+const recallStore = createFsRecallStore({ store });
 
 // Now use with TekMemo's memory operations
 ```

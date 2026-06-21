@@ -15,26 +15,32 @@ TekMemo ships when it's right, not when a date says so.
 Active focus — the work in flight toward a stable 1.0.
 
 - **API freeze on the `Tekmemo` client** — lock the public surface
-  (`core`, `notes`, `graph`, `snapshots`, `agentfs`, `sync`, `rerank` namespaces
-  + `recall`, `context`, `writeMemory`, `listRecentMemories`, `validate`,
-  `health`). After 1.0, changes follow semver.
+  (`core`, `notes`, `conversations`, `graph`, `snapshots`, `agentfs`, `sync`,
+  `rerank` namespaces + `recall`, `context`, `writeMemory`,
+  `listRecentMemories`, `validate`, `health`). After 1.0, changes follow
+  semver.
 - **Freeze the AI SDK helpers** — `buildRuntimeMemoryContext`,
   `buildRuntimeMemoryToolDefinition`, `runRuntimeMemoryTool`,
-  `createAiSdkRuntimeFromTekmemo`, `TekMemoAiRuntime`.
+  `createAiSdkRuntimeFromTekmemo`, `TekMemoMemoryRuntime`. These ship in
+  [`@tekbreed/tekmemo-adapter-ai-sdk`](packages/tekmemo-adapter-ai-sdk); the
+  framework-neutral `TekMemoMemoryRuntime` interface is frozen in core.
 - **Lock the recall configuration schema** — `engine`, `localEmbeddings`,
   `embeddingModel` + the `TEKMEMO_RECALL_*` env vars.
-- **Hosted MCP endpoint** — productionize the Cloudflare Worker
-  (`apps/tekmemo-mcp-worker`) as the managed, bearer-token MCP endpoint.
+- **TekMemo Cloud launch** — ship the hosted layer alongside the OSS 1.0:
+  hosted sync (keep memory in sync across devices) and the hosted managed MCP
+  endpoint. The cloud runs as one Cloudflare Worker (Hono API + React Router v8
+  dashboard) per [ADR 0005](docs/adr/0005-cloud-tech-stack.md).
 - **Docs & contributor readiness** — runnable examples across the primary
   agent frameworks; a complete, honest contributor funnel.
 
 ## Next
 
-In flight after 1.0 — the hosted convenience layer that defines TekMemo Cloud.
+In flight after 1.0 — team features and the managed-runtime tier.
 
-- **Hosted vector recall / graph / evals** — managed versions of the
-  capabilities the OSS runtime computes locally.
-- **Hosted sync** — turn the OSS sync *client* into a hosted sync *service*.
+- **Managed-runtime tier** — run the *same* local `Tekmemo` engine + an embedder
+  on hosted infra against the user's R2-resident files; expose hosted recall /
+  graph / evals by API. The long-term purpose of the cloud ([ADR 0003](docs/adr/0003-managed-runtime-tier.md));
+  v1's file-replica sync is the foundation for it.
 - **Workspaces** — shared memory across a team, with access controls.
 - **Observability** — recall quality, latency, and usage analytics.
 - **Audit logs** — append-only history of memory reads/writes for compliance.

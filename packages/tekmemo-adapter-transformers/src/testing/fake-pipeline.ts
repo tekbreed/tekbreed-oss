@@ -71,14 +71,16 @@ function deterministicVector(text: string, dimensions: number): Float32Array {
 	const tokens = text.toLowerCase().split(/[^a-z0-9]+/i).filter(Boolean);
 	for (const token of tokens) {
 		const bucket = Math.abs(hashCode(token)) % dimensions;
-		vector[bucket] += 1;
+		vector[bucket] = (vector[bucket] ?? 0) + 1;
 	}
 	// L2 normalize so cosine similarity behaves.
 	let norm = 0;
 	for (const v of vector) norm += v * v;
 	norm = Math.sqrt(norm);
 	if (norm > 0) {
-		for (let i = 0; i < vector.length; i++) vector[i] /= norm;
+		for (let i = 0; i < vector.length; i++) {
+			vector[i] = (vector[i] ?? 0) / norm;
+		}
 	}
 	return vector;
 }

@@ -35,7 +35,6 @@ TekMemo is published as a family of packages:
 | `@tekbreed/tekmemo-mcp-server` | MCP server for IDE/agent integration |
 | `@tekbreed/tekmemo-adapter-openai` | OpenAI embedding provider adapter |
 | `@tekbreed/tekmemo-adapter-voyage` | VoyageAI embedding and reranking adapter |
-| `@tekbreed/tekmemo-adapter-upstash` | Upstash Vector recall store adapter |
 | `@tekbreed/tekmemo-mcp-worker` | Cloudflare Worker hosted MCP server |
 | `@tekbreed/tekmemo-benchmark-cli` | CLI for running benchmark suites |
 

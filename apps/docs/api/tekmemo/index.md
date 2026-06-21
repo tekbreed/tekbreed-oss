@@ -34,7 +34,6 @@ Standalone packages that implement embedder, reranker, or vector store interface
 | --- | --- |
 | **`@tekbreed/tekmemo-adapter-openai`** | OpenAI embedder adapter. |
 | **`@tekbreed/tekmemo-adapter-voyage`** | Voyage AI embedder and reranker adapter. |
-| **`@tekbreed/tekmemo-adapter-upstash`** | Upstash Vector recall store adapter. |
 
 ### Tooling
 
@@ -83,4 +82,4 @@ The `Tekmemo` class is a façade over these building blocks. Most users only nee
 | **Reranking** | Reranking contracts and deterministic fallback. | [`Reranking`](./rerank) |
 | **Benchmark Kit** | Benchmark runners and testing utilities. | [`Benchmark Kit`](./benchmark-kit) |
 
-> **Note:** Vector adapters (Upstash) and provider adapters (OpenAI, VoyageAI) are now standalone packages. See the [Provider Adapters](#provider-adapters) section above.
+> **Note:** Provider adapters (OpenAI, VoyageAI) are now standalone packages. See the [Provider Adapters](#provider-adapters) section above.

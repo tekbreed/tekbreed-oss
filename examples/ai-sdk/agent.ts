@@ -23,8 +23,8 @@ import {
 	buildRuntimeMemoryContext,
 	buildRuntimeMemoryToolDefinition,
 	createAiSdkRuntimeFromTekmemo,
-	Tekmemo,
-} from "@tekbreed/tekmemo";
+} from "@tekbreed/tekmemo-adapter-ai-sdk";
+import { Tekmemo } from "@tekbreed/tekmemo";
 
 const memo = new Tekmemo({ rootDir: "./.tekmemo", projectId: "demo" });
 const runtime = createAiSdkRuntimeFromTekmemo(memo);

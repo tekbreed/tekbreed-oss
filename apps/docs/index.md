@@ -3,9 +3,9 @@ layout: home
 
 hero:
   name: "TekMemo"
-  text: "Your AI agents forget. TekMemo doesn't."
+  text: "Your AI agents forget. TekMemo doesn’t."
   image: /logo.svg
-  tagline: "File-first memory that lives in your repo — so every session picks up where the last one left off."
+  tagline: "Local-first memory for AI agents — versioned, portable, and always there when the next session starts."
   actions:
     - theme: brand
       text: "Get Started"

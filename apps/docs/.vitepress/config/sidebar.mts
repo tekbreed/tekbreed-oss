@@ -100,7 +100,6 @@ const tekMemoApi = [
 			{ text: "Recall", link: "/api/tekmemo/recall" },
 			{ text: "Reranking", link: "/api/tekmemo/rerank" },
 			{ text: "Embedder adapters", link: "/api/tekmemo/provider-adapters" },
-			{ text: "Vector recall stores", link: "/api/tekmemo/vector-adapters" },
 			{ text: "Benchmark Kit", link: "/api/tekmemo/benchmark-kit" },
 		],
 	},

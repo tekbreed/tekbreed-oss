@@ -9,7 +9,6 @@ This repo uses **two namespace conventions** — keep them separate:
 | `packages/tekmemo-mcp-server` | `@tekbreed/tekmemo-mcp-server` | `@tekbreed` — Model Context Protocol server |
 | `packages/tekmemo-adapter-openai` | `@tekbreed/tekmemo-adapter-openai` | `@tekbreed` — OpenAI embedder adapter |
 | `packages/tekmemo-adapter-voyage` | `@tekbreed/tekmemo-adapter-voyage` | `@tekbreed` — Voyage AI embedder/reranker adapter |
-| `packages/tekmemo-adapter-upstash` | `@tekbreed/tekmemo-adapter-upstash` | `@tekbreed` — Upstash Vector recall store adapter |
 | `packages/tekmemo-testing` | `@tekbreed/tekmemo-testing` | `@tekbreed` — Testing contract suites and mock drivers |
 | `packages/tekmemo-benchmark-kit` | `@tekbreed/tekmemo-benchmark-kit` | `@tekbreed` — Benchmark workloads and runner |
 

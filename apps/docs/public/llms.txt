@@ -11,7 +11,6 @@ Official adapters live alongside it:
 - `@tekbreed/tekmemo-adapter-openai` — OpenAI embeddings.
 - `@tekbreed/tekmemo-adapter-voyage` — Voyage AI embedder + reranker.
 - `@tekbreed/tekmemo-adapter-transformers` — zero-config local ONNX embedder (Transformers.js) for hybrid recall with no API key, no cloud.
-- `@tekbreed/tekmemo-adapter-upstash` — Upstash Vector recall store.
 
 ## Recall (local intelligence)
 

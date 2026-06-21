@@ -16,8 +16,8 @@ import {
 	buildRuntimeMemoryContext,
 	buildRuntimeMemoryToolDefinition,
 	createAiSdkRuntimeFromTekmemo,
-	Tekmemo,
-} from "@tekbreed/tekmemo";
+} from "@tekbreed/tekmemo-adapter-ai-sdk";
+import { Tekmemo } from "@tekbreed/tekmemo";
 import { streamText } from "ai";
 
 // In production, persist these per conversation (a Map keyed by conversationId,

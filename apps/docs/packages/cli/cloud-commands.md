@@ -591,10 +591,9 @@ npx tekmemo cloud providers create \
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
-| `--provider <provider>` | `voyageai` / `openai` / `upstash-vector` | *required* | Provider type |
+| `--provider <provider>` | `voyageai` / `openai` | *required* | Provider type |
 | `--key-name <name>` | string | *required* | Key name |
 | `--secret <secret>` | string | *required* | Provider secret |
-| `--rest-url <url>` | string | — | REST URL (required for `upstash-vector`) |
 | `--embedding-model <model>` | string | — | Embedding model |
 | `--rerank-model <model>` | string | — | Rerank model |
 

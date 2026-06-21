@@ -24,7 +24,6 @@ The launch of TekMemo: a memory layer built for AI agents that need durable, que
 
 ## Stay Updated
 
-- [RSS Feed](/blog/rss.xml)
 - Follow [@tekbreed](https://x.com/tekbreed) on X
 - Watch the [GitHub repo](https://github.com/tekbreed/tekmemo)
 

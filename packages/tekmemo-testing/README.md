@@ -56,18 +56,11 @@ describe("OpenAI Embedder Contract", () => {
 ```ts
 import { describe } from "vitest";
 import { recallStoreContractTests } from "@tekbreed/tekmemo-testing/contracts";
-import { createUpstashRecallStore } from "@tekbreed/tekmemo-adapter-upstash";
-import { createOpenAIEmbedder } from "@tekbreed/tekmemo-adapter-openai";
+import { createInMemoryRecallStore } from "@tekbreed/tekmemo";
 
-const target = (embedder) => createUpstashRecallStore(
-  {
-    url: process.env.UPSTASH_VECTOR_URL!,
-    token: process.env.UPSTASH_VECTOR_TOKEN!,
-  },
-  embedder
-);
+const target = () => createInMemoryRecallStore();
 
-describe("Upstash Recall Store Contract", () => {
+describe("In-Memory Recall Store Contract", () => {
   recallStoreContractTests(target, {
     requiresEmbedder: true,
     supportsBatching: true,

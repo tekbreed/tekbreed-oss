@@ -5,7 +5,7 @@ Understanding how TekMemo packages relate to each other helps you maintain clean
 ## The Core Package (`@tekbreed/tekmemo`)
 
 The core package defines the protocol contracts, schemas, document types, events, and validation logic. It also contains:
-- The unified [`Tekmemo`](../client) client and its runtime strategies (`local`, `cloud`, `hybrid`, `memory`)
+- The unified [`Tekmemo`](../client) client and its runtime strategies (`local`, `hybrid`, `memory`)
 - Cloud client (`createTekMemoCloudClient`) and cloud runtime helpers
 - Filesystem storage (`createNodeFsMemoryStore`)
 - Graph memory engine
@@ -24,7 +24,6 @@ Provider adapters are standalone packages that implement embedder, reranker, and
 | --- | --- |
 | **`@tekbreed/tekmemo-adapter-openai`** | OpenAI embedder adapter. |
 | **`@tekbreed/tekmemo-adapter-voyage`** | Voyage AI embedder and reranker adapter. |
-| **`@tekbreed/tekmemo-adapter-upstash`** | Upstash Vector recall store adapter. |
 
 Each adapter is optional — install only the ones you need.
 
@@ -49,7 +48,6 @@ A standalone package providing the `tekmemo-mcp` binary. It runs a Model Context
 @tekbreed/tekmemo (core contracts, client, runtime)
 ├── @tekbreed/tekmemo-adapter-openai
 ├── @tekbreed/tekmemo-adapter-voyage
-├── @tekbreed/tekmemo-adapter-upstash
 ├── @tekbreed/tekmemo-cli
 ├── @tekbreed/tekmemo-mcp-server
 ├── @tekbreed/tekmemo-benchmark-kit
