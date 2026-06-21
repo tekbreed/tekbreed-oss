@@ -68,12 +68,9 @@ export function createTekMemoMcpRuntimeFromConfig(
 			: undefined);
 
 	// Local ONNX embedder is lazy: constructing it is synchronous and cheap.
-	// The heavy runtime is imported on first recall. Memory/cloud modes don't
-	// use the local vector path, so skip wiring it there.
-	const useLocalEmbedder =
-		localEmbeddings &&
-		options.mode !== "memory" &&
-		options.mode !== "cloud";
+	// The heavy runtime is imported on first recall. Memory mode is volatile and
+	// never persists vectors, so skip wiring the local embedder there.
+	const useLocalEmbedder = localEmbeddings && options.mode !== "memory";
 	const embedder = useLocalEmbedder
 		? createLazyLocalEmbedder({
 				...(embeddingModel === undefined ? {} : { model: embeddingModel }),
@@ -223,43 +220,11 @@ export function createTekMemoMcpRuntimeFromTekmemo(
 		},
 
 		async syncPull(input, signal) {
-			return memo.sync.pull(input, signal) as Promise<unknown> as Promise<
-				import("../types").SyncPullResult
-			>;
+			return memo.sync.pull(input, signal);
 		},
 
 		async syncStatus(input, signal) {
-			return memo.sync.status(input, signal) as Promise<unknown> as Promise<
-				import("../types").SyncStatusResult
-			>;
-		},
-
-		async resolveSyncConflict(input, signal) {
-			if (memo.cloud?.conflicts) {
-				const resolutionMap: Record<string, string> = {
-					keep_cloud: "keep_existing",
-					use_client: "use_incoming",
-					ignore: "dismiss",
-				};
-				return memo.cloud.conflicts.resolve(
-					{
-						conflictId: input.conflictId,
-						resolution: (resolutionMap[input.resolution] ?? input.resolution) as
-							| "keep_existing"
-							| "use_incoming"
-							| "merge"
-							| "dismiss",
-						...(input.projectId === undefined
-							? {}
-							: { projectId: input.projectId }),
-						...(input.content === undefined
-							? {}
-							: { mergedContent: JSON.stringify(input.content) }),
-					},
-					signal,
-				);
-			}
-			throw new Error("Conflict resolution is not available in this mode.");
+			return memo.sync.status(input, signal);
 		},
 
 		async upsertGraphNodes(input, signal) {
@@ -289,90 +254,6 @@ export function createTekMemoMcpRuntimeFromTekmemo(
 		async readiness(signal) {
 			if (memo.cloud) return memo.cloud.readiness(signal);
 			return { ok: true };
-		},
-
-		async contextCompose(input, signal) {
-			if (memo.cloud) return memo.cloud.context.compose(input as never, signal);
-			throw new Error("Context compose is not available in this mode.");
-		},
-
-		async graphListNodes(input, signal) {
-			return memo.graph.listNodes(input, signal);
-		},
-
-		async graphListEdges(input, signal) {
-			return memo.graph.listEdges(input, signal);
-		},
-
-		async graphCreateNode(input, signal) {
-			if (memo.cloud)
-				return memo.cloud.graph.createNode(input as never, signal);
-			throw new Error("Graph node creation is not available in this mode.");
-		},
-
-		async graphCreateEdge(input, signal) {
-			if (memo.cloud)
-				return memo.cloud.graph.createEdge(input as never, signal);
-			throw new Error("Graph edge creation is not available in this mode.");
-		},
-
-		async extractionRun(input, signal) {
-			if (memo.cloud) return memo.cloud.extraction.run(input as never, signal);
-			throw new Error("Extraction is not available in this mode.");
-		},
-
-		async extractionJobs(input, signal) {
-			if (memo.cloud) return memo.cloud.extraction.jobs(input as never, signal);
-			throw new Error("Extraction jobs are not available in this mode.");
-		},
-
-		async evalsRun(input, signal) {
-			if (memo.cloud) return memo.cloud.evals.run(input as never, signal);
-			throw new Error("Evals are not available in this mode.");
-		},
-
-		async benchmarksRun(input, signal) {
-			if (memo.cloud) return memo.cloud.benchmarks.run(input as never, signal);
-			throw new Error("Benchmarks are not available in this mode.");
-		},
-
-		async exportsCreate(input, signal) {
-			if (memo.cloud) return memo.cloud.exports.create(input as never, signal);
-			throw new Error("Exports are not available in this mode.");
-		},
-
-		async exportsDownload(input, signal) {
-			if (memo.cloud)
-				return memo.cloud.exports.downloadUrl(input as never, signal);
-			throw new Error("Exports download is not available in this mode.");
-		},
-
-		async snapshotsCreate(input, signal) {
-			if (memo.cloud)
-				return memo.cloud.snapshots.create(input as never, signal);
-			throw new Error("Cloud snapshots are not available in this mode.");
-		},
-
-		async snapshotsDownload(input, signal) {
-			if (memo.cloud)
-				return memo.cloud.snapshots.downloadUrl(input as never, signal);
-			throw new Error("Cloud snapshot download is not available in this mode.");
-		},
-
-		async providersList(input, signal) {
-			if (memo.cloud) return memo.cloud.providers.list(input as never, signal);
-			throw new Error("Providers are not available in this mode.");
-		},
-
-		async providersCreate(input, signal) {
-			if (memo.cloud)
-				return memo.cloud.providers.create(input as never, signal);
-			throw new Error("Provider creation is not available in this mode.");
-		},
-
-		async providersTest(input, signal) {
-			if (memo.cloud) return memo.cloud.providers.test(input as never, signal);
-			throw new Error("Provider testing is not available in this mode.");
 		},
 	};
 }

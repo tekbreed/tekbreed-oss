@@ -130,32 +130,32 @@ function parseArgs(
 
 	if (
 		out.runtime !== undefined &&
-		!["local", "memory", "cloud", "hybrid"].includes(out.runtime as string)
+		!["local", "memory", "hybrid"].includes(out.runtime as string)
 	) {
 		console.error(
-			`[tekmemo-mcp] --runtime must be local, memory, cloud, or hybrid.`,
+			`[tekmemo-mcp] --runtime must be local, memory, or hybrid.`,
 		);
 		process.exit(2);
 	}
 	if (
 		out.readPolicy !== undefined &&
-		!["local-first", "cloud-first", "local-only", "cloud-only"].includes(
+		!["local-first", "cloud-first", "local-only"].includes(
 			out.readPolicy as string,
 		)
 	) {
 		console.error(
-			`[tekmemo-mcp] --read-policy must be local-first, cloud-first, local-only, or cloud-only.`,
+			`[tekmemo-mcp] --read-policy must be local-first, cloud-first, or local-only.`,
 		);
 		process.exit(2);
 	}
 	if (
 		out.writePolicy !== undefined &&
-		!["local-first", "cloud-first", "local-only", "cloud-only"].includes(
+		!["local-first", "cloud-first", "local-only"].includes(
 			out.writePolicy as string,
 		)
 	) {
 		console.error(
-			`[tekmemo-mcp] --write-policy must be local-first, cloud-first, local-only, or cloud-only.`,
+			`[tekmemo-mcp] --write-policy must be local-first, cloud-first, or local-only.`,
 		);
 		process.exit(2);
 	}

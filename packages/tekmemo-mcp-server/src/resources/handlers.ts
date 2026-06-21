@@ -171,7 +171,11 @@ export async function readTekMemoResource(
 					),
 				);
 			}
-			case "graph/nodes":
+			case "graph/nodes": {
+				if (!options.runtime.listGraphNodes)
+					throw new McpNotFoundError(
+						"Runtime does not support graph node resources.",
+					);
 				return content(
 					uri,
 					"application/json",
@@ -189,7 +193,12 @@ export async function readTekMemoResource(
 						}),
 					),
 				);
-			case "graph/edges":
+			}
+			case "graph/edges": {
+				if (!options.runtime.listGraphEdges)
+					throw new McpNotFoundError(
+						"Runtime does not support graph edge resources.",
+					);
 				return content(
 					uri,
 					"application/json",
@@ -207,6 +216,7 @@ export async function readTekMemoResource(
 						}),
 					),
 				);
+			}
 			default:
 				if (parsed.pathname.startsWith("agent-sessions/")) {
 					return readAgentSessionResource(options, uri, parsed.pathname);

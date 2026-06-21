@@ -45,7 +45,7 @@ async function tempRoot() {
  * runtime mode. The embedder itself is lazy (loaded on first vector query), so
  * these tests assert the *observable* consequences of the wiring decision:
  *
- *  - memory/cloud modes never attempt the local vector path,
+ *  - memory mode never attempts the local vector path,
  *  - local mode stays functional with zero API keys (lexical fallback),
  *  - a missing adapter never breaks recall (graceful degradation),
  *  - disabling local embeddings keeps the runtime import-light.
@@ -58,20 +58,22 @@ describe("createTekMemoMcpRuntimeFromConfig — embedder wiring", () => {
 			const health = await runtime.health();
 			expect(health.ok).toBe(true);
 			// memory mode is volatile; recall returns no items but must not throw.
-			const result = await runtime.recall({ query: "anything" });
+			const result = await runtime.recall!({ query: "anything" });
 			expect(result.items).toEqual([]);
 		});
 
-		it("cloud mode: skips the local embedder even when localEmbeddings is true", async () => {
-			// Pointed at a non-existent base URL so the client is constructed but
-			// unused; we only assert health doesn't blow up on wiring.
+		it("hybrid mode: constructs with cloud config and never throws on wiring", async () => {
+			// Hybrid mode (local engine + cloud file-replica sync) is the only
+			// cloud-facing mode after the D4 trim; there is no standalone "cloud"
+			// mode. Pointed at a non-existent base URL so the client is constructed
+			// but unused; we only assert the runtime wires without throwing.
 			const runtime = createTekMemoMcpRuntimeFromConfig({
-				mode: "cloud",
+				mode: "hybrid",
 				cloud: { baseUrl: "https://invalid.example.com" },
 				recall: { localEmbeddings: true },
 			});
 			// Constructing the runtime must not throw and must not import the
-			// (absent) local adapter — cloud mode never wires it.
+			// (absent) local adapter eagerly.
 			expect(runtime).toBeDefined();
 		});
 	});
@@ -90,13 +92,13 @@ describe("createTekMemoMcpRuntimeFromConfig — embedder wiring", () => {
 					recall: { localEmbeddings: true, engine: "hybrid" },
 				});
 
-				await runtime.writeMemory({
+				await runtime.writeMemory!({
 					content: "Authentication uses JWT tokens in the login flow.",
 					kind: "decision",
 					title: "Auth",
 				});
 
-				const result = await runtime.recall({ query: "login auth", limit: 5 });
+				const result = await runtime.recall!({ query: "login auth", limit: 5 });
 				// Lexical path surfaces the memory even though the vector path
 				// could not initialize (no adapter).
 				expect(result.items.length).toBeGreaterThan(0);
@@ -116,12 +118,12 @@ describe("createTekMemoMcpRuntimeFromConfig — embedder wiring", () => {
 					recall: { localEmbeddings: false },
 				});
 
-				await runtime.writeMemory({
+				await runtime.writeMemory!({
 					content: "The deployment pipeline runs on GitHub Actions.",
 					kind: "reference",
 				});
 
-				const result = await runtime.recall({
+				const result = await runtime.recall!({
 					query: "deployment pipeline",
 					limit: 5,
 				});
@@ -143,11 +145,11 @@ describe("createTekMemoMcpRuntimeFromConfig — embedder wiring", () => {
 						rootDir,
 						projectId: "mcp-factory",
 					});
-					await runtime.writeMemory({
+					await runtime.writeMemory!({
 						content: "Env-disabled embedder still recalls lexically.",
 						kind: "note",
 					});
-					const result = await runtime.recall({
+					const result = await runtime.recall!({
 						query: "env-disabled embedder",
 						limit: 5,
 					});
@@ -170,7 +172,9 @@ describe("createTekMemoMcpRuntimeFromConfig — embedder wiring", () => {
 					rootDir,
 					projectId: "mcp-factory",
 				});
-				const { content } = await runtime.readCoreMemory();
+				const readCoreMemory = runtime.readCoreMemory;
+				if (!readCoreMemory) throw new Error("readCoreMemory is missing");
+				const { content } = await readCoreMemory();
 				// Bootstrapped core memory is a non-empty markdown document.
 				expect(content.length).toBeGreaterThan(0);
 			} finally {

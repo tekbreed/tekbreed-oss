@@ -10,7 +10,6 @@ import {
 	toSafeError,
 } from "../errors";
 import type {
-	GraphPathInput,
 	McpToolResult,
 	TekMemoMcpOptions,
 	ToolSafety,
@@ -179,10 +178,12 @@ async function executeTool(
 				await callOptionalRuntime(options, "context", args, signal),
 			);
 		case "tekmemo.recall":
-			return textResult(await options.runtime.recall(args as never, signal));
+			return textResult(
+				await callOptionalRuntime(options, "recall", args, signal),
+			);
 		case "tekmemo.remember":
 			return textResult(
-				await options.runtime.writeMemory(args as never, signal),
+				await callOptionalRuntime(options, "writeMemory", args, signal),
 			);
 		case "tekmemo.read_core_memory":
 			return textResult(
@@ -220,128 +221,27 @@ async function executeTool(
 			return textResult(
 				await callOptionalRuntime(options, "syncPush", args, signal),
 			);
-		case "tekmemo.sync_resolve_conflict":
-			return textResult(
-				await callOptionalRuntime(options, "resolveSyncConflict", args, signal),
-			);
 		case "tekmemo.graph_upsert_nodes":
 			return textResult(
-				await options.runtime.upsertGraphNodes(args as never, signal),
+				await callOptionalRuntime(options, "upsertGraphNodes", args, signal),
 			);
 		case "tekmemo.graph_upsert_edges":
 			return textResult(
-				await options.runtime.upsertGraphEdges(args as never, signal),
+				await callOptionalRuntime(options, "upsertGraphEdges", args, signal),
 			);
 		case "tekmemo.graph_neighbors":
 			return textResult(
-				await options.runtime.graphNeighbors(args as never, signal),
+				await callOptionalRuntime(options, "graphNeighbors", args, signal),
 			);
 		case "tekmemo.graph_path":
 			return textResult(
-				await options.runtime.graphPath(
-					args as unknown as GraphPathInput,
-					signal,
-				),
+				await callOptionalRuntime(options, "graphPath", args, signal),
 			);
 		case "tekmemo.readiness":
 			return textResult(
 				(await options.runtime.readiness?.(signal)) ?? {
 					ok: false,
 					message: "Readiness not supported.",
-				},
-			);
-		case "tekmemo.context_compose":
-			return textResult(
-				(await options.runtime.contextCompose?.(args as never, signal)) ?? {
-					error: "Context compose not supported.",
-				},
-			);
-		case "tekmemo.graph_list_nodes":
-			return textResult(
-				(await options.runtime.graphListNodes?.(args as never, signal)) ?? {
-					items: [],
-				},
-			);
-		case "tekmemo.graph_create_node":
-			return textResult(
-				(await options.runtime.graphCreateNode?.(args as never, signal)) ?? {
-					error: "Graph node creation not supported.",
-				},
-			);
-		case "tekmemo.graph_list_edges":
-			return textResult(
-				(await options.runtime.graphListEdges?.(args as never, signal)) ?? {
-					items: [],
-				},
-			);
-		case "tekmemo.graph_create_edge":
-			return textResult(
-				(await options.runtime.graphCreateEdge?.(args as never, signal)) ?? {
-					error: "Graph edge creation not supported.",
-				},
-			);
-		case "tekmemo.extraction_run":
-			return textResult(
-				(await options.runtime.extractionRun?.(args as never, signal)) ?? {
-					status: "skipped",
-				},
-			);
-		case "tekmemo.extraction_jobs":
-			return textResult(
-				(await options.runtime.extractionJobs?.(args as never, signal)) ?? {
-					items: [],
-				},
-			);
-		case "tekmemo.evals_run":
-			return textResult(
-				(await options.runtime.evalsRun?.(args as never, signal)) ?? {
-					passRate: 0,
-				},
-			);
-		case "tekmemo.benchmarks_run":
-			return textResult(
-				(await options.runtime.benchmarksRun?.(args as never, signal)) ?? {
-					passRate: 0,
-				},
-			);
-		case "tekmemo.exports_create":
-			return textResult(
-				(await options.runtime.exportsCreate?.(args as never, signal)) ?? {
-					error: "Exports not supported.",
-				},
-			);
-		case "tekmemo.exports_download":
-			return textResult(
-				(await options.runtime.exportsDownload?.(args as never, signal)) ?? {
-					error: "Exports download not supported.",
-				},
-			);
-		case "tekmemo.snapshots_create":
-			return textResult(
-				(await options.runtime.snapshotsCreate?.(args as never, signal)) ?? {
-					error: "Snapshots not supported.",
-				},
-			);
-		case "tekmemo.snapshots_download":
-			return textResult(
-				(await options.runtime.snapshotsDownload?.(args as never, signal)) ?? {
-					error: "Snapshots download not supported.",
-				},
-			);
-		case "tekmemo.providers_list":
-			return textResult(
-				(await options.runtime.providersList?.(args as never, signal)) ?? [],
-			);
-		case "tekmemo.providers_create":
-			return textResult(
-				(await options.runtime.providersCreate?.(args as never, signal)) ?? {
-					error: "Provider creation not supported.",
-				},
-			);
-		case "tekmemo.providers_test":
-			return textResult(
-				(await options.runtime.providersTest?.(args as never, signal)) ?? {
-					ok: false,
 				},
 			);
 		default:
@@ -625,28 +525,15 @@ function validateToolArguments(
 		}
 		case "tekmemo.sync_status": {
 			const scope = scopeArgs(object);
-			const clientId = optionalString(object.clientId, "clientId", 256);
-			return {
-				args: { ...scope, ...(clientId === undefined ? {} : { clientId }) },
-				safety: "read",
-				workspaceId: scope.workspaceId,
-			};
+			return { args: { ...scope }, safety: "read", workspaceId: scope.workspaceId };
 		}
 		case "tekmemo.sync_pull": {
 			const scope = scopeArgs(object);
-			const sinceServerVersion = optionalInteger(
-				object.sinceServerVersion,
-				"sinceServerVersion",
-				0,
-				Number.MAX_SAFE_INTEGER,
-			);
-			const limit = optionalInteger(object.limit, "limit", 1, maxPageSize);
+			const since = optionalString(object.since, "since", 512);
 			return {
 				args: {
 					...scope,
-					clientId: requiredString(object.clientId, "clientId", 256),
-					...(sinceServerVersion === undefined ? {} : { sinceServerVersion }),
-					...(limit === undefined ? {} : { limit }),
+					...(since === undefined ? {} : { since }),
 				},
 				safety: "read",
 				workspaceId: scope.workspaceId,
@@ -654,51 +541,11 @@ function validateToolArguments(
 		}
 		case "tekmemo.sync_push": {
 			const scope = scopeArgs(object);
-			if (
-				!Array.isArray(object.events) ||
-				object.events.length === 0 ||
-				object.events.length > 100
-			) {
-				throw new McpValidationError(
-					"events must contain 1 to 100 sync events.",
-				);
-			}
-			const events = object.events.map((event, index) =>
-				validateSyncEvent(event, index),
-			);
-			const checkpoint =
-				object.checkpoint === undefined
-					? undefined
-					: toJsonObject(object.checkpoint, "checkpoint");
+			const baseCursor = optionalString(object.baseCursor, "baseCursor", 512);
 			return {
 				args: {
 					...scope,
-					clientId: requiredString(object.clientId, "clientId", 256),
-					events,
-					...(checkpoint === undefined ? {} : { checkpoint }),
-				},
-				safety: "write",
-				workspaceId: scope.workspaceId,
-			};
-		}
-		case "tekmemo.sync_resolve_conflict": {
-			const scope = scopeArgs(object);
-			const resolution = requiredString(object.resolution, "resolution", 32);
-			if (!["keep_cloud", "use_client", "ignore"].includes(resolution)) {
-				throw new McpValidationError(
-					"resolution must be keep_cloud, use_client, or ignore.",
-				);
-			}
-			const content =
-				object.content === undefined
-					? undefined
-					: toJsonObject(object.content, "content");
-			return {
-				args: {
-					...scope,
-					conflictId: validateId(object.conflictId, "conflictId"),
-					resolution,
-					...(content === undefined ? {} : { content }),
+					...(baseCursor === undefined ? {} : { baseCursor }),
 				},
 				safety: "write",
 				workspaceId: scope.workspaceId,
@@ -818,421 +665,7 @@ function validateToolArguments(
 		case "tekmemo.readiness": {
 			return { args: {}, safety: "read" };
 		}
-		case "tekmemo.context_compose": {
-			const scope = scopeArgs(object);
-			const query = requiredString(object.query, "query", 4096);
-			const topK = optionalInteger(object.topK, "topK", 1, 20);
-			const strategy = optionalString(object.strategy, "strategy", 8);
-			if (
-				strategy !== undefined &&
-				!["auto", "vector", "local"].includes(strategy)
-			) {
-				throw new McpValidationError(
-					"strategy must be auto, vector, or local.",
-				);
-			}
-			const rerank = optionalBoolean(object.rerank, "rerank");
-			const includeCoreMemory = optionalBoolean(
-				object.includeCoreMemory,
-				"includeCoreMemory",
-			);
-			const includeRecallResults = optionalBoolean(
-				object.includeRecallResults,
-				"includeRecallResults",
-			);
-			const includeGraphContext = optionalBoolean(
-				object.includeGraphContext,
-				"includeGraphContext",
-			);
-			const graphDepth = optionalInteger(object.graphDepth, "graphDepth", 1, 3);
-			const graphLimit = optionalInteger(
-				object.graphLimit,
-				"graphLimit",
-				1,
-				50,
-			);
-			const maxContextCharacters = optionalInteger(
-				object.maxContextCharacters,
-				"maxContextCharacters",
-				1000,
-				50000,
-			);
-			const maxSourceCharacters = optionalInteger(
-				object.maxSourceCharacters,
-				"maxSourceCharacters",
-				300,
-				8000,
-			);
-			return {
-				args: {
-					query,
-					...scope,
-					...(topK === undefined ? {} : { topK }),
-					...(strategy === undefined ? {} : { strategy }),
-					...(rerank === undefined ? {} : { rerank }),
-					...(includeCoreMemory === undefined ? {} : { includeCoreMemory }),
-					...(includeRecallResults === undefined
-						? {}
-						: { includeRecallResults }),
-					...(includeGraphContext === undefined ? {} : { includeGraphContext }),
-					...(graphDepth === undefined ? {} : { graphDepth }),
-					...(graphLimit === undefined ? {} : { graphLimit }),
-					...(maxContextCharacters === undefined
-						? {}
-						: { maxContextCharacters }),
-					...(maxSourceCharacters === undefined ? {} : { maxSourceCharacters }),
-				},
-				safety: "read",
-				workspaceId: scope.workspaceId,
-			};
-		}
-		case "tekmemo.graph_list_nodes": {
-			const scope = scopeArgs(object);
-			const limit = optionalInteger(object.limit, "limit", 1, 100);
-			const cursor = optionalString(object.cursor, "cursor", 512);
-			const status = optionalString(object.status, "status", 32);
-			if (
-				status !== undefined &&
-				!["active", "deprecated", "conflicted", "deleted"].includes(status)
-			) {
-				throw new McpValidationError(
-					"status must be active, deprecated, conflicted, or deleted.",
-				);
-			}
-			return {
-				args: {
-					...scope,
-					...(limit === undefined ? {} : { limit }),
-					...(cursor === undefined ? {} : { cursor }),
-					...(status === undefined ? {} : { status }),
-				},
-				safety: "read",
-				workspaceId: scope.workspaceId,
-			};
-		}
-		case "tekmemo.graph_create_node": {
-			const scope = scopeArgs(object);
-			const nodeId = requiredString(object.nodeId, "nodeId", 256);
-			const type = requiredString(object.type, "type", 128);
-			const label = requiredString(object.label, "label", 256);
-			const summary = optionalString(object.summary, "summary", 1024);
-			const aliases = optionalStringArray(object.aliases, "aliases", 20, 128);
-			const metadata =
-				object.metadata === undefined
-					? undefined
-					: toJsonObject(object.metadata, "metadata");
-			return {
-				args: {
-					nodeId,
-					type,
-					label,
-					...scope,
-					...(summary === undefined ? {} : { summary }),
-					...(aliases === undefined ? {} : { aliases }),
-					...(metadata === undefined ? {} : { metadata }),
-				},
-				safety: "write",
-				workspaceId: scope.workspaceId,
-			};
-		}
-		case "tekmemo.graph_list_edges": {
-			const scope = scopeArgs(object);
-			const limit = optionalInteger(object.limit, "limit", 1, 100);
-			const cursor = optionalString(object.cursor, "cursor", 512);
-			const status = optionalString(object.status, "status", 32);
-			if (
-				status !== undefined &&
-				!["active", "deprecated", "conflicted", "deleted"].includes(status)
-			) {
-				throw new McpValidationError(
-					"status must be active, deprecated, conflicted, or deleted.",
-				);
-			}
-			return {
-				args: {
-					...scope,
-					...(limit === undefined ? {} : { limit }),
-					...(cursor === undefined ? {} : { cursor }),
-					...(status === undefined ? {} : { status }),
-				},
-				safety: "read",
-				workspaceId: scope.workspaceId,
-			};
-		}
-		case "tekmemo.graph_create_edge": {
-			const scope = scopeArgs(object);
-			const edgeId = optionalString(object.edgeId, "edgeId", 256);
-			const from = requiredString(object.from, "from", 256);
-			const to = requiredString(object.to, "to", 256);
-			const type = requiredString(object.type, "type", 128);
-			const directed = optionalBoolean(object.directed, "directed");
-			const weight = optionalNumber(object.weight, "weight", 0, 1);
-			const metadata =
-				object.metadata === undefined
-					? undefined
-					: toJsonObject(object.metadata, "metadata");
-			return {
-				args: {
-					...scope,
-					...(edgeId === undefined ? {} : { edgeId }),
-					from,
-					to,
-					type,
-					...(directed === undefined ? {} : { directed }),
-					...(weight === undefined ? {} : { weight }),
-					...(metadata === undefined ? {} : { metadata }),
-				},
-				safety: "write",
-				workspaceId: scope.workspaceId,
-			};
-		}
-		case "tekmemo.extraction_run": {
-			const scope = scopeArgs(object);
-			const mode = optionalString(object.mode, "mode", 32);
-			if (
-				mode !== undefined &&
-				!["full", "core", "notes", "sync", "connectors"].includes(mode)
-			) {
-				throw new McpValidationError(
-					"mode must be full, core, notes, sync, or connectors.",
-				);
-			}
-			const force = optionalBoolean(object.force, "force");
-			return {
-				args: {
-					...scope,
-					...(mode === undefined ? {} : { mode }),
-					...(force === undefined ? {} : { force }),
-				},
-				safety: "write",
-				workspaceId: scope.workspaceId,
-			};
-		}
-		case "tekmemo.extraction_jobs": {
-			const scope = scopeArgs(object);
-			const limit = optionalInteger(object.limit, "limit", 1, 100);
-			return {
-				args: {
-					...scope,
-					...(limit === undefined ? {} : { limit }),
-				},
-				safety: "read",
-				workspaceId: scope.workspaceId,
-			};
-		}
-		case "tekmemo.evals_run": {
-			const scope = scopeArgs(object);
-			const fixtureIds =
-				object.fixtureIds === undefined
-					? undefined
-					: optionalStringArray(object.fixtureIds, "fixtureIds", 50, 256);
-			const iterations = optionalInteger(
-				object.iterations,
-				"iterations",
-				1,
-				20,
-			);
-			const thresholds =
-				object.thresholds === undefined
-					? undefined
-					: toJsonObject(object.thresholds, "thresholds");
-			return {
-				args: {
-					...scope,
-					...(fixtureIds === undefined ? {} : { fixtureIds }),
-					...(iterations === undefined ? {} : { iterations }),
-					...(thresholds === undefined ? {} : { thresholds }),
-				},
-				safety: "read",
-				workspaceId: scope.workspaceId,
-			};
-		}
-		case "tekmemo.benchmarks_run": {
-			const scope = scopeArgs(object);
-			const fixtureIds =
-				object.fixtureIds === undefined
-					? undefined
-					: optionalStringArray(object.fixtureIds, "fixtureIds", 50, 256);
-			const iterations = optionalInteger(
-				object.iterations,
-				"iterations",
-				1,
-				20,
-			);
-			const warmupIterations = optionalInteger(
-				object.warmupIterations,
-				"warmupIterations",
-				0,
-				5,
-			);
-			const thresholds =
-				object.thresholds === undefined
-					? undefined
-					: toJsonObject(object.thresholds, "thresholds");
-			return {
-				args: {
-					...scope,
-					...(fixtureIds === undefined ? {} : { fixtureIds }),
-					...(iterations === undefined ? {} : { iterations }),
-					...(warmupIterations === undefined ? {} : { warmupIterations }),
-					...(thresholds === undefined ? {} : { thresholds }),
-				},
-				safety: "read",
-				workspaceId: scope.workspaceId,
-			};
-		}
-		case "tekmemo.exports_create": {
-			const scope = scopeArgs(object);
-			const label = optionalString(object.label, "label", 120);
-			return {
-				args: {
-					...scope,
-					...(label === undefined ? {} : { label }),
-				},
-				safety: "write",
-				workspaceId: scope.workspaceId,
-			};
-		}
-		case "tekmemo.exports_download": {
-			const scope = scopeArgs(object);
-			const exportId = requiredString(object.exportId, "exportId", 256);
-			return {
-				args: { ...scope, exportId },
-				safety: "read",
-				workspaceId: scope.workspaceId,
-			};
-		}
-		case "tekmemo.snapshots_create": {
-			const scope = scopeArgs(object);
-			const label = optionalString(object.label, "label", 120);
-			const trigger = optionalString(object.trigger, "trigger", 32);
-			if (
-				trigger !== undefined &&
-				!["manual", "sync", "system"].includes(trigger)
-			) {
-				throw new McpValidationError(
-					"trigger must be manual, sync, or system.",
-				);
-			}
-			return {
-				args: {
-					...scope,
-					...(label === undefined ? {} : { label }),
-					...(trigger === undefined ? {} : { trigger }),
-				},
-				safety: "write",
-				workspaceId: scope.workspaceId,
-			};
-		}
-		case "tekmemo.snapshots_download": {
-			const scope = scopeArgs(object);
-			const snapshotId = requiredString(object.snapshotId, "snapshotId", 256);
-			return {
-				args: { ...scope, snapshotId },
-				safety: "read",
-				workspaceId: scope.workspaceId,
-			};
-		}
-		case "tekmemo.providers_list": {
-			const scope = scopeArgs(object);
-			return {
-				args: { ...scope },
-				safety: "read",
-				workspaceId: scope.workspaceId,
-			};
-		}
-		case "tekmemo.providers_create": {
-			const scope = scopeArgs(object);
-			const provider = requiredString(object.provider, "provider", 32);
-			if (!["voyageai", "openai", "upstash-vector"].includes(provider)) {
-				throw new McpValidationError(
-					"provider must be voyageai, openai, or upstash-vector.",
-				);
-			}
-			const keyName = requiredString(object.keyName, "keyName", 256);
-			const secret = requiredString(object.secret, "secret", 4096);
-			const restUrl = optionalString(object.restUrl, "restUrl", 2048);
-			const embeddingModel = optionalString(
-				object.embeddingModel,
-				"embeddingModel",
-				256,
-			);
-			const rerankModel = optionalString(
-				object.rerankModel,
-				"rerankModel",
-				256,
-			);
-			return {
-				args: {
-					...scope,
-					provider,
-					keyName,
-					secret,
-					...(restUrl === undefined ? {} : { restUrl }),
-					...(embeddingModel === undefined ? {} : { embeddingModel }),
-					...(rerankModel === undefined ? {} : { rerankModel }),
-				},
-				safety: "write",
-				workspaceId: scope.workspaceId,
-			};
-		}
-		case "tekmemo.providers_test": {
-			const scope = scopeArgs(object);
-			const credentialId = requiredString(
-				object.credentialId,
-				"credentialId",
-				256,
-			);
-			return {
-				args: { ...scope, credentialId },
-				safety: "read",
-				workspaceId: scope.workspaceId,
-			};
-		}
 		default:
 			throw new McpValidationError(`Unknown tool: ${toolName}.`);
 	}
-}
-
-function validateSyncEvent(
-	value: unknown,
-	index: number,
-): Record<string, unknown> {
-	const event = asObject(value, `events[${index}]`);
-	const clientEventId = requiredString(
-		event.clientEventId,
-		`events[${index}].clientEventId`,
-		256,
-	);
-	const type = requiredString(event.type, `events[${index}].type`, 128);
-	const path = optionalString(event.path, `events[${index}].path`, 1024);
-	const payload =
-		event.payload === undefined
-			? undefined
-			: toJsonObject(event.payload, `events[${index}].payload`);
-	const payloadHash = optionalString(
-		event.payloadHash,
-		`events[${index}].payloadHash`,
-		256,
-	);
-	const createdAt = optionalString(
-		event.createdAt,
-		`events[${index}].createdAt`,
-		128,
-	);
-	const baseServerVersion = optionalInteger(
-		event.baseServerVersion,
-		`events[${index}].baseServerVersion`,
-		0,
-		Number.MAX_SAFE_INTEGER,
-	);
-	return {
-		clientEventId,
-		type,
-		...(path === undefined ? {} : { path }),
-		...(payload === undefined ? {} : { payload }),
-		...(payloadHash === undefined ? {} : { payloadHash }),
-		...(createdAt === undefined ? {} : { createdAt }),
-		...(baseServerVersion === undefined ? {} : { baseServerVersion }),
-	};
 }

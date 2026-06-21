@@ -4,6 +4,13 @@
  * Memory/recall/graph/sync types are imported from @tekbreed/tekmemo to avoid duplication.
  * Only MCP-protocol-specific types (tool results, definitions, options) are defined here.
  *
+ * The runtime surface mirrors the v1.0.0-alpha.0 contract: every operation runs in the
+ * local engine against the canonical `.tekmemo/` files, and the cloud is a dumb file
+ * replica exposed only through `sync.{push,pull,status}` (+ `health`/`readiness`). The
+ * cloud-engine surface (context compose, extraction, evals, benchmarks, exports, hosted
+ * snapshots, providers, and event-level conflict resolution) has been deleted — see
+ * `docs/architecture/cloud-sync-and-refactor.md` §7 and §9.
+ *
  * @module types
  */
 
@@ -33,15 +40,11 @@ export type {
 	RecallResult,
 	RecentMemoryInput,
 	RecentMemoryResult,
-	ResolveSyncConflictInput,
-	ResolveSyncConflictResult,
 	RuntimeReadPolicy,
 	RuntimeWritePolicy,
 	SnapshotMemoryInput,
 	SnapshotMemoryResult,
 	SourceRef,
-	SyncConflictResolution,
-	SyncEventInput,
 	SyncPullInput,
 	SyncPullResult,
 	SyncPushInput,
@@ -78,7 +81,6 @@ import type {
 	RecallResult,
 	RecentMemoryInput,
 	RecentMemoryResult,
-	ResolveSyncConflictInput,
 	SnapshotMemoryInput,
 	SnapshotMemoryResult,
 	SyncPullInput,
@@ -169,14 +171,27 @@ export interface TekMemoMcpOptions {
 	redact?: (args: unknown) => unknown;
 }
 
+/**
+ * Runtime contract implemented by every MCP server entrypoint.
+ *
+ * The local runtime implements every engine-backed method (recall, writeMemory,
+ * graph*) against the canonical `.tekmemo/` files; the three `sync*` methods
+ * additionally mirror those files to/from the cloud replica. The Worker cloud
+ * runtime implements only `health`, `readiness`, and `sync*` — every
+ * engine-backed method is optional here so a file-replica runtime can omit it,
+ * and the MCP tool/resource layers report such calls as unsupported. There is no
+ * cloud-engine surface: recall/memory/graph/agentfs run locally, and conflict
+ * resolution is last-writer-wins (see `docs/architecture/cloud-sync-and-refactor.md`
+ * §7 and §9).
+ */
 export interface TekMemoMcpRuntime {
 	health(signal?: AbortSignal): Promise<TekMemoHealthResult>;
 	context?(
 		input: MemoryContextInput,
 		signal?: AbortSignal,
 	): Promise<MemoryContextResult>;
-	recall(input: RecallInput, signal?: AbortSignal): Promise<RecallResult>;
-	writeMemory(
+	recall?(input: RecallInput, signal?: AbortSignal): Promise<RecallResult>;
+	writeMemory?(
 		input: WriteMemoryInput,
 		signal?: AbortSignal,
 	): Promise<WriteMemoryResult>;
@@ -225,22 +240,6 @@ export interface TekMemoMcpRuntime {
 		signal?: AbortSignal,
 	): Promise<AgentSessionExtractResult & { durableMemoryWritten: boolean }>;
 	readiness?(signal?: AbortSignal): Promise<unknown>;
-	contextCompose?(input: JsonObject, signal?: AbortSignal): Promise<unknown>;
-	graphListNodes?(input: JsonObject, signal?: AbortSignal): Promise<unknown>;
-	graphCreateNode?(input: JsonObject, signal?: AbortSignal): Promise<unknown>;
-	graphListEdges?(input: JsonObject, signal?: AbortSignal): Promise<unknown>;
-	graphCreateEdge?(input: JsonObject, signal?: AbortSignal): Promise<unknown>;
-	extractionRun?(input: JsonObject, signal?: AbortSignal): Promise<unknown>;
-	extractionJobs?(input: JsonObject, signal?: AbortSignal): Promise<unknown>;
-	evalsRun?(input: JsonObject, signal?: AbortSignal): Promise<unknown>;
-	benchmarksRun?(input: JsonObject, signal?: AbortSignal): Promise<unknown>;
-	exportsCreate?(input: JsonObject, signal?: AbortSignal): Promise<unknown>;
-	exportsDownload?(input: JsonObject, signal?: AbortSignal): Promise<unknown>;
-	snapshotsCreate?(input: JsonObject, signal?: AbortSignal): Promise<unknown>;
-	snapshotsDownload?(input: JsonObject, signal?: AbortSignal): Promise<unknown>;
-	providersList?(input: JsonObject, signal?: AbortSignal): Promise<unknown>;
-	providersCreate?(input: JsonObject, signal?: AbortSignal): Promise<unknown>;
-	providersTest?(input: JsonObject, signal?: AbortSignal): Promise<unknown>;
 	updateCoreMemory?(
 		input: { content: string; workspaceId?: string; projectId?: string },
 		signal?: AbortSignal,
@@ -257,11 +256,7 @@ export interface TekMemoMcpRuntime {
 		input?: SyncStatusInput,
 		signal?: AbortSignal,
 	): Promise<SyncStatusResult>;
-	resolveSyncConflict?(
-		input: ResolveSyncConflictInput,
-		signal?: AbortSignal,
-	): Promise<unknown>;
-	upsertGraphNodes(
+	upsertGraphNodes?(
 		input: {
 			workspaceId?: string;
 			projectId?: string;
@@ -269,7 +264,7 @@ export interface TekMemoMcpRuntime {
 		},
 		signal?: AbortSignal,
 	): Promise<{ nodes: GraphNodeInput[] }>;
-	upsertGraphEdges(
+	upsertGraphEdges?(
 		input: {
 			workspaceId?: string;
 			projectId?: string;
@@ -277,7 +272,7 @@ export interface TekMemoMcpRuntime {
 		},
 		signal?: AbortSignal,
 	): Promise<{ edges: GraphEdgeInput[] }>;
-	graphNeighbors(
+	graphNeighbors?(
 		input: GraphNeighborsInput,
 		signal?: AbortSignal,
 	): Promise<
@@ -287,15 +282,15 @@ export interface TekMemoMcpRuntime {
 			direction: "in" | "out";
 		}>
 	>;
-	graphPath(
+	graphPath?(
 		input: GraphPathInput,
 		signal?: AbortSignal,
 	): Promise<GraphPathResult>;
-	listGraphNodes(
+	listGraphNodes?(
 		input: ListGraphInput,
 		signal?: AbortSignal,
 	): Promise<Page<GraphNodeInput>>;
-	listGraphEdges(
+	listGraphEdges?(
 		input: ListGraphInput,
 		signal?: AbortSignal,
 	): Promise<Page<GraphEdgeInput>>;
