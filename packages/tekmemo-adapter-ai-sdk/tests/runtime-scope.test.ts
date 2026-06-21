@@ -5,10 +5,10 @@ import {
 	canReadMemoryMetadata,
 	createRecallFilters,
 	createScopeMetadata,
-	normalizeAccessContext,
 	type MemoryRuntimeNote,
 	type MemoryRuntimeRecallInput,
 	type MemoryRuntimeRecallResult,
+	normalizeAccessContext,
 	type TekMemoMemoryRuntime,
 } from "../src";
 

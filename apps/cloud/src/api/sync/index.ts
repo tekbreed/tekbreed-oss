@@ -31,20 +31,22 @@
  * @see docs/architecture/cloud-sync-and-refactor.md §4.4/§4.5/§4.6
  * @see docs/architecture/decisions.md Q13 (auto-provision), Q14 (cursor = String(seq))
  */
-import { Hono } from "hono";
-import type { MiddlewareHandler } from "hono";
 
+import type {
+	CloudFileManifest,
+	FileManifest,
+} from "@tekbreed/tekmemo/cloud-client";
+import type { MiddlewareHandler } from "hono";
+import { Hono } from "hono";
+import type { Database } from "../../db/index.server";
+import { createDb } from "../../db/index.server";
+import type { CloudWorkerEnv } from "../../server/env";
+import { ConflictError, EntitlementError, ValidationError } from "../errors";
+import type { ApiEnv, ApiVariables } from "../index";
 import { json } from "../json";
-import {
-	ConflictError,
-	EntitlementError,
-	ValidationError,
-} from "../errors";
 import { resolveAccount } from "../middleware/auth";
 import { presignConfigFromEnv, presignMany } from "../r2-presign";
-import { createDb } from "../../db/index.server";
 import {
-	INITIAL_CURSOR,
 	assertOwns,
 	cloudManifestToLocal,
 	commitPush,
@@ -53,6 +55,7 @@ import {
 	diffPushTargets,
 	diffRemoved,
 	ensureProject,
+	INITIAL_CURSOR,
 	lastSyncAt,
 	loadCloudManifest,
 	loadProject,
@@ -60,13 +63,6 @@ import {
 	projectedStorageBytes,
 	verifyUploaded,
 } from "./shared";
-import type {
-	CloudFileManifest,
-	FileManifest,
-} from "@tekbreed/tekmemo/cloud-client";
-import type { ApiEnv, ApiVariables } from "../index";
-import type { Database } from "../../db/index.server";
-import type { CloudWorkerEnv } from "../../server/env";
 
 // ---------------------------------------------------------------------------
 // Input shapes (server-side view of the frozen client types)
@@ -139,11 +135,7 @@ const authMiddleware: MiddlewareHandler<ApiEnv> = async (c, next) => {
 		throw new Error("db middleware must run before auth middleware");
 	}
 	const salt = c.env.TEKMEMO_API_KEY_SALT ?? "";
-	const account = await resolveAccount(
-		db,
-		salt,
-		c.req.header("authorization"),
-	);
+	const account = await resolveAccount(db, salt, c.req.header("authorization"));
 	c.set("account", account);
 	await next();
 };
@@ -214,9 +206,7 @@ export const syncApp = new Hono<ApiEnv>()
 		const uploaded = parseUploaded(body.uploaded);
 		// Cursor is accepted (opaque) but not strictly enforced — see the file
 		// header note on two-phase push.
-		void parseCursor(
-			typeof body.cursor === "string" ? body.cursor : undefined,
-		);
+		void parseCursor(typeof body.cursor === "string" ? body.cursor : undefined);
 
 		// A `complete` with no prior `push` means the project doesn't exist yet;
 		// there is nothing to complete. The client should have called push first.
@@ -243,11 +233,7 @@ export const syncApp = new Hono<ApiEnv>()
 		for (const entry of uploaded) {
 			// Content-addressed: the R2 key IS the sha256. Two paths with the same
 			// content share one object; `verifyUploaded` reads it once per entry.
-			const sizeBytes = await verifyUploaded(
-				blobs,
-				entry.sha256,
-				entry.sha256,
-			);
+			const sizeBytes = await verifyUploaded(blobs, entry.sha256, entry.sha256);
 			verified.push({
 				path: entry.path,
 				sha256: entry.sha256,
@@ -263,16 +249,13 @@ export const syncApp = new Hono<ApiEnv>()
 		const cloud = await loadCloudManifest(db, projectId);
 		const projected = projectedStorageBytes(cloud, verified);
 		if (projected > account.maxHostedStorageBytes) {
-			throw new EntitlementError(
-				"Storage limit exceeded for this plan.",
-				{
-					limit: "storage",
-					used: Math.round(project.totalStorageBytes),
-					requested: projected,
-					max: account.maxHostedStorageBytes,
-					plan: account.plan,
-				},
-			);
+			throw new EntitlementError("Storage limit exceeded for this plan.", {
+				limit: "storage",
+				used: Math.round(project.totalStorageBytes),
+				requested: projected,
+				max: account.maxHostedStorageBytes,
+				plan: account.plan,
+			});
 		}
 
 		const { cursor, manifest } = await commitPush(db, projectId, verified);

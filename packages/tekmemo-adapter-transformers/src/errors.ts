@@ -20,10 +20,7 @@ export class TransformersEmbedderError extends Error {
  * @public
  */
 export class TransformersValidationError extends TransformersEmbedderError {
-	constructor(
-		message: string,
-		details?: Record<string, unknown>,
-	) {
+	constructor(message: string, details?: Record<string, unknown>) {
 		super(message, details);
 		this.name = "TransformersValidationError";
 	}
@@ -36,10 +33,7 @@ export class TransformersValidationError extends TransformersEmbedderError {
  * @public
  */
 export class TransformersInferenceError extends TransformersEmbedderError {
-	constructor(
-		message: string,
-		details?: Record<string, unknown>,
-	) {
+	constructor(message: string, details?: Record<string, unknown>) {
 		super(message, details);
 		this.name = "TransformersInferenceError";
 	}

@@ -77,7 +77,9 @@ export function createLazyLocalEmbedder(
 			if (options.adapterFactory) {
 				return options.adapterFactory({
 					model,
-					...(options.cacheDir === undefined ? {} : { cacheDir: options.cacheDir }),
+					...(options.cacheDir === undefined
+						? {}
+						: { cacheDir: options.cacheDir }),
 				});
 			}
 			// Dynamic import keeps the adapter an optional peer dependency.
@@ -97,7 +99,9 @@ export function createLazyLocalEmbedder(
 			}
 			return factory({
 				model,
-				...(options.cacheDir === undefined ? {} : { cacheDir: options.cacheDir }),
+				...(options.cacheDir === undefined
+					? {}
+					: { cacheDir: options.cacheDir }),
 			});
 		})().catch((error: unknown) => {
 			// Allow a subsequent call to retry instead of caching the rejection.

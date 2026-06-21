@@ -35,7 +35,7 @@ export function meta(_: Route.MetaArgs) {
 	];
 }
 
-export default function Home({}: Route.ComponentProps) {
+export default function Home(_props: Route.ComponentProps) {
 	return (
 		<main className="mx-auto flex min-h-dvh max-w-3xl flex-col px-6 py-16">
 			<header className="flex flex-col gap-3">

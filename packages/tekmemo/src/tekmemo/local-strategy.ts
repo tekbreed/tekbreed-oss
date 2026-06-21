@@ -10,7 +10,6 @@
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path, { resolve } from "node:path";
-import type { TekMemoCloudClient } from "../cloud-client/types";
 import { chunkText } from "../core/chunking/chunk-text";
 import type { MemoryEmbedder } from "../core/types/embeddings";
 import type {
@@ -27,9 +26,7 @@ import {
 	CORE_MEMORY_PATH,
 	createAgentWorkspacePaths,
 	createBM25Store,
-	createDeterministicFallbackReranker,
 	createFsGraphStore,
-	createInMemoryGraphStore,
 	createMemoryEvent,
 	createNodeFsMemoryStore,
 	createSnapshotPath,
@@ -38,8 +35,8 @@ import {
 	DeterministicFallbackReranker,
 	extractGraphFactsRuleBased,
 	extractSessionMemory,
-	type GraphNode,
 	type GraphEdge,
+	type GraphNode,
 	type InMemoryGraphStore,
 	mergeHybridCandidates,
 	NOTES_MEMORY_PATH,
@@ -70,9 +67,7 @@ import type {
 	MemoryContextInput,
 	MemoryContextResult,
 	MemoryDocumentResult,
-	MemoryKind,
 	RecallInput,
-	RecallItem,
 	RecallResult,
 	RecentMemoryInput,
 	RecentMemoryResult,
@@ -285,7 +280,10 @@ export function createLocalStrategy(options: LocalStrategyOptions) {
 		const lexicalCandidates = await runLexicalRecall(input.query, limit);
 
 		// --- Vector path: only when an embedder is configured ---
-		let vectorCandidates = new Map<string, { text: string; score: number; metadata?: Record<string, unknown> }>();
+		const vectorCandidates = new Map<
+			string,
+			{ text: string; score: number; metadata?: Record<string, unknown> }
+		>();
 		if (options.embedder && options.recallStore) {
 			try {
 				const embedResult = await options.embedder.embedText(input.query);
@@ -297,7 +295,9 @@ export function createLocalStrategy(options: LocalStrategyOptions) {
 					vectorCandidates.set(r.id, {
 						text: r.text ?? "",
 						score: r.score ?? 0,
-						...(r.metadata === undefined ? {} : { metadata: r.metadata as Record<string, unknown> }),
+						...(r.metadata === undefined
+							? {}
+							: { metadata: r.metadata as Record<string, unknown> }),
 					});
 				}
 			} catch {
@@ -342,8 +342,16 @@ export function createLocalStrategy(options: LocalStrategyOptions) {
 	async function runLexicalRecall(
 		query: string,
 		limit: number,
-	): Promise<Map<string, { text: string; score: number; metadata?: Record<string, unknown> }>> {
-		const out = new Map<string, { text: string; score: number; metadata?: Record<string, unknown> }>();
+	): Promise<
+		Map<
+			string,
+			{ text: string; score: number; metadata?: Record<string, unknown> }
+		>
+	> {
+		const out = new Map<
+			string,
+			{ text: string; score: number; metadata?: Record<string, unknown> }
+		>();
 
 		// Primary lexical path: query the BM25 store (token + fuzzy matching).
 		// It is populated on every write and on boot rehydration, so it reflects
@@ -1143,17 +1151,26 @@ function hash(value: string): string {
  */
 function candidateShape(
 	id: string,
-	vector: { text: string; score: number; metadata?: Record<string, unknown> } | undefined,
-	lexical: { text: string; score: number; metadata?: Record<string, unknown> } | undefined,
+	vector:
+		| { text: string; score: number; metadata?: Record<string, unknown> }
+		| undefined,
+	lexical:
+		| { text: string; score: number; metadata?: Record<string, unknown> }
+		| undefined,
 ) {
 	return {
 		id,
-		text: (vector?.text ?? lexical?.text ?? ""),
+		text: vector?.text ?? lexical?.text ?? "",
 		vectorScore: vector?.score ?? 0,
 		lexicalScore: lexical?.score ?? 0,
-		...(vector?.metadata ?? lexical?.metadata === undefined
+		...((vector?.metadata ?? lexical?.metadata === undefined)
 			? {}
-			: { metadata: (vector?.metadata ?? lexical?.metadata) as Record<string, unknown> }),
+			: {
+					metadata: (vector?.metadata ?? lexical?.metadata) as Record<
+						string,
+						unknown
+					>,
+				}),
 	};
 }
 
@@ -1162,11 +1179,7 @@ function candidateShape(
  *
  * @internal
  */
-function stableEdgeKey(
-	from: string,
-	type: string,
-	to: string,
-): string {
+function stableEdgeKey(from: string, type: string, to: string): string {
 	return `${from}|${type}|${to}`;
 }
 

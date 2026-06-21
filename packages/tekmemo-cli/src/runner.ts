@@ -167,10 +167,7 @@ export async function runTekMemoCli(
 			"project root containing .tekmemo/",
 			input.cwd ?? process.cwd(),
 		)
-		.option(
-			"--runtime <mode>",
-			"runtime mode: local, hybrid, or memory",
-		)
+		.option("--runtime <mode>", "runtime mode: local, hybrid, or memory")
 		.option(
 			"--cloud-url <url>",
 			"TekMemo Cloud API URL; defaults to config or TEKMEMO_CLOUD_URL",
@@ -507,7 +504,9 @@ export async function runTekMemoCli(
 
 	const generate = program
 		.command("generate")
-		.description("generate agent instruction files that enforce the TekMemo workflow");
+		.description(
+			"generate agent instruction files that enforce the TekMemo workflow",
+		);
 
 	generate
 		.command("agent-rules")
@@ -706,10 +705,7 @@ export async function runTekMemoCli(
 		.description(
 			"push local .tekmemo/ file replicas to the cloud (two-phase push→complete)",
 		)
-		.option(
-			"--base-cursor <cursor>",
-			"cursor the client last synced at",
-		)
+		.option("--base-cursor <cursor>", "cursor the client last synced at")
 		.action(async (options) => {
 			currentCommand = "cloud.sync.push";
 			const g = await cloudGlobals();

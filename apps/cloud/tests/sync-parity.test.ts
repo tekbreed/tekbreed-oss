@@ -1,15 +1,13 @@
-import { Hono } from "hono";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
-
-import { createApiApp, type ApiEnv } from "../src/api";
-import { hashApiKey } from "../src/server/sha256";
-import { accounts, apiKeys } from "../src/db/schema";
-import type { Database } from "../src/db/index.server";
-import type { CloudWorkerEnv } from "../src/server/env";
-import { createTestDb } from "./helpers/db";
-import { sha256Hex } from "../src/server/sha256";
 import type { TekMemoCloudFetch } from "@tekbreed/tekmemo/cloud-client";
 import { createTekMemoCloudClient } from "@tekbreed/tekmemo/cloud-client";
+import { Hono } from "hono";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { type ApiEnv, createApiApp } from "../src/api";
+import type { Database } from "../src/db/index.server";
+import { accounts, apiKeys } from "../src/db/schema";
+import type { CloudWorkerEnv } from "../src/server/env";
+import { hashApiKey, sha256Hex } from "../src/server/sha256";
+import { createTestDb } from "./helpers/db";
 
 /**
  * @file Client ↔ server wire-parity round-trip.
@@ -255,9 +253,7 @@ describe("client ↔ server wire parity (round-trip)", () => {
 		// 5) STATUS — manifest, cursor, and storage bytes agree post-commit.
 		const status = await c.sync.status();
 		expect(status.cursor).toBe("1");
-		expect(status.storageBytes).toBe(
-			coreContent.length + notesContent.length,
-		);
+		expect(status.storageBytes).toBe(coreContent.length + notesContent.length);
 		expect(status.manifest[".tekmemo/core.md"]?.sha256).toBe(coreSha);
 		expect(status.lastSyncAt).toBeTypeOf("string");
 	});

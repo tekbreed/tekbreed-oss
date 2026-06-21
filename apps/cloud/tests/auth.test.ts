@@ -1,13 +1,13 @@
-import { Hono } from "hono";
 import { eq } from "drizzle-orm";
+import type { Hono } from "hono";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { createApiApp, json, type ApiEnv } from "../src/api";
+import { type ApiEnv, createApiApp, json } from "../src/api";
 import { createAuthMiddleware } from "../src/api/middleware/auth";
-import { hashApiKey } from "../src/server/sha256";
-import { accounts, apiKeys } from "../src/db/schema";
 import type { Database } from "../src/db/index.server";
+import { accounts, apiKeys } from "../src/db/schema";
 import type { CloudWorkerEnv } from "../src/server/env";
+import { hashApiKey } from "../src/server/sha256";
 import { createTestDb } from "./helpers/db";
 
 /**
@@ -118,7 +118,9 @@ describe("bearer auth middleware", () => {
 		expect(res.status).toBe(401);
 		const body = await jsonBody(res);
 		expect(body.error?.code).toBe("unauthorized");
-		expect(body.error?.message).toBe("Missing or malformed Authorization header.");
+		expect(body.error?.message).toBe(
+			"Missing or malformed Authorization header.",
+		);
 	});
 
 	it("rejects a non-Bearer scheme", async () => {
@@ -131,14 +133,22 @@ describe("bearer auth middleware", () => {
 
 	it("rejects a Bearer token that is not tk_live_… format", async () => {
 		await seedKey({});
-		const res = await fetchAuthed(appWithAuth(), undefined, "Bearer sk-not-ours");
+		const res = await fetchAuthed(
+			appWithAuth(),
+			undefined,
+			"Bearer sk-not-ours",
+		);
 		expect(res.status).toBe(401);
 	});
 
 	it("rejects an unknown key hash (401, same code as revoked)", async () => {
 		// Seed a valid key but present the WRONG one — the hash won't match.
 		await seedKey({});
-		const res = await fetchAuthed(appWithAuth(), undefined, `Bearer ${WRONG_KEY}`);
+		const res = await fetchAuthed(
+			appWithAuth(),
+			undefined,
+			`Bearer ${WRONG_KEY}`,
+		);
 		expect(res.status).toBe(401);
 		const body = await jsonBody(res);
 		expect(body.error?.code).toBe("unauthorized");
@@ -148,7 +158,11 @@ describe("bearer auth middleware", () => {
 
 	it("rejects a revoked key (revoked_at set) with 401", async () => {
 		await seedKey({ revokedAt: "2026-01-01T00:00:00Z" });
-		const res = await fetchAuthed(appWithAuth(), undefined, `Bearer ${RAW_KEY}`);
+		const res = await fetchAuthed(
+			appWithAuth(),
+			undefined,
+			`Bearer ${RAW_KEY}`,
+		);
 		expect(res.status).toBe(401);
 		const body = await jsonBody(res);
 		expect(body.error?.code).toBe("unauthorized");
@@ -158,7 +172,11 @@ describe("bearer auth middleware", () => {
 
 	it("authenticates a valid key and stamps the account on c.var", async () => {
 		await seedKey({});
-		const res = await fetchAuthed(appWithAuth(), undefined, `Bearer ${RAW_KEY}`);
+		const res = await fetchAuthed(
+			appWithAuth(),
+			undefined,
+			`Bearer ${RAW_KEY}`,
+		);
 		expect(res.status).toBe(200);
 		const body = await jsonBody(res);
 		expect(body.data).toMatchObject({
@@ -178,7 +196,11 @@ describe("bearer auth middleware", () => {
 		// Override the seeded account's plan + caps to pro values.
 		await db
 			.update(accounts)
-			.set({ plan: "pro", maxHostedStorageBytes: 25_000_000_000, maxConnectors: 3 })
+			.set({
+				plan: "pro",
+				maxHostedStorageBytes: 25_000_000_000,
+				maxConnectors: 3,
+			})
 			.where(eq(accounts.id, "acct_pro"));
 		const res = await fetchAuthed(
 			appWithAuth(),

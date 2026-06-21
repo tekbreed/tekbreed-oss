@@ -14,6 +14,7 @@
  * @internal
  */
 
+import type { FileSyncLayer } from "./sync/file-replication";
 import type {
 	AgentSessionCompleteInput,
 	AgentSessionExtractResult,
@@ -51,7 +52,6 @@ import type {
 	WriteMemoryInput,
 	WriteMemoryResult,
 } from "./types";
-import type { FileSyncLayer } from "./sync/file-replication";
 
 export interface HybridStrategyOptions {
 	local: ReturnType<typeof import("./local-strategy").createLocalStrategy>;
@@ -124,15 +124,11 @@ export function createHybridStrategy(options: HybridStrategyOptions) {
 			return local.writeMemory(input, signal);
 		},
 
-		async readCoreMemory(
-			signal?: AbortSignal,
-		): Promise<MemoryDocumentResult> {
+		async readCoreMemory(signal?: AbortSignal): Promise<MemoryDocumentResult> {
 			return local.readCoreMemory(signal);
 		},
 
-		async readNotesMemory(
-			signal?: AbortSignal,
-		): Promise<MemoryDocumentResult> {
+		async readNotesMemory(signal?: AbortSignal): Promise<MemoryDocumentResult> {
 			return local.readNotesMemory(signal);
 		},
 

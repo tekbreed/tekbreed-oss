@@ -26,13 +26,6 @@
  * @internal
  */
 
-import {
-	CANONICAL_TEKMEMO_FILES,
-	createSnapshotPath,
-	type MemoryPath,
-} from "../../core/constants/memory-paths";
-import { readSnapshotRecords } from "../../core/snapshots/snapshot-records";
-import type { MemoryStore } from "../../core/types/memory-store";
 import type {
 	FileManifest,
 	SyncPullInput,
@@ -46,6 +39,13 @@ import type {
 	SyncUploadTarget,
 	TekMemoCloudClient,
 } from "../../cloud-client/types";
+import {
+	CANONICAL_TEKMEMO_FILES,
+	createSnapshotPath,
+	type MemoryPath,
+} from "../../core/constants/memory-paths";
+import { readSnapshotRecords } from "../../core/snapshots/snapshot-records";
+import type { MemoryStore } from "../../core/types/memory-store";
 import type { SnapshotMemoryInput, SnapshotMemoryResult } from "../types";
 import { sha256Hex } from "./sha256";
 
@@ -196,9 +196,7 @@ export function createFileSyncLayer(
 			);
 		},
 
-		async pushFull(
-			signal?: AbortSignal,
-		): Promise<SyncPushCompleteResult> {
+		async pushFull(signal?: AbortSignal): Promise<SyncPushCompleteResult> {
 			if (signal?.aborted) throw new Error("Operation aborted.");
 			// D6: mandatory pre-sync snapshot before the mutating push flow.
 			await createPreSyncSnapshot(options.snapshot, "push");
@@ -225,8 +223,7 @@ export function createFileSyncLayer(
 			// D6: mandatory pre-sync snapshot before mutating local files.
 			await createPreSyncSnapshot(options.snapshot, "pull");
 
-			const manifest =
-				input?.manifest ?? (await this.computeLocalManifest());
+			const manifest = input?.manifest ?? (await this.computeLocalManifest());
 			const result = await client.sync.pull(
 				{
 					projectId,
@@ -317,10 +314,7 @@ async function putText(
 }
 
 /** Fetches a presigned-URL response body as UTF-8 text. */
-async function fetchText(
-	url: string,
-	signal?: AbortSignal,
-): Promise<string> {
+async function fetchText(url: string, signal?: AbortSignal): Promise<string> {
 	const timeout = AbortSignal.timeout(SYNC_TIMEOUT_MS);
 	const combined = signal ? mergeSignals(signal, timeout) : timeout;
 	const response = await fetch(url, { signal: combined });
@@ -366,7 +360,9 @@ function mergeSignals(signal: AbortSignal, timeout: AbortSignal): AbortSignal {
 	if (timeout.aborted) return timeout;
 	const controller = new AbortController();
 	const onAbort = (reason: unknown) => controller.abort(reason);
-	signal.addEventListener("abort", () => onAbort(signal.reason), { once: true });
+	signal.addEventListener("abort", () => onAbort(signal.reason), {
+		once: true,
+	});
 	timeout.addEventListener("abort", () => onAbort(timeout.reason), {
 		once: true,
 	});

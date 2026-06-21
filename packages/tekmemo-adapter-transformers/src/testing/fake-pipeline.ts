@@ -68,7 +68,10 @@ export function createFakePipelineFactory(
  */
 function deterministicVector(text: string, dimensions: number): Float32Array {
 	const vector = new Float32Array(dimensions);
-	const tokens = text.toLowerCase().split(/[^a-z0-9]+/i).filter(Boolean);
+	const tokens = text
+		.toLowerCase()
+		.split(/[^a-z0-9]+/i)
+		.filter(Boolean);
 	for (const token of tokens) {
 		const bucket = Math.abs(hashCode(token)) % dimensions;
 		vector[bucket] = (vector[bucket] ?? 0) + 1;

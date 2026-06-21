@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
+import type { HybridCandidate } from "../../src/index";
 import {
 	createDeterministicFallbackReranker,
 	mergeHybridCandidates,
-	recencyBoost,
 	readConfidence,
+	recencyBoost,
 } from "../../src/index";
-import type { HybridCandidate } from "../../src/index";
 
 function candidate(
 	id: string,

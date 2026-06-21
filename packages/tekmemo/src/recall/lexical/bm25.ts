@@ -127,8 +127,7 @@ export class BM25Store {
 				this.subtractDocumentFrequencies(df, previous.termCounts);
 				this.totalLengthByNamespace.set(
 					namespace,
-					(this.totalLengthByNamespace.get(namespace) ?? 0) -
-						previous.length,
+					(this.totalLengthByNamespace.get(namespace) ?? 0) - previous.length,
 				);
 			}
 
@@ -235,12 +234,17 @@ export class BM25Store {
 				// for very common terms across a small corpus.
 				const idf = Math.max(
 					0,
-					Math.log(1 + (n - documentFrequency + 0.5) / (documentFrequency + 0.5)),
+					Math.log(
+						1 + (n - documentFrequency + 0.5) / (documentFrequency + 0.5),
+					),
 				);
 				const denominator =
-					tf * (this.k1 + 1) /
+					(tf * (this.k1 + 1)) /
 					(tf +
-						this.k1 * (1 - this.b + this.b * (avgLength > 0 ? doc.length / avgLength : 1)));
+						this.k1 *
+							(1 -
+								this.b +
+								this.b * (avgLength > 0 ? doc.length / avgLength : 1)));
 				rawScore += idf * denominator;
 			}
 

@@ -47,12 +47,13 @@ export function devApiPlugin(): Plugin {
 						method: req.method,
 						headers: req.headers as HeadersInit,
 						body: body as BodyInit,
-					});					const response = await devApi.fetch(request);
+					});
+					const response = await devApi.fetch(request);
 
 					res.statusCode = response.status;
-					response.headers.forEach((value: string, key: string) =>
-						res.setHeader(key, value),
-					);
+					response.headers.forEach((value: string, key: string) => {
+						res.setHeader(key, value);
+					});
 					if (response.body) {
 						const reader = response.body.getReader();
 						while (true) {
@@ -71,13 +72,17 @@ export function devApiPlugin(): Plugin {
 	};
 }
 
-function readNodeRequestBody(req: import("http").IncomingMessage): Promise<Uint8Array> {
+function readNodeRequestBody(
+	req: import("http").IncomingMessage,
+): Promise<Uint8Array> {
 	return new Promise((resolve, reject) => {
 		const chunks: Buffer[] = [];
 		req.on("data", (c: Buffer) => chunks.push(c));
 		// `Buffer extends Uint8Array`; upcast keeps the web-side `BodyInit` happy
 		// (see the `as BodyInit` cast at the Request construction site).
-		req.on("end", () => resolve(Buffer.concat(chunks) as unknown as Uint8Array));
+		req.on("end", () =>
+			resolve(Buffer.concat(chunks) as unknown as Uint8Array),
+		);
 		req.on("error", reject);
 	});
 }

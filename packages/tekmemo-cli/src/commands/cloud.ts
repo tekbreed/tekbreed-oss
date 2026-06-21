@@ -13,16 +13,16 @@
  * @module cloud
  */
 
-import {
-	CANONICAL_TEKMEMO_FILES,
-	createNodeFsMemoryStore,
-	sha256Hex,
-} from "@tekbreed/tekmemo";
 import type {
 	FileManifest,
 	SyncCursor,
 	SyncPushCompleteResult,
 	TekMemoCloudClient,
+} from "@tekbreed/tekmemo";
+import {
+	CANONICAL_TEKMEMO_FILES,
+	createNodeFsMemoryStore,
+	sha256Hex,
 } from "@tekbreed/tekmemo";
 import type { CliOutput } from "../output/output";
 import { printJsonEnvelope } from "../output/output";
@@ -66,7 +66,8 @@ export interface CloudReadinessCommandOptions extends CloudCommandBaseOptions {}
 /**
  * Options for the `cloud sync status` command.
  */
-export interface CloudSyncStatusCommandOptions extends CloudCommandBaseOptions {}
+export interface CloudSyncStatusCommandOptions
+	extends CloudCommandBaseOptions {}
 
 /**
  * Options for the `cloud sync pull` command.
@@ -306,7 +307,9 @@ async function completePush(
  * @param rootDir - Workspace root containing the `.tekmemo/` directory.
  * @returns the local file manifest.
  */
-export async function computeLocalManifest(rootDir: string): Promise<FileManifest> {
+export async function computeLocalManifest(
+	rootDir: string,
+): Promise<FileManifest> {
 	const store = createNodeFsMemoryStore({
 		rootDir,
 		createRoot: false,

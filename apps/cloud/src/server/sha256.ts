@@ -42,7 +42,10 @@ export async function sha256Hex(value: string): Promise<string> {
  *
  * @see apps/cloud/src/db/schema.ts — `api_keys.key_hash` column doc.
  */
-export async function hashApiKey(rawKey: string, salt: string): Promise<string> {
+export async function hashApiKey(
+	rawKey: string,
+	salt: string,
+): Promise<string> {
 	return sha256Hex(`${salt}:${rawKey}`);
 }
 

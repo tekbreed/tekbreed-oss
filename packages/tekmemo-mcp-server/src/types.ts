@@ -77,7 +77,6 @@ import type {
 	MemoryDocumentResult,
 	ReadMemoryInput,
 	RecallInput,
-	RecallItem,
 	RecallResult,
 	RecentMemoryInput,
 	RecentMemoryResult,

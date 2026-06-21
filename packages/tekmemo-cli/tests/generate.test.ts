@@ -36,17 +36,18 @@ describe("generate agent-rules (pure emitter)", () => {
 		expect(lineCount).toBeLessThanOrEqual(MAX_AGENT_RULES_LINES);
 	});
 
-	it.each(AGENT_RULES_TARGETS)(
-		"%s output names its target-aware MCP config path",
-		(target) => {
-			const file = emitAgentRules({ target });
-			// The pointer must reference the exact per-platform MCP location so the
-			// generated instructions file is accurate for that platform's tooling.
-			expect(file.content).toContain(EXPECTED[target].mcp);
-		},
-	);
+	it.each(
+		AGENT_RULES_TARGETS,
+	)("%s output names its target-aware MCP config path", (target) => {
+		const file = emitAgentRules({ target });
+		// The pointer must reference the exact per-platform MCP location so the
+		// generated instructions file is accurate for that platform's tooling.
+		expect(file.content).toContain(EXPECTED[target].mcp);
+	});
 
-	it.each(AGENT_RULES_TARGETS)("%s writes to the canonical file path", (target) => {
+	it.each(
+		AGENT_RULES_TARGETS,
+	)("%s writes to the canonical file path", (target) => {
 		const file = emitAgentRules({ target });
 		expect(file.path).toBe(EXPECTED[target].file);
 	});
@@ -104,13 +105,7 @@ describe("generate agent-rules (CLI)", () => {
 		const temp = await createTempTekMemoDir();
 		try {
 			const result = await runTekMemoCli({
-				argv: [
-					"generate",
-					"agent-rules",
-					"copilot",
-					"--root",
-					temp.rootDir,
-				],
+				argv: ["generate", "agent-rules", "copilot", "--root", temp.rootDir],
 			});
 			expect(result.exitCode).toBe(0);
 			const written = await readFile(
@@ -170,16 +165,12 @@ describe("generate agent-rules (CLI)", () => {
 		const temp = await createTempTekMemoDir();
 		try {
 			const result = await runTekMemoCli({
-				argv: [
-					"generate",
-					"agent-rules",
-					"unknown",
-					"--root",
-					temp.rootDir,
-				],
+				argv: ["generate", "agent-rules", "unknown", "--root", temp.rootDir],
 			});
 			expect(result.exitCode).toBe(1);
-			expect(result.stderr.join("\n").toLowerCase()).toContain("unknown target");
+			expect(result.stderr.join("\n").toLowerCase()).toContain(
+				"unknown target",
+			);
 		} finally {
 			await temp.cleanup();
 		}

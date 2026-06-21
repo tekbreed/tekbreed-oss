@@ -58,7 +58,7 @@ describe("createTekMemoMcpRuntimeFromConfig — embedder wiring", () => {
 			const health = await runtime.health();
 			expect(health.ok).toBe(true);
 			// memory mode is volatile; recall returns no items but must not throw.
-			const result = await runtime.recall!({ query: "anything" });
+			const result = await runtime.recall?.({ query: "anything" });
 			expect(result.items).toEqual([]);
 		});
 
@@ -92,13 +92,16 @@ describe("createTekMemoMcpRuntimeFromConfig — embedder wiring", () => {
 					recall: { localEmbeddings: true, engine: "hybrid" },
 				});
 
-				await runtime.writeMemory!({
+				await runtime.writeMemory?.({
 					content: "Authentication uses JWT tokens in the login flow.",
 					kind: "decision",
 					title: "Auth",
 				});
 
-				const result = await runtime.recall!({ query: "login auth", limit: 5 });
+				const result = await runtime.recall?.({
+					query: "login auth",
+					limit: 5,
+				});
 				// Lexical path surfaces the memory even though the vector path
 				// could not initialize (no adapter).
 				expect(result.items.length).toBeGreaterThan(0);
@@ -118,12 +121,12 @@ describe("createTekMemoMcpRuntimeFromConfig — embedder wiring", () => {
 					recall: { localEmbeddings: false },
 				});
 
-				await runtime.writeMemory!({
+				await runtime.writeMemory?.({
 					content: "The deployment pipeline runs on GitHub Actions.",
 					kind: "reference",
 				});
 
-				const result = await runtime.recall!({
+				const result = await runtime.recall?.({
 					query: "deployment pipeline",
 					limit: 5,
 				});
@@ -145,11 +148,11 @@ describe("createTekMemoMcpRuntimeFromConfig — embedder wiring", () => {
 						rootDir,
 						projectId: "mcp-factory",
 					});
-					await runtime.writeMemory!({
+					await runtime.writeMemory?.({
 						content: "Env-disabled embedder still recalls lexically.",
 						kind: "note",
 					});
-					const result = await runtime.recall!({
+					const result = await runtime.recall?.({
 						query: "env-disabled embedder",
 						limit: 5,
 					});

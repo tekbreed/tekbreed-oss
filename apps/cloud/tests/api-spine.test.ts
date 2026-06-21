@@ -1,8 +1,7 @@
-import { Hono } from "hono";
+import type { Hono } from "hono";
 import { describe, expect, it } from "vitest";
-
+import { type ApiEnv, createApiApp } from "../src/api";
 import { ApiError, EntitlementError, NotFoundError } from "../src/api/errors";
-import { createApiApp, type ApiEnv } from "../src/api";
 import { json, jsonError } from "../src/api/json";
 import type { CloudWorkerEnv } from "../src/server/env";
 
@@ -54,7 +53,10 @@ async function fetchApi(
 	path: string,
 	init?: RequestInit,
 ): Promise<Response> {
-	const res = await app.fetch(new Request(`http://tekmemo.test${path}`, init), STUB_ENV);
+	const res = await app.fetch(
+		new Request(`http://tekmemo.test${path}`, init),
+		STUB_ENV,
+	);
 	return res as unknown as Response;
 }
 
@@ -180,13 +182,17 @@ describe("requestId middleware", () => {
 		expect(id).not.toBe("bad id with spaces");
 		expect(id).toBe(body.meta.requestId);
 		// Minted ids are uuids: 36 chars, 4 dashes.
-		expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
+		expect(id).toMatch(
+			/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+		);
 	});
 
 	it("mints a fresh uuid when no inbound header is present", async () => {
 		const res = await fetchApi(appWithProbe(), "/v1/__probe/ok");
 		const id = res.headers.get("x-request-id");
-		expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
+		expect(id).toMatch(
+			/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+		);
 	});
 });
 
@@ -201,16 +207,18 @@ describe("health endpoints (through the envelope)", () => {
 		});
 		// `toMatchObject` above establishes `data` is present; the non-null assertion
 		// carries that runtime fact to the type system for the following access.
-		expect(body.data!.version).toBeTypeOf("string");
+		expect(body.data?.version).toBeTypeOf("string");
 		expect(body.meta.requestId).toBeTypeOf("string");
 	});
 
 	it("GET /v1/readiness reports ok:false + r2_unreachable when BLOBS.head throws", async () => {
 		// Stub env where head() rejects — readiness must fail closed, not 500.
 		const throwingEnv = {
-			BLOBS: { async head() {
-				throw new Error("binding gone");
-			} },
+			BLOBS: {
+				async head() {
+					throw new Error("binding gone");
+				},
+			},
 		} as unknown as CloudWorkerEnv;
 		const res = await createApiApp().fetch(
 			new Request("http://tekmemo.test/v1/readiness"),
@@ -228,8 +236,12 @@ describe("health endpoints (through the envelope)", () => {
 
 describe("ApiError hierarchy", () => {
 	it("default hideMessage is true only for 5xx", () => {
-		expect(new ApiError({ code: "x", message: "m", status: 500 }).hideMessage).toBe(true);
-		expect(new ApiError({ code: "x", message: "m", status: 400 }).hideMessage).toBe(false);
+		expect(
+			new ApiError({ code: "x", message: "m", status: 500 }).hideMessage,
+		).toBe(true);
+		expect(
+			new ApiError({ code: "x", message: "m", status: 400 }).hideMessage,
+		).toBe(false);
 	});
 
 	it("EntitlementError keeps its 402 status and structured details", () => {

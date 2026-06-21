@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import {
-	BM25Store,
 	createBM25Store,
 	fuzzyOverlapScore,
 	fuzzyScore,
@@ -18,13 +17,9 @@ describe("tokenize", () => {
 	});
 
 	it("keeps stop words when dropStopWords is false", () => {
-		expect(tokenize("how do we handle auth", { dropStopWords: false })).toEqual([
-			"how",
-			"do",
-			"we",
-			"handle",
-			"auth",
-		]);
+		expect(tokenize("how do we handle auth", { dropStopWords: false })).toEqual(
+			["how", "do", "we", "handle", "auth"],
+		);
 	});
 });
 
@@ -104,9 +99,9 @@ describe("BM25Store", () => {
 		const store = createBM25Store();
 		store.upsert([{ id: "a", text: "alpha beta", namespace: "ns1" }]);
 		store.upsert([{ id: "a", text: "gamma delta", namespace: "ns2" }]);
-		expect(store.search("alpha", { namespace: "ns1" }).map((r) => r.id)).toEqual([
-			"a",
-		]);
+		expect(
+			store.search("alpha", { namespace: "ns1" }).map((r) => r.id),
+		).toEqual(["a"]);
 		expect(store.search("alpha", { namespace: "ns2" })).toEqual([]);
 	});
 

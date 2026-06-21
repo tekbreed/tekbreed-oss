@@ -140,7 +140,8 @@ export async function mergeHybridCandidates(
 		const entry = blended.get(candidate.id);
 		if (!entry) continue;
 		const relevance = relevanceWeight * entry.baseScore;
-		const recency = recencyWeight * recencyBoost(candidate.metadata, now, halfLifeDays);
+		const recency =
+			recencyWeight * recencyBoost(candidate.metadata, now, halfLifeDays);
 		const confidence = confidenceWeight * readConfidence(candidate.metadata);
 		const finalScore = relevance + recency + confidence;
 		scored.push({
@@ -179,9 +180,12 @@ export function recencyBoost(
 	if (typeof raw !== "string") return 0.5;
 	const created = Date.parse(raw);
 	if (Number.isNaN(created)) return 0.5;
-	const ageDays = Math.max(0, (now.getTime() - created) / (1000 * 60 * 60 * 24));
+	const ageDays = Math.max(
+		0,
+		(now.getTime() - created) / (1000 * 60 * 60 * 24),
+	);
 	if (halfLifeDays <= 0) return 1;
-	return Math.pow(0.5, ageDays / halfLifeDays);
+	return 0.5 ** (ageDays / halfLifeDays);
 }
 
 /**

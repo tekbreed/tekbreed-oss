@@ -1,9 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+	createInMemoryRecallStore,
 	type MemoryEmbedder,
 	Tekmemo,
-	createInMemoryRecallStore,
-	createNodeFsMemoryStore,
 } from "../../src/index";
 import { createTempTekMemoDir } from "../../src/testing/temp-dir";
 
@@ -135,7 +134,9 @@ describe("best-effort write path (failing embedder)", () => {
 			// An embedder that always fails — mimics a lazy local embedder whose
 			// optional runtime is missing, or an adapter whose init rejected.
 			const brokenEmbedder: MemoryEmbedder = {
-				embedTexts: vi.fn().mockRejectedValue(new Error("onnx runtime missing")),
+				embedTexts: vi
+					.fn()
+					.mockRejectedValue(new Error("onnx runtime missing")),
 				embedText: vi.fn().mockRejectedValue(new Error("onnx runtime missing")),
 			};
 
@@ -173,7 +174,13 @@ describe("best-effort write path (failing embedder)", () => {
 			const goodEmbedder: MemoryEmbedder = {
 				embedTexts: vi.fn().mockResolvedValue({
 					embeddings: [
-						{ text: "x", embedding: [0.1, 0.2, 0.3], index: 0, model: "test", dimensions: 3 },
+						{
+							text: "x",
+							embedding: [0.1, 0.2, 0.3],
+							index: 0,
+							model: "test",
+							dimensions: 3,
+						},
 					],
 					model: "test",
 				}),

@@ -9,11 +9,7 @@ import {
 	McpValidationError,
 	toSafeError,
 } from "../errors";
-import type {
-	McpToolResult,
-	TekMemoMcpOptions,
-	ToolSafety,
-} from "../types";
+import type { McpToolResult, TekMemoMcpOptions, ToolSafety } from "../types";
 import { asObject, safeJsonStringify, toJsonObject } from "../utils/json";
 import { enforceToolResultLimit } from "../utils/limits";
 import { withTimeout } from "../utils/timeout";
@@ -525,7 +521,11 @@ function validateToolArguments(
 		}
 		case "tekmemo.sync_status": {
 			const scope = scopeArgs(object);
-			return { args: { ...scope }, safety: "read", workspaceId: scope.workspaceId };
+			return {
+				args: { ...scope },
+				safety: "read",
+				workspaceId: scope.workspaceId,
+			};
 		}
 		case "tekmemo.sync_pull": {
 			const scope = scopeArgs(object);

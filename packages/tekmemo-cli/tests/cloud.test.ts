@@ -138,8 +138,7 @@ describe("cloud commands", () => {
 									manifest: {
 										".tekmemo/memory/core.md": {
 											path: ".tekmemo/memory/core.md",
-											sha256:
-												body.uploaded[0].sha256,
+											sha256: body.uploaded[0].sha256,
 											sizeBytes: 37,
 											r2Key: "projects/proj_123/core.md",
 											updatedAt: "2026-06-19T00:00:00.000Z",

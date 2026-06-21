@@ -1,10 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import {
-	resolveTekmemoConfig,
-	type RecallEngineConfig,
-} from "../../src/index";
+import { type RecallEngineConfig, resolveTekmemoConfig } from "../../src/index";
 import { createTempTekMemoDir } from "../../src/testing/temp-dir";
 
 /**

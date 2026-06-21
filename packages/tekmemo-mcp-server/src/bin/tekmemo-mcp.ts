@@ -132,9 +132,7 @@ function parseArgs(
 		out.runtime !== undefined &&
 		!["local", "memory", "hybrid"].includes(out.runtime as string)
 	) {
-		console.error(
-			`[tekmemo-mcp] --runtime must be local, memory, or hybrid.`,
-		);
+		console.error(`[tekmemo-mcp] --runtime must be local, memory, or hybrid.`);
 		process.exit(2);
 	}
 	if (

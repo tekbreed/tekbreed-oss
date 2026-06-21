@@ -23,7 +23,6 @@ import type { BootstrapMemoryStoreOptions } from "../core/bootstrap/bootstrap-me
 import type { ReadConversationHistoryOptions } from "../core/documents/conversations-memory";
 import { writeCoreMemory } from "../core/documents/core-memory";
 import type { MemoryEmbedder } from "../core/types/embeddings";
-import { createFsRecallStore } from "../recall/stores/fs-recall-store";
 import type { MemoryCommand } from "../core/types/memory-commands";
 import type {
 	ConversationEntry,
@@ -54,6 +53,7 @@ import {
 	type TekMemoAgentSession,
 	type TekMemoCloudClient,
 } from "../index";
+import { createFsRecallStore } from "../recall/stores/fs-recall-store";
 import type { RecallFilter, RecallStore } from "../recall/types";
 import {
 	type ResolvedTekmemoConfig,
@@ -82,23 +82,23 @@ import type {
 	RecentMemoryResult,
 	RuntimeReadPolicy,
 	RuntimeWritePolicy,
-		SnapshotMemoryInput,
-		SnapshotMemoryResult,
-		SyncPullInput,
-		SyncPullResult,
-		SyncPushCompleteInput,
-		SyncPushCompleteResult,
-		SyncPushInput,
-		SyncPushResult,
-		SyncStatusInput,
-		SyncStatusResult,
-		TekMemoHealthResult,
-		TekMemoRuntimeMode,
-		ValidateMemoryInput,
-		ValidateMemoryResult,
-		WriteMemoryInput,
-		WriteMemoryResult,
-	} from "./types";
+	SnapshotMemoryInput,
+	SnapshotMemoryResult,
+	SyncPullInput,
+	SyncPullResult,
+	SyncPushCompleteInput,
+	SyncPushCompleteResult,
+	SyncPushInput,
+	SyncPushResult,
+	SyncStatusInput,
+	SyncStatusResult,
+	TekMemoHealthResult,
+	TekMemoRuntimeMode,
+	ValidateMemoryInput,
+	ValidateMemoryResult,
+	WriteMemoryInput,
+	WriteMemoryResult,
+} from "./types";
 
 type Strategy = ReturnType<typeof createLocalStrategy>;
 
@@ -375,7 +375,6 @@ export class Tekmemo {
 		},
 	};
 
-
 	readonly rerank = {
 		sort: stableSortRerankResults,
 		applyTopK: applyTopK,
@@ -460,7 +459,8 @@ export class Tekmemo {
 				store: this.store,
 				projectId: this.projectId,
 				snapshot: (input) => local.createSnapshot(input),
-				reindex: () => bootstrapMemoryStore(this.store, { projectId: this.projectId }),
+				reindex: () =>
+					bootstrapMemoryStore(this.store, { projectId: this.projectId }),
 			});
 			local = createLocalStrategy({
 				store: this.store,

@@ -1,5 +1,5 @@
+import { createTempTekMemoDir, Tekmemo } from "@tekbreed/tekmemo";
 import { describe, expect, it } from "vitest";
-import { Tekmemo, createTempTekMemoDir } from "@tekbreed/tekmemo";
 import {
 	buildRuntimeMemoryToolDefinition,
 	createAiSdkRuntimeFromTekmemo,
@@ -25,8 +25,7 @@ describe("createAiSdkRuntimeFromTekmemo", () => {
 			// match the first note (it shares only the stem "auth"), but the
 			// fuzzy/BM25 hybrid engine ranks it as relevant.
 			await memo.notes.record({
-				content:
-					"Authentication uses JWT tokens issued by the login flow.",
+				content: "Authentication uses JWT tokens issued by the login flow.",
 				kind: "decision",
 				title: "Auth strategy",
 			});

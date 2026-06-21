@@ -33,7 +33,9 @@ const stubBlobs: R2Bucket = {
 		return null;
 	},
 	async put() {
-		throw new Error("R2 is not available in `react-router dev`; use `pnpm preview` (wrangler dev) to exercise R2.");
+		throw new Error(
+			"R2 is not available in `react-router dev`; use `pnpm preview` (wrangler dev) to exercise R2.",
+		);
 	},
 	async createMultipartUpload() {
 		throw new Error("R2 multipart upload unavailable in dev.");

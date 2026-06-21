@@ -41,7 +41,13 @@
  *   table — idiomatic JS `account.apiKey` with a `snake_case` column.
  */
 import { sql } from "drizzle-orm";
-import { integer, real, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
+import {
+	integer,
+	real,
+	sqliteTable,
+	text,
+	uniqueIndex,
+} from "drizzle-orm/sqlite-core";
 
 // ---------------------------------------------------------------------------
 // Spine: accounts + api_keys
@@ -63,15 +69,13 @@ export const accounts = sqliteTable("accounts", {
 		.notNull()
 		.default("free"),
 	/** Storage cap in bytes the account is entitled to (numeric, not plan-name). */
-	maxHostedStorageBytes: real("max_hosted_storage_bytes").notNull().default(1e9),
+	maxHostedStorageBytes: real("max_hosted_storage_bytes")
+		.notNull()
+		.default(1e9),
 	/** Connector cap (ADR 0006 §maxConnectors). */
 	maxConnectors: integer("max_connectors").notNull().default(1),
-	createdAt: text("created_at")
-		.notNull()
-		.default(sql`(current_timestamp)`),
-	updatedAt: text("updated_at")
-		.notNull()
-		.default(sql`(current_timestamp)`),
+	createdAt: text("created_at").notNull().default(sql`(current_timestamp)`),
+	updatedAt: text("updated_at").notNull().default(sql`(current_timestamp)`),
 });
 
 /**
@@ -96,9 +100,7 @@ export const apiKeys = sqliteTable("api_keys", {
 	lastFour: text("last_four"),
 	/** Soft-delete / revocation. Null = active. */
 	revokedAt: text("revoked_at"),
-	createdAt: text("created_at")
-		.notNull()
-		.default(sql`(current_timestamp)`),
+	createdAt: text("created_at").notNull().default(sql`(current_timestamp)`),
 });
 
 // ---------------------------------------------------------------------------
@@ -121,15 +123,13 @@ export const projects = sqliteTable("projects", {
 	/** Human name shown in the dashboard. */
 	name: text("name").notNull(),
 	/** Default project for this account (one per account). */
-	isDefault: integer("is_default", { mode: "boolean" }).notNull().default(false),
+	isDefault: integer("is_default", { mode: "boolean" })
+		.notNull()
+		.default(false),
 	/** Running total of bytes stored across `project_files`. Entitlement gate. */
 	totalStorageBytes: real("total_storage_bytes").notNull().default(0),
-	createdAt: text("created_at")
-		.notNull()
-		.default(sql`(current_timestamp)`),
-	updatedAt: text("updated_at")
-		.notNull()
-		.default(sql`(current_timestamp)`),
+	createdAt: text("created_at").notNull().default(sql`(current_timestamp)`),
+	updatedAt: text("updated_at").notNull().default(sql`(current_timestamp)`),
 });
 
 /**
@@ -160,9 +160,7 @@ export const projectFiles = sqliteTable(
 		/** Content size in bytes. */
 		sizeBytes: integer("size_bytes").notNull(),
 		/** Server wall-clock timestamp of the last commit to this path. */
-		updatedAt: text("updated_at")
-			.notNull()
-			.default(sql`(current_timestamp)`),
+		updatedAt: text("updated_at").notNull().default(sql`(current_timestamp)`),
 	},
 	(table) => [
 		// One live version per canonical path per project.
@@ -193,7 +191,5 @@ export const syncCursors = sqliteTable("sync_cursors", {
 	seq: integer("seq").notNull(),
 	/** What kind of commit produced this cursor. */
 	kind: text("kind", { enum: ["push", "pull", "init"] }).notNull(),
-	createdAt: text("created_at")
-		.notNull()
-		.default(sql`(current_timestamp)`),
+	createdAt: text("created_at").notNull().default(sql`(current_timestamp)`),
 });

@@ -15,15 +15,14 @@
  * @see docs/architecture/decisions.md Q14 — cursor = `String(seq)`.
  */
 import { createId } from "@paralleldrive/cuid2";
-import { desc, eq, sql } from "drizzle-orm";
-
-import { projectFiles, projects, syncCursors } from "../../db/schema";
-import type { Database } from "../../db/index.server";
-import { ConflictError, PermissionError } from "../errors";
 import type {
 	CloudFileManifest,
 	FileManifest,
 } from "@tekbreed/tekmemo/cloud-client";
+import { desc, eq, sql } from "drizzle-orm";
+import type { Database } from "../../db/index.server";
+import { projectFiles, projects, syncCursors } from "../../db/schema";
+import { ConflictError, PermissionError } from "../errors";
 
 /**
  * A loaded project row, narrowed to the fields sync handlers read. Returned by
@@ -92,7 +91,10 @@ export async function ensureProject(
  * Returns the current cursor for a project, or `INITIAL_CURSOR` if it has no
  * `sync_cursors` rows yet. The cursor is `String(max seq)` (Q14).
  */
-export async function currentCursor(db: Database, projectId: string): Promise<string> {
+export async function currentCursor(
+	db: Database,
+	projectId: string,
+): Promise<string> {
 	const rows = await db
 		.select({ seq: syncCursors.seq })
 		.from(syncCursors)
@@ -159,8 +161,6 @@ export function cloudManifestToLocal(cloud: CloudFileManifest): FileManifest {
 	for (const [path, entry] of Object.entries(cloud)) out[path] = entry.sha256;
 	return out;
 }
-
-
 
 /**
  * The set of paths + shas the cloud needs from a client push: every path in the
@@ -279,7 +279,12 @@ export async function verifyUploaded(
 export async function commitPush(
 	db: Database,
 	projectId: string,
-	uploaded: Array<{ path: string; sha256: string; r2Key: string; sizeBytes: number }>,
+	uploaded: Array<{
+		path: string;
+		sha256: string;
+		r2Key: string;
+		sizeBytes: number;
+	}>,
 ): Promise<{ cursor: string; manifest: CloudFileManifest }> {
 	const nextSeq = await bumpCursor(db, projectId, "push");
 
@@ -359,10 +364,7 @@ export async function bumpCursor(
  * every subsequent access. The two together mean: a brand-new id has no owner,
  * so the first pusher becomes the owner; a later pusher to the same id gets 403.
  */
-export function assertOwns(
-	project: SyncProject,
-	accountId: string,
-): void {
+export function assertOwns(project: SyncProject, accountId: string): void {
 	if (project.accountId !== accountId) {
 		throw new PermissionError("Project is owned by another account.");
 	}

@@ -9,15 +9,9 @@
 
 export type TekMemoRuntimeMode = "local" | "hybrid" | "memory";
 
-export type RuntimeReadPolicy =
-	| "local-first"
-	| "cloud-first"
-	| "local-only";
+export type RuntimeReadPolicy = "local-first" | "cloud-first" | "local-only";
 
-export type RuntimeWritePolicy =
-	| "local-first"
-	| "cloud-first"
-	| "local-only";
+export type RuntimeWritePolicy = "local-first" | "cloud-first" | "local-only";
 
 export type MemoryKind =
 	| "decision"
@@ -84,13 +78,7 @@ export interface MemoryContextResult {
 	 * carry the memory content (core, recent, recall, notes, graph).
 	 */
 	sections: Array<{
-		type:
-			| "directive"
-			| "core"
-			| "notes"
-			| "recent"
-			| "recall"
-			| "graph";
+		type: "directive" | "core" | "notes" | "recent" | "recall" | "graph";
 		title: string;
 		content: string;
 	}>;
@@ -209,10 +197,12 @@ export interface AgentSessionExtractResult {
  * @public
  */
 export type {
-	CloudFileSyncEntry,
 	CloudFileManifest,
+	CloudFileSyncEntry,
 	FileManifest,
 	FileSyncEntry,
+	SyncCursor,
+	SyncDownloadTarget,
 	SyncPullInput,
 	SyncPullResult,
 	SyncPushCompleteInput,
@@ -222,8 +212,6 @@ export type {
 	SyncStatusInput,
 	SyncStatusResult,
 	SyncUploadTarget,
-	SyncDownloadTarget,
-	SyncCursor,
 } from "../cloud-client/types";
 
 export interface GraphNodeInput {

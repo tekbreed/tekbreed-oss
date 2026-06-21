@@ -10,28 +10,27 @@
  * @public
  */
 
-import type { MemoryPath, MemoryStore } from "../../core/types/memory-store";
-import { MemoryNotFoundError } from "../../core/errors/errors";
 import {
 	GRAPH_EDGES_PATH,
 	GRAPH_NODES_PATH,
 } from "../../core/constants/memory-paths";
+import { MemoryNotFoundError } from "../../core/errors/errors";
+import type { MemoryPath, MemoryStore } from "../../core/types/memory-store";
 import {
 	parseGraphEdgesJsonl,
 	parseGraphNodesJsonl,
 	serializeGraphEdgesJsonl,
 	serializeGraphNodesJsonl,
 } from "../jsonl/jsonl";
-import { InMemoryGraphStore } from "./in-memory-graph-store";
 import type {
 	GraphDecayInput,
 	GraphEdge,
+	GraphEdgeQuery,
 	GraphMergeNodesInput,
 	GraphNeighbor,
 	GraphNeighborQuery,
 	GraphNode,
 	GraphNodeQuery,
-	GraphEdgeQuery,
 	GraphPath,
 	GraphShortestPathQuery,
 	GraphSnapshot,
@@ -40,6 +39,7 @@ import type {
 	StoredGraphEdge,
 	StoredGraphNode,
 } from "../types";
+import { InMemoryGraphStore } from "./in-memory-graph-store";
 
 export interface FsGraphStoreOptions {
 	/** Memory store used for file I/O (typically NodeFsMemoryStore). */
@@ -264,8 +264,6 @@ function parseWithSkip<T>(
  * @param options - Store options.
  * @returns A new FsGraphStore (not yet hydrated).
  */
-export function createFsGraphStore(
-	options: FsGraphStoreOptions,
-): FsGraphStore {
+export function createFsGraphStore(options: FsGraphStoreOptions): FsGraphStore {
 	return new FsGraphStore(options);
 }

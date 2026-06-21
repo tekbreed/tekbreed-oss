@@ -15,9 +15,13 @@ import { mkdir, stat, writeFile } from "node:fs/promises";
 import { basename, dirname, resolve } from "node:path";
 import type { Tekmemo } from "@tekbreed/tekmemo";
 import { getRootDir } from "../cli/store-helpers";
+import {
+	CliError,
+	CliUsageError,
+	CliValidationError,
+} from "../errors/cli-errors";
 import type { CliOutput } from "../output/output";
 import { printJsonEnvelope } from "../output/output";
-import { CliError, CliUsageError, CliValidationError } from "../errors/cli-errors";
 
 /**
  * Canonical targets a user can generate.
@@ -124,7 +128,9 @@ const DEFAULT_POINTERS: AgentRulesPointer[] = [
 /**
  * Ordered list of supported targets (for `--list`).
  */
-export const AGENT_RULES_TARGETS = Object.keys(TARGET_META) as AgentRulesTarget[];
+export const AGENT_RULES_TARGETS = Object.keys(
+	TARGET_META,
+) as AgentRulesTarget[];
 
 /**
  * Parses a target alias (case-insensitive). Accepts the canonical id and the
@@ -136,7 +142,10 @@ export const AGENT_RULES_TARGETS = Object.keys(TARGET_META) as AgentRulesTarget[
 export function parseAgentRulesTarget(
 	input: string,
 ): AgentRulesTarget | undefined {
-	const norm = input.trim().toLowerCase().replace(/\.md(c?)$/, "$1");
+	const norm = input
+		.trim()
+		.toLowerCase()
+		.replace(/\.md(c?)$/, "$1");
 	for (const target of AGENT_RULES_TARGETS) {
 		if (target === norm) return target;
 	}
@@ -229,7 +238,8 @@ function buildBody(opts: {
 	lines.push("");
 	lines.push("## Pointers");
 	lines.push("");
-	for (const p of opts.pointers) lines.push(`- ${p.label}: [${p.path}](${p.path})`);
+	for (const p of opts.pointers)
+		lines.push(`- ${p.label}: [${p.path}](${p.path})`);
 	lines.push("");
 	return lines;
 }
@@ -327,8 +337,7 @@ export async function runGenerateAgentRulesCommand(
 	}
 
 	const rootDir = getRootDir(options.memo.store);
-	const projectName =
-		options.projectName?.trim() || basename(resolve(rootDir));
+	const projectName = options.projectName?.trim() || basename(resolve(rootDir));
 
 	let file: AgentRulesFile;
 	try {

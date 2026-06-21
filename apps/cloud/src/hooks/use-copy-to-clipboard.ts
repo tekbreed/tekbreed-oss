@@ -1,15 +1,15 @@
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react";
 
 /**
  * Options for the useCopyToClipboard hook
  */
 interface UseCopyToClipboardOptions {
 	/** Duration in milliseconds to show "copied" state (default: 2000) */
-	resetDelay?: number
+	resetDelay?: number;
 	/** Callback when copy succeeds */
-	onSuccess?: () => void
+	onSuccess?: () => void;
 	/** Callback when copy fails */
-	onError?: (error: Error) => void
+	onError?: (error: Error) => void;
 }
 
 /**
@@ -17,11 +17,11 @@ interface UseCopyToClipboardOptions {
  */
 interface UseCopyToClipboardReturn {
 	/** Whether content was recently copied */
-	copied: boolean
+	copied: boolean;
 	/** Function to copy text to clipboard */
-	copy: (text: string) => Promise<void>
+	copy: (text: string) => Promise<void>;
 	/** Reset the copied state manually */
-	reset: () => void
+	reset: () => void;
 }
 
 /**
@@ -56,50 +56,50 @@ interface UseCopyToClipboardReturn {
 export function useCopyToClipboard(
 	options: UseCopyToClipboardOptions = {},
 ): UseCopyToClipboardReturn {
-	const { resetDelay = 2000, onSuccess, onError } = options
-	const [copied, setCopied] = useState(false)
-	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+	const { resetDelay = 2000, onSuccess, onError } = options;
+	const [copied, setCopied] = useState(false);
+	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	// Cleanup timeout on unmount
 	useEffect(() => {
 		return () => {
 			if (timeoutRef.current) {
-				clearTimeout(timeoutRef.current)
+				clearTimeout(timeoutRef.current);
 			}
-		}
-	}, [])
+		};
+	}, []);
 
 	const reset = useCallback(() => {
-		setCopied(false)
+		setCopied(false);
 		if (timeoutRef.current) {
-			clearTimeout(timeoutRef.current)
-			timeoutRef.current = null
+			clearTimeout(timeoutRef.current);
+			timeoutRef.current = null;
 		}
-	}, [])
+	}, []);
 
 	const copy = useCallback(
 		async (text: string): Promise<void> => {
 			// Clear any existing timeout
 			if (timeoutRef.current) {
-				clearTimeout(timeoutRef.current)
+				clearTimeout(timeoutRef.current);
 			}
 
 			try {
-				await navigator.clipboard.writeText(text)
-				setCopied(true)
-				onSuccess?.()
+				await navigator.clipboard.writeText(text);
+				setCopied(true);
+				onSuccess?.();
 
 				// Auto-reset after delay
 				timeoutRef.current = setTimeout(() => {
-					setCopied(false)
-					timeoutRef.current = null
-				}, resetDelay)
+					setCopied(false);
+					timeoutRef.current = null;
+				}, resetDelay);
 			} catch (error) {
-				onError?.(error instanceof Error ? error : new Error("Copy failed"))
+				onError?.(error instanceof Error ? error : new Error("Copy failed"));
 			}
 		},
 		[resetDelay, onSuccess, onError],
-	)
+	);
 
-	return { copied, copy, reset }
+	return { copied, copy, reset };
 }

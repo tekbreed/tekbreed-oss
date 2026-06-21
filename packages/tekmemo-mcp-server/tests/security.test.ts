@@ -28,7 +28,7 @@ describe("Security", () => {
 			...runtime,
 			async writeMemory(input: WriteMemoryInput, signal?: AbortSignal) {
 				called = true;
-				return runtime.writeMemory!(input, signal);
+				return runtime.writeMemory?.(input, signal);
 			},
 		};
 		const result = await callTekMemoTool(

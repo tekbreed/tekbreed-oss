@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { InMemoryMemoryStore, Tekmemo } from "../src/index";
 import type { MemoryContextResult } from "../src/index";
+import { InMemoryMemoryStore, Tekmemo } from "../src/index";
 
 describe("tekmemo.context directive block", () => {
 	it("leads the context text and sections with an agent directive", async () => {
@@ -8,9 +8,12 @@ describe("tekmemo.context directive block", () => {
 		const memo = new Tekmemo({ store });
 
 		// Seed memory so recall/core sections are non-empty.
-		await memo.core.update("# Core Memory\n\nAlways use Biome for formatting.\n");
+		await memo.core.update(
+			"# Core Memory\n\nAlways use Biome for formatting.\n",
+		);
 		await memo.writeMemory({
-			content: "The CLI entry point is `tekmemo` and ships from packages/tekmemo-cli.",
+			content:
+				"The CLI entry point is `tekmemo` and ships from packages/tekmemo-cli.",
 			kind: "reference",
 		});
 

@@ -19,11 +19,7 @@
  */
 import type { JsonObject, JsonPrimitive, JsonValue } from "../core/types/json";
 
-export type {
-	JsonObject,
-	JsonPrimitive,
-	JsonValue,
-};
+export type { JsonObject, JsonPrimitive, JsonValue };
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -259,7 +255,10 @@ export interface TekMemoCloudSyncClient {
 	/** Request presigned download URLs for files the client is behind on. */
 	pull(input?: SyncPullInput, signal?: AbortSignal): Promise<SyncPullResult>;
 	/** Read the cloud manifest, cursor, and storage usage. */
-	status(input?: SyncStatusInput, signal?: AbortSignal): Promise<SyncStatusResult>;
+	status(
+		input?: SyncStatusInput,
+		signal?: AbortSignal,
+	): Promise<SyncStatusResult>;
 }
 
 /**

@@ -165,7 +165,9 @@ export interface MemoryRuntimeIndexResult {
  * @public
  */
 export interface TekMemoMemoryRuntime {
-	readCoreMemory(signal?: AbortSignal): Promise<MemoryRuntimeCoreMemoryDocument>;
+	readCoreMemory(
+		signal?: AbortSignal,
+	): Promise<MemoryRuntimeCoreMemoryDocument>;
 	updateCoreMemory(
 		input: { content: string },
 		signal?: AbortSignal,

@@ -63,9 +63,7 @@ describe("@tekbreed/tekmemo/cloud — file-replica contract", () => {
 				fetch,
 			});
 			await client.readiness();
-			expect(calls).toEqual([
-				"https://memo.tekbreed.com/api/v1/readiness",
-			]);
+			expect(calls).toEqual(["https://memo.tekbreed.com/api/v1/readiness"]);
 		});
 	});
 
@@ -154,9 +152,9 @@ describe("@tekbreed/tekmemo/cloud — file-replica contract", () => {
 				apiKey: "tk_live_test",
 				fetch,
 			});
-			await expect(
-				client.sync.push({ manifest: {} }),
-			).rejects.toBeInstanceOf(TekMemoCloudValidationError);
+			await expect(client.sync.push({ manifest: {} })).rejects.toBeInstanceOf(
+				TekMemoCloudValidationError,
+			);
 			expect(fetch).not.toHaveBeenCalled();
 		});
 	});
@@ -201,9 +199,7 @@ describe("@tekbreed/tekmemo/cloud — file-replica contract", () => {
 				cursor: "cursor-1",
 			});
 			expect(result.cursor).toBe("cursor-2");
-			expect(
-				result.manifest[".tekmemo/memory/core.md"]?.sha256,
-			).toBe(SHA_B);
+			expect(result.manifest[".tekmemo/memory/core.md"]?.sha256).toBe(SHA_B);
 		});
 
 		it("rejects a complete with an invalid uploaded sha256", async () => {

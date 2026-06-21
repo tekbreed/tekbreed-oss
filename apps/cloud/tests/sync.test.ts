@@ -1,13 +1,12 @@
 import { Hono } from "hono";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { createApiApp, type ApiEnv } from "../src/api";
-import { hashApiKey } from "../src/server/sha256";
-import { accounts, apiKeys } from "../src/db/schema";
+import { type ApiEnv, createApiApp } from "../src/api";
 import type { Database } from "../src/db/index.server";
+import { accounts, apiKeys } from "../src/db/schema";
 import type { CloudWorkerEnv } from "../src/server/env";
+import { hashApiKey, sha256Hex } from "../src/server/sha256";
 import { createTestDb } from "./helpers/db";
-import { sha256Hex } from "../src/server/sha256";
 
 /**
  * Sync handler tests — the four file-replication endpoints end-to-end.
@@ -151,10 +150,7 @@ async function syncFetch(
 	init?: RequestInit & { auth?: string },
 ): Promise<Response> {
 	const headers = new Headers(init?.headers);
-	headers.set(
-		"authorization",
-		init?.auth ?? `Bearer ${RAW_KEY}`,
-	);
+	headers.set("authorization", init?.auth ?? `Bearer ${RAW_KEY}`);
 	if (init?.body && !headers.has("content-type")) {
 		headers.set("content-type", "application/json");
 	}
@@ -173,11 +169,13 @@ async function sha(content: string): Promise<string> {
 	return sha256Hex(content);
 }
 
-/** Structural envelope view for assertions. */
+/** Structural envelope view for assertions. `data` is intentionally `any` — the
+ * shape varies per endpoint and tests assert on ad-hoc nested fields. */
 async function jsonBody(res: Response) {
 	return (await res.json()) as {
+		// biome-ignore lint/suspicious/noExplicitAny: test-only envelope; shape varies per endpoint
 		data?: any;
-		error?: { code: string; message: string; details?: any };
+		error?: { code: string; message: string; details?: unknown };
 		meta?: { requestId?: string };
 	};
 }
@@ -188,14 +186,11 @@ async function push(
 	manifest: Record<string, string>,
 	auth?: string,
 ) {
-	return syncFetch(
-		`/v1/projects/${projectId}/sync/push`,
-		{
-			method: "POST",
-			body: JSON.stringify({ manifest }),
-			auth,
-		},
-	);
+	return syncFetch(`/v1/projects/${projectId}/sync/push`, {
+		method: "POST",
+		body: JSON.stringify({ manifest }),
+		auth,
+	});
 }
 
 /**
@@ -216,14 +211,11 @@ async function completeWith(
 		});
 		uploaded.push({ path: f.path, sha256: digest });
 	}
-	return syncFetch(
-		`/v1/projects/${projectId}/sync/push/complete`,
-		{
-			method: "POST",
-			body: JSON.stringify({ uploaded }),
-			auth,
-		},
-	);
+	return syncFetch(`/v1/projects/${projectId}/sync/push/complete`, {
+		method: "POST",
+		body: JSON.stringify({ uploaded }),
+		auth,
+	});
 }
 
 // ---------------------------------------------------------------------------
@@ -232,10 +224,9 @@ async function completeWith(
 
 describe("sync auth + validation", () => {
 	it("rejects a request with no Authorization header (401)", async () => {
-		const res = await syncFetch(
-			"/v1/projects/proj_a/sync/status",
-			{ auth: "" },
-		);
+		const res = await syncFetch("/v1/projects/proj_a/sync/status", {
+			auth: "",
+		});
 		expect(res.status).toBe(401);
 		const body = await jsonBody(res);
 		expect(body.error?.code).toBe("unauthorized");
@@ -261,13 +252,10 @@ describe("sync auth + validation", () => {
 
 	it("rejects an uploaded[] that isn't an array (422)", async () => {
 		await seedAccount({});
-		const res = await syncFetch(
-			"/v1/projects/proj_a/sync/push/complete",
-			{
-				method: "POST",
-				body: JSON.stringify({ uploaded: "nope" }),
-			},
-		);
+		const res = await syncFetch("/v1/projects/proj_a/sync/push/complete", {
+			method: "POST",
+			body: JSON.stringify({ uploaded: "nope" }),
+		});
 		expect(res.status).toBe(400);
 	});
 });
@@ -301,7 +289,9 @@ describe("push → complete round-trip", () => {
 		const digest = await sha("hello");
 		// First push + complete to seed the cloud manifest.
 		await push("proj_x", { ".tekmemo/core.md": digest });
-		await completeWith("proj_x", [{ path: ".tekmemo/core.md", content: "hello" }]);
+		await completeWith("proj_x", [
+			{ path: ".tekmemo/core.md", content: "hello" },
+		]);
 		// Second push with the same manifest → nothing to upload.
 		const res = await push("proj_x", { ".tekmemo/core.md": digest });
 		expect(res.status).toBe(200);
@@ -356,9 +346,7 @@ describe("push → complete round-trip", () => {
 			{
 				method: "POST",
 				body: JSON.stringify({
-					uploaded: [
-						{ path: ".tekmemo/core.md", sha256: await sha("hello") },
-					],
+					uploaded: [{ path: ".tekmemo/core.md", sha256: await sha("hello") }],
 				}),
 			},
 		);
@@ -367,17 +355,12 @@ describe("push → complete round-trip", () => {
 
 	it("rejects complete with 409 when there was no prior push (no project)", async () => {
 		await seedAccount({});
-		const res = await syncFetch(
-			"/v1/projects/proj_nopush/sync/push/complete",
-			{
-				method: "POST",
-				body: JSON.stringify({
-					uploaded: [
-						{ path: ".tekmemo/core.md", sha256: await sha("hello") },
-					],
-				}),
-			},
-		);
+		const res = await syncFetch("/v1/projects/proj_nopush/sync/push/complete", {
+			method: "POST",
+			body: JSON.stringify({
+				uploaded: [{ path: ".tekmemo/core.md", sha256: await sha("hello") }],
+			}),
+		});
 		expect(res.status).toBe(409);
 		const body = await jsonBody(res);
 		expect(body.error?.code).toBe("conflict");
@@ -401,10 +384,9 @@ describe("ownership enforcement", () => {
 			{ path: ".tekmemo/core.md", content: "a" },
 		]);
 		// Other account's key tries status → 403.
-		const res = await syncFetch(
-			"/v1/projects/proj_shared/sync/status",
-			{ auth: `Bearer ${OTHER_KEY}` },
-		);
+		const res = await syncFetch("/v1/projects/proj_shared/sync/status", {
+			auth: `Bearer ${OTHER_KEY}`,
+		});
 		expect(res.status).toBe(403);
 		const body = await jsonBody(res);
 		expect(body.error?.code).toBe("forbidden");
@@ -423,7 +405,11 @@ describe("ownership enforcement", () => {
 		});
 		expect(pullRes.status).toBe(403);
 
-		const pushRes = await push("proj_p", { ".tekmemo/core.md": await sha("b") }, `Bearer ${OTHER_KEY}`);
+		const pushRes = await push(
+			"proj_p",
+			{ ".tekmemo/core.md": await sha("b") },
+			`Bearer ${OTHER_KEY}`,
+		);
 		expect(pushRes.status).toBe(403);
 	});
 });

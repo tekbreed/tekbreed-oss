@@ -4,8 +4,8 @@
  * @internal
  */
 
+export type { FakePipelineOptions } from "./fake-pipeline";
 export {
 	createFakePipeline,
 	createFakePipelineFactory,
 } from "./fake-pipeline";
-export type { FakePipelineOptions } from "./fake-pipeline";

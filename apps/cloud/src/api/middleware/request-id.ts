@@ -28,7 +28,9 @@ const REQUEST_ID_PATTERN = /^[A-Za-z0-9_.:/-]{1,128}$/;
 export const requestIdMiddleware: MiddlewareHandler = async (c, next) => {
 	const inbound = c.req.header("x-request-id");
 	const id =
-		inbound && REQUEST_ID_PATTERN.test(inbound) && inbound.length <= REQUEST_ID_MAX_LENGTH
+		inbound &&
+		REQUEST_ID_PATTERN.test(inbound) &&
+		inbound.length <= REQUEST_ID_MAX_LENGTH
 			? inbound
 			: crypto.randomUUID();
 	c.set("requestId", id);

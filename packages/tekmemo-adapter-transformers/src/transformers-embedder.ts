@@ -15,7 +15,10 @@ import type {
 	EmbedTextsResult,
 	MemoryEmbedder,
 } from "@tekbreed/tekmemo";
-import { TransformersInferenceError, TransformersValidationError } from "./errors";
+import {
+	TransformersInferenceError,
+	TransformersValidationError,
+} from "./errors";
 import type {
 	FeatureExtractionPipeline,
 	FeatureExtractionPipelineFactory,
@@ -271,7 +274,9 @@ function createDefaultPipelineFactory(): FeatureExtractionPipelineFactory {
 			cfg?: Record<string, unknown>,
 		) => Promise<FeatureExtractionPipeline>;
 		return pipeline("feature-extraction", options.model, {
-			...(options.cacheDir === undefined ? {} : { cache_dir: options.cacheDir }),
+			...(options.cacheDir === undefined
+				? {}
+				: { cache_dir: options.cacheDir }),
 			device: options.device,
 			dtype: options.dtype,
 			...(options.progress_callback === undefined

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { createLazyLocalEmbedder } from "../../src/index";
 import type { MemoryEmbedder } from "../../src/core/types/embeddings";
+import { createLazyLocalEmbedder } from "../../src/index";
 
 /**
  * Helpers to build a fake inner embedder and an adapterFactory that tracks how

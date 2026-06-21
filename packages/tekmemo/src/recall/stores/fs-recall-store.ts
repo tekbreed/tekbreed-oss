@@ -16,11 +16,10 @@
  * @public
  */
 
-import { stringifyJsonlEntry } from "../../core/validation/jsonl";
-import type { MemoryStore } from "../../core/types/memory-store";
 import { EMBEDDINGS_INDEX_PATH } from "../../core/constants/memory-paths";
 import { MemoryNotFoundError } from "../../core/errors/errors";
-import { InMemoryRecallStore } from "./in-memory-recall-store";
+import type { MemoryStore } from "../../core/types/memory-store";
+import { stringifyJsonlEntry } from "../../core/validation/jsonl";
 import type {
 	DeleteBySourceInput,
 	RecallDocument,
@@ -28,6 +27,7 @@ import type {
 	RecallResult,
 	RecallStore,
 } from "../types";
+import { InMemoryRecallStore } from "./in-memory-recall-store";
 
 export interface FsRecallStoreOptions {
 	/** Memory store used for file I/O (typically NodeFsMemoryStore). */
@@ -61,7 +61,8 @@ function normalizePersistedMetadata(
 ): RecallDocument["metadata"] {
 	const source = value ?? {};
 	return {
-		projectId: typeof source.projectId === "string" ? source.projectId : "default",
+		projectId:
+			typeof source.projectId === "string" ? source.projectId : "default",
 		sourceType:
 			typeof source.sourceType === "string" ? source.sourceType : "document",
 		sourceId: typeof source.sourceId === "string" ? source.sourceId : "unknown",
@@ -123,7 +124,9 @@ export class FsRecallStore implements RecallStore {
 		// and re-indexing (or re-hydrating) the same id must replace, not throw.
 		this.inner =
 			options.inner ??
-			new InMemoryRecallStore({ duplicateDocumentIdBehavior: "last-write-wins" });
+			new InMemoryRecallStore({
+				duplicateDocumentIdBehavior: "last-write-wins",
+			});
 		this.path = options.path ?? EMBEDDINGS_INDEX_PATH;
 		this.now = options.now ?? (() => new Date().toISOString());
 	}

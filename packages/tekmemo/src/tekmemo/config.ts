@@ -17,7 +17,6 @@ import type { MemoryEmbedder } from "../core/types/embeddings";
 import type { MemoryStore } from "../core/types/memory-store";
 import type { RecallStore } from "../recall/types";
 import type {
-	JsonObject,
 	RuntimeReadPolicy,
 	RuntimeWritePolicy,
 	TekMemoRuntimeMode,
@@ -224,10 +223,7 @@ function resolveRecallEngine(
 	const fileRecall = file.recall ?? {};
 
 	const engineRaw =
-		cfg.engine ??
-		env.TEKMEMO_RECALL_ENGINE ??
-		fileRecall.engine ??
-		"auto";
+		cfg.engine ?? env.TEKMEMO_RECALL_ENGINE ?? fileRecall.engine ?? "auto";
 	const engine: RecallEngineConfig["engine"] = isRecallEngine(engineRaw)
 		? engineRaw
 		: "auto";
@@ -253,9 +249,7 @@ function resolveRecallEngine(
 	return { engine, localEmbeddings: localEmbeddingsRaw, embeddingModel };
 }
 
-function isRecallEngine(
-	value: unknown,
-): value is RecallEngineConfig["engine"] {
+function isRecallEngine(value: unknown): value is RecallEngineConfig["engine"] {
 	return (
 		value === "lexical" ||
 		value === "vector" ||
@@ -271,11 +265,7 @@ function resolveMode(
 ): TekMemoRuntimeMode {
 	if (arg !== undefined) return arg;
 	const envValue = env.TEKMEMO_RUNTIME;
-	if (
-		envValue === "local" ||
-		envValue === "hybrid" ||
-		envValue === "memory"
-	)
+	if (envValue === "local" || envValue === "hybrid" || envValue === "memory")
 		return envValue;
 	return file.runtime ?? "local";
 }
@@ -382,8 +372,9 @@ function extractConfigFile(parsed: Record<string, unknown>): TekMemoConfigFile {
 	if (writePolicy !== undefined) result.hybrid.writePolicy = writePolicy;
 
 	const recallEngineRaw = recall.engine;
-	const recallEngine =
-		isRecallEngine(recallEngineRaw) ? recallEngineRaw : undefined;
+	const recallEngine = isRecallEngine(recallEngineRaw)
+		? recallEngineRaw
+		: undefined;
 	if (
 		recallEngine !== undefined ||
 		typeof recall.localEmbeddings === "boolean" ||
@@ -402,16 +393,12 @@ function extractConfigFile(parsed: Record<string, unknown>): TekMemoConfigFile {
 }
 
 function isRuntimeMode(value: unknown): value is TekMemoRuntimeMode {
-	return (
-		value === "local" || value === "hybrid" || value === "memory"
-	);
+	return value === "local" || value === "hybrid" || value === "memory";
 }
 
 function isReadPolicy(value: unknown): value is RuntimeReadPolicy {
 	return (
-		value === "local-first" ||
-		value === "cloud-first" ||
-		value === "local-only"
+		value === "local-first" || value === "cloud-first" || value === "local-only"
 	);
 }
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react"
+import { useEffect, useMemo, useRef } from "react";
 
 /**
  * Creates a debounced version of a function.
@@ -24,13 +24,13 @@ import { useEffect, useMemo, useRef } from "react"
 export function debounce<
 	Callback extends (...args: Parameters<Callback>) => void,
 >(fn: Callback, delay: number) {
-	let timer: ReturnType<typeof setTimeout> | null = null
+	let timer: ReturnType<typeof setTimeout> | null = null;
 	return (...args: Parameters<Callback>) => {
-		if (timer) clearTimeout(timer)
+		if (timer) clearTimeout(timer);
 		timer = setTimeout(() => {
-			fn(...args)
-		}, delay)
-	}
+			fn(...args);
+		}, delay);
+	};
 }
 
 /**
@@ -51,10 +51,10 @@ export function debounce<
 export function useDebounce<
 	Callback extends (...args: Parameters<Callback>) => ReturnType<Callback>,
 >(callback: Callback, delay: number) {
-	const callbackRef = useRef(callback)
+	const callbackRef = useRef(callback);
 	useEffect(() => {
-		callbackRef.current = callback
-	})
+		callbackRef.current = callback;
+	});
 	return useMemo(
 		() =>
 			debounce(
@@ -62,5 +62,5 @@ export function useDebounce<
 				delay,
 			),
 		[delay],
-	)
+	);
 }

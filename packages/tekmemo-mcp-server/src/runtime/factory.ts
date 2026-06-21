@@ -150,7 +150,7 @@ export function createTekMemoMcpRuntimeFromTekmemo(
 			return memo.context(input, signal);
 		},
 
-		async recall(input, signal) {
+		async recall(input, _signal) {
 			return memo.recall(input.query, {
 				...(input.limit === undefined ? {} : { limit: input.limit }),
 				...(input.workspaceId === undefined

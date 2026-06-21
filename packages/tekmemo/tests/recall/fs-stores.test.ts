@@ -153,9 +153,7 @@ describe("FsGraphStore", () => {
 				createRoot: true,
 			});
 			const graph = createFsGraphStore({ store });
-			await graph.upsertNodes([
-				{ id: "a", type: "concept", label: "A" },
-			]);
+			await graph.upsertNodes([{ id: "a", type: "concept", label: "A" }]);
 
 			// Second store reads the file once; calling hydrate twice must not
 			// duplicate or reset state.
@@ -228,7 +226,13 @@ describe("FsGraphStore", () => {
 			]);
 			await graph.upsertEdges([
 				{ from: "hub", to: "uses", type: "uses", directed: true, weight: 0.2 },
-				{ from: "hub", to: "heavy", type: "depends", directed: true, weight: 0.9 },
+				{
+					from: "hub",
+					to: "heavy",
+					type: "depends",
+					directed: true,
+					weight: 0.9,
+				},
 			]);
 
 			// Only the "depends" edge survives the type filter.
@@ -260,13 +264,9 @@ describe("FsGraphStore", () => {
 				createRoot: true,
 			});
 			const writer = createFsGraphStore({ store });
-			await writer.upsertNodes([
-				{ id: "x", type: "concept", label: "Old" },
-			]);
+			await writer.upsertNodes([{ id: "x", type: "concept", label: "Old" }]);
 			// Re-upsert with a new label — last-write-wins, persisted.
-			await writer.upsertNodes([
-				{ id: "x", type: "concept", label: "New" },
-			]);
+			await writer.upsertNodes([{ id: "x", type: "concept", label: "New" }]);
 
 			const reader = createFsGraphStore({ store });
 			const node = await reader.getNode("x");
@@ -286,9 +286,7 @@ describe("FsGraphStore", () => {
 				createRoot: true,
 			});
 			const writer = createFsGraphStore({ store });
-			await writer.upsertNodes([
-				{ id: "a", type: "concept", label: "A" },
-			]);
+			await writer.upsertNodes([{ id: "a", type: "concept", label: "A" }]);
 			await writer.clear();
 
 			const reader = createFsGraphStore({ store });

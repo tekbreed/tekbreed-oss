@@ -5,17 +5,17 @@
  */
 
 export {
-	type LazyLocalEmbedderOptions,
-	createLazyLocalEmbedder,
-} from "./local-embedder";
-export { sha256Hex } from "./sync/sha256";
-export {
 	type RecallEngineConfig,
 	type ResolvedTekmemoConfig,
 	resolveTekmemoConfig,
 	type TekmemoCloudOptions,
 	type TekmemoConfig,
 } from "./config";
+export {
+	createLazyLocalEmbedder,
+	type LazyLocalEmbedderOptions,
+} from "./local-embedder";
+export { sha256Hex } from "./sync/sha256";
 export { Tekmemo } from "./Tekmemo";
 export type {
 	AgentSessionCompleteInput,

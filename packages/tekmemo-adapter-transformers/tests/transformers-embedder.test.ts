@@ -1,11 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
-	createFakePipelineFactory,
-} from "../src/testing/fake-pipeline";
-import {
-	TransformersValidationError,
 	createTransformersEmbedder,
+	TransformersValidationError,
 } from "../src/index";
+import { createFakePipelineFactory } from "../src/testing/fake-pipeline";
 
 function embedderWith(dimensions = 384) {
 	return createTransformersEmbedder({
@@ -82,9 +80,9 @@ describe("TransformersEmbedder", () => {
 
 		it("rejects empty texts unless allowEmptyText is set", async () => {
 			const embedder = embedderWith();
-			await expect(
-				embedder.embedTexts({ texts: [""] }),
-			).rejects.toBeInstanceOf(TransformersValidationError);
+			await expect(embedder.embedTexts({ texts: [""] })).rejects.toBeInstanceOf(
+				TransformersValidationError,
+			);
 			await expect(
 				embedder.embedTexts({ texts: [""], allowEmptyText: true }),
 			).resolves.toMatchObject({ embeddings: [{ text: "" }] });

@@ -1,11 +1,11 @@
+import type { TekMemoCloudClient } from "@tekbreed/tekmemo/cloud-client";
 import { describe, expect, it } from "vitest";
+import { createTekMemoCloudMcpRuntime } from "../src/http/cloud-runtime";
 import {
 	callTekMemoTool,
 	createTekMemoMcpProtocolServer,
 	createTekMemoMcpRuntimeFromConfig,
 } from "../src/index";
-import { createTekMemoCloudMcpRuntime } from "../src/http/cloud-runtime";
-import type { TekMemoCloudClient } from "@tekbreed/tekmemo/cloud-client";
 
 /**
  * Builds a fake TekMemo Cloud client matching the v1.0.0-alpha.0 §7 contract
@@ -218,11 +218,7 @@ describe("MCP tools", () => {
 		// 1:1 onto client.sync.push (the first phase of the push contract). The
 		// HTTP/Worker runtime only orchestrates presigned URLs — the byte upload
 		// + complete run in the local file-sync layer (see cloud.ts).
-		const result = await callTekMemoTool(
-			{ runtime },
-			"tekmemo.sync_push",
-			{},
-		);
+		const result = await callTekMemoTool({ runtime }, "tekmemo.sync_push", {});
 		expect(result.isError).toBeUndefined();
 		expect(calls).toEqual(["sync.push:proj_1"]);
 		const structured = result.structuredContent as Record<string, unknown>;

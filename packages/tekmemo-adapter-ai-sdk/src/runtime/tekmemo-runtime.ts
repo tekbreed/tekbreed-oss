@@ -131,7 +131,9 @@ export function createAiSdkRuntimeFromTekmemo(
 	};
 }
 
-function toCoreMemoryDocument(content: string): MemoryRuntimeCoreMemoryDocument {
+function toCoreMemoryDocument(
+	content: string,
+): MemoryRuntimeCoreMemoryDocument {
 	return { content };
 }
 
@@ -139,9 +141,9 @@ function toMemoryNote(
 	entry: RecentMemoryResult["items"][number],
 ): MemoryRuntimeNote {
 	const metadata = (entry.metadata ?? {}) as JsonObject;
-	const kind = (typeof metadata.kind === "string" ? metadata.kind : entry.type) as
-		| MemoryRuntimeNote["kind"]
-		| undefined;
+	const kind = (
+		typeof metadata.kind === "string" ? metadata.kind : entry.type
+	) as MemoryRuntimeNote["kind"] | undefined;
 	return {
 		id: entry.id,
 		kind: kind ?? "note",
