@@ -80,10 +80,19 @@ export interface MemoryContextResult {
 	/**
 	 * Ordered context sections. The first section is a `directive` that tells
 	 * the agent how to act on the rest of the context; the remaining sections
-	 * carry the memory content (core, recent, recall, notes, graph).
+	 * carry the memory content in trust order (core → entities → recall →
+	 * recent → notes). The `entities` section (ADR 0009 Component 2/3) renders
+	 * graph entities the strategist's Resolve stage matched for the query.
 	 */
 	sections: Array<{
-		type: "directive" | "core" | "notes" | "recent" | "recall" | "graph";
+		type:
+			| "directive"
+			| "core"
+			| "entities"
+			| "notes"
+			| "recent"
+			| "recall"
+			| "graph";
 		title: string;
 		content: string;
 	}>;

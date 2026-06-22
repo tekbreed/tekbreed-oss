@@ -4,6 +4,15 @@
  * @internal
  */
 
+import {
+	allocateBudget,
+	type BudgetSection,
+	filterCandidates,
+	type ResolveGraphNode,
+	resolveEntities,
+	rewriteQuery,
+	SECTION_WEIGHTS,
+} from "./strategist";
 import type {
 	MemoryContextInput,
 	MemoryContextResult,
@@ -107,8 +116,16 @@ export function paginateArray<T>(
 import type { JsonObject } from "./types";
 
 /**
- * Builds the unified agent context by querying core memory, recent memories,
- * and executing semantic recall, then truncating to fit within maxBytes.
+ * Builds the unified agent context by running the 4-stage retrieval
+ * strategist (ADR 0009 Component 2 / Q23): Rewrite → Resolve → Filter →
+ * Budget. Core memory + directive are non-negotiable — injected before the
+ * strategist runs and excluded from budget competition. The remaining
+ * `maxBytes` is divided across entities → recall → recent → notes in trust
+ * order.
+ *
+ * This is the applier: the four stages are pure functions in `./strategist`,
+ * each independently testable (mirroring the `consolidateGraph` /
+ * `applyConsolidation` split).
  */
 export async function buildContext(
 	operations: {
@@ -134,33 +151,52 @@ export async function buildContext(
 			input: MemoryContextInput,
 			signal?: AbortSignal,
 		) => Promise<{ items: RecallItem[]; warnings?: string[] }>;
+		/**
+		 * Graph node snapshot for the Resolve stage (ADR 0009 Component 2).
+		 * When omitted, the strategist skips entity resolution and degrades to
+		 * fragment-only recall (the zero-config floor). Local strategy
+		 * supplies this; memory strategy does not.
+		 */
+		listGraphNodes?: (signal?: AbortSignal) => Promise<ResolveGraphNode[]>;
+		/**
+		 * Lexical doc ids referring to deprecated graph nodes (`graph:{id}`),
+		 * used by the Filter stage to drop retired facts from recall. When
+		 * omitted, recall's own lexical guard still skips deprecated graph
+		 * docs at search time — this is the belt-and-suspenders path for
+		 * vector candidates.
+		 */
+		retiredGraphDocIds?: ReadonlySet<string>;
 	},
 	input: MemoryContextInput,
 	signal?: AbortSignal,
 ): Promise<MemoryContextResult> {
 	const maxBytes = input.maxBytes ?? 64_000;
-	const sections: MemoryContextResult["sections"] = [];
 	const warnings: string[] = [];
+	const nonNegotiable: BudgetSection[] = [];
 	let recallItems: RecallItem[] = [];
 
-	// Lead with an agent directive so the returned context is self-explaining:
-	// the model learns how to USE the sections below (adhere, recall before
-	// guessing, persist discoveries) from the very first block. Placed here so
-	// all strategies — local, cloud, hybrid — emit the same instructions.
-	sections.push({
+	// Directive — always first, non-negotiable.
+	nonNegotiable.push({
 		type: "directive",
 		title: "How to use TekMemo context",
 		content: AGENT_CONTEXT_DIRECTIVE,
+		nonNegotiable: true,
 	});
 
+	// Core memory — non-negotiable: injected before the strategist and excluded
+	// from budget competition (ADR 0009 Component 2). It gets its bytes first,
+	// always; the strategist only budgets what remains.
+	let coreContent = "";
 	if (input.includeCore !== false && operations.readCoreMemory) {
 		try {
 			const core = await operations.readCoreMemory(signal);
-			if (core.content.trim()) {
-				sections.push({
+			coreContent = core.content.trim();
+			if (coreContent) {
+				nonNegotiable.push({
 					type: "core",
 					title: "Core Memory",
-					content: core.content.trim(),
+					content: coreContent,
+					nonNegotiable: true,
 				});
 			}
 			if (core.warnings?.length) warnings.push(...core.warnings);
@@ -171,6 +207,83 @@ export async function buildContext(
 		}
 	}
 
+	// --- Stage 1: Rewrite ---
+	// Expand the query through the deterministic lexicon. The expanded terms
+	// feed both recall (as a union query) and entity resolution.
+	const rewrite = rewriteQuery({ query: input.query });
+
+	// --- Stage 2: Resolve ---
+	// Find graph entities whose label/alias matches the expanded terms. Empty
+	// when no graph snapshot is available (graceful degradation).
+	let entitiesContent = "";
+	if (operations.listGraphNodes) {
+		try {
+			const nodes = await operations.listGraphNodes(signal);
+			const resolved = resolveEntities(nodes, rewrite.expandedTerms);
+			if (resolved.length > 0) {
+				entitiesContent = resolved
+					.map(
+						(entity, index) =>
+							`${index + 1}. ${entity.label} (${entity.type})${entity.summary ? ` — ${entity.summary}` : ""}`,
+					)
+					.join("\n");
+			}
+		} catch (error) {
+			warnings.push(
+				`Could not resolve entities: ${error instanceof Error ? error.message : String(error)}`,
+			);
+		}
+	}
+
+	// --- Stage 3: Filter ---
+	// Recall (with the expanded query) then drop retired graph docs, dedupe,
+	// and apply a relevance cut. The lexical path already skips deprecated
+	// graph docs at search time; this filter covers vector candidates too.
+	try {
+		const recallInput: MemoryContextInput = rewrite.expanded
+			? { ...input, query: rewrite.expandedTerms.join(" ") }
+			: input;
+		const recall = await operations.recall(recallInput, signal);
+		recallItems = filterCandidates({
+			items: recall.items,
+			...(operations.retiredGraphDocIds
+				? { retiredGraphDocIds: operations.retiredGraphDocIds }
+				: {}),
+		});
+		if (recall.warnings?.length) warnings.push(...recall.warnings);
+	} catch (error) {
+		warnings.push(
+			`Recall failed: ${error instanceof Error ? error.message : String(error)}`,
+		);
+	}
+
+	// Build the negotiable sections in trust order: entities → recall → recent
+	// → notes. Each is omitted when empty.
+	const negotiable: BudgetSection[] = [];
+
+	if (entitiesContent) {
+		negotiable.push({
+			type: "entities",
+			title: "Entities",
+			content: entitiesContent,
+			weight: SECTION_WEIGHTS.entities,
+		});
+	}
+
+	if (recallItems.length > 0) {
+		negotiable.push({
+			type: "recall",
+			title: "Relevant Recall",
+			content: recallItems
+				.map(
+					(item, index) =>
+						`${index + 1}. ${item.text}${item.score === undefined ? "" : `\n   score: ${item.score}`}`,
+				)
+				.join("\n\n"),
+			weight: SECTION_WEIGHTS.recall,
+		});
+	}
+
 	if (input.includeRecent !== false && operations.listRecentMemories) {
 		try {
 			const recent = await operations.listRecentMemories(
@@ -178,16 +291,16 @@ export async function buildContext(
 				signal,
 			);
 			if (recent.items.length > 0) {
-				const content = recent.items
-					.map(
-						(item) =>
-							`- ${item.timestamp ?? "unknown"} ${item.type ?? "memory"}: ${item.summary ?? item.id}`,
-					)
-					.join("\n");
-				sections.push({
+				negotiable.push({
 					type: "recent",
 					title: "Recent Memory Events",
-					content,
+					content: recent.items
+						.map(
+							(item) =>
+								`- ${item.timestamp ?? "unknown"} ${item.type ?? "memory"}: ${item.summary ?? item.id}`,
+						)
+						.join("\n"),
+					weight: SECTION_WEIGHTS.recent,
 				});
 			}
 			if (recent.warnings?.length) warnings.push(...recent.warnings);
@@ -198,33 +311,15 @@ export async function buildContext(
 		}
 	}
 
-	try {
-		const recall = await operations.recall(input, signal);
-		recallItems = recall.items;
-		if (recall.items.length > 0) {
-			const content = recall.items
-				.map(
-					(item, index) =>
-						`${index + 1}. ${item.text}${item.score === undefined ? "" : `\n   score: ${item.score}`}`,
-				)
-				.join("\n\n");
-			sections.push({ type: "recall", title: "Relevant Recall", content });
-		}
-		if (recall.warnings?.length) warnings.push(...recall.warnings);
-	} catch (error) {
-		warnings.push(
-			`Recall failed: ${error instanceof Error ? error.message : String(error)}`,
-		);
-	}
-
 	if (input.includeNotes === true && operations.readNotesMemory) {
 		try {
 			const notes = await operations.readNotesMemory(signal);
 			if (notes.content.trim()) {
-				sections.push({
+				negotiable.push({
 					type: "notes",
 					title: "Notes Memory",
 					content: notes.content.trim(),
+					weight: SECTION_WEIGHTS.notes,
 				});
 			}
 			if (notes.warnings?.length) warnings.push(...notes.warnings);
@@ -235,16 +330,18 @@ export async function buildContext(
 		}
 	}
 
-	const text = truncateUtf8(
-		sections
-			.map((section) => `## ${section.title}\n\n${section.content}`)
-			.join("\n\n"),
+	// --- Stage 4: Budget ---
+	// Allocate maxBytes across the sections in trust order. Non-negotiable
+	// sections (directive, core) are carved out first; the rest share the
+	// remaining budget by weight.
+	const budget = allocateBudget({
+		sections: [...nonNegotiable, ...negotiable],
 		maxBytes,
-	);
+	});
 
 	return {
-		text,
-		sections,
+		text: budget.text,
+		sections: budget.sections,
 		items: recallItems,
 		...(warnings.length === 0 ? {} : { warnings }),
 	};

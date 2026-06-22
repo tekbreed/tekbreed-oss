@@ -210,6 +210,23 @@ export function createLocalStrategy(options: LocalStrategyOptions) {
 		const node = graphNodes.get(lexicalId.slice("graph:".length));
 		return node?.status === "deprecated";
 	}
+
+	/**
+	 * The set of `graph:{id}` lexical doc ids for all currently-deprecated
+	 * graph nodes. Fed to the strategist's Filter stage (Component 5) so
+	 * vector-sourced recall candidates referencing retired facts are dropped —
+	 * the lexical path already skips them at search time via
+	 * {@link isRetiredGraphDoc}; this is the belt-and-suspenders path.
+	 *
+	 * @internal
+	 */
+	function collectRetiredGraphDocIds(): Set<string> {
+		const out = new Set<string>();
+		for (const [id, node] of graphNodes) {
+			if (node.status === "deprecated") out.add(`graph:${id}`);
+		}
+		return out;
+	}
 	// Keep the legacy in-memory maps in sync with the persistent store so the
 	// existing list/neighbors/path fast paths keep working without a rewrite.
 	const graphNodes = new Map<string, GraphNodeInput>();
@@ -498,10 +515,18 @@ export function createLocalStrategy(options: LocalStrategyOptions) {
 					readNotesMemory: async () => ({
 						content: await readNotesMemory(store),
 					}),
-					listRecentMemories: async (i) => {
+					listRecentMemories: (i) => {
 						return listRecentMemories(i.limit, signal);
 					},
 					recall: (i, s) => localRecall(i, s),
+					// Strategist Resolve (ADR 0009 Component 2): supply the graph node
+					// snapshot so the query's expanded terms resolve to entities. The
+					// map is rehydrated on boot and kept in sync on writes.
+					listGraphNodes: async () => [...graphNodes.values()],
+					// Strategist Filter (ADR 0009 Component 5): the lexical doc ids for
+					// deprecated graph nodes, so vector-sourced recall candidates are
+					// dropped here too (the lexical path already skips them at search).
+					retiredGraphDocIds: collectRetiredGraphDocIds(),
 				},
 				input,
 				signal,
