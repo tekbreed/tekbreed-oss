@@ -4,6 +4,10 @@
 - **Date:** 2026-06-20
 - **Deciders:** Christopher S. Aondona
 
+> **Terminology note (post-Q15):** this ADR predates the Q15 glossary lock
+> (2026-06-21). Uses of "engine" refer to what is now canonically the "memory
+> runtime." See `docs/CONTEXT.md` → Canonical product nouns.
+
 ## Context
 
 `packages/tekmemo` (the core runtime) ships two subsystems whose placement

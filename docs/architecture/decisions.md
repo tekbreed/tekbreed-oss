@@ -1,11 +1,19 @@
 # New Architecture — Decisions Log
 
+> **Terminology note:** Q15 (locked 2026-06-21) established the canonical
+> glossary. Uses of "engine" in Q1–Q14 predate this — the canonical term is
+> "memory runtime." Uses of "smart"/"intelligent" as unquantified claims are
+> now avoided; the canonical metric is cold-start token reduction (Q16). See
+> `docs/CONTEXT.md` → Canonical product nouns.
+
 > **Status:** Living document. Captures decisions resolved during the
 > `new-architecture.md` design session (connectors, cloud shape, decay/conflict,
 > package triage, cloud stack, pricing, connector set) and the follow-on
-> session 2 (ai-sdk extraction, package review, docs IA). Updated inline as each
-> branch of the design tree is resolved. **Q1–Q10 + S2-Q1 + Q11–Q14 are all
-> locked.** Numbering is collision-free:
+> session 2 (ai-sdk extraction, package review, docs IA) and session 3
+> (positioning, intelligence north star, cloud differentiators, pricing
+> extension, testing). Updated inline as each branch of the design tree is
+> resolved. **Q1–Q10 + S2-Q1 + Q11–Q20 are all locked.** Numbering is
+> collision-free:
 > - **Q1–Q5** — original open questions (connectors, decay/conflict, cloud
 >   purpose, intelligence scope).
 > - **Q6** — package triage. **Q7** — per-package review. **Q8** — tech stack
@@ -14,6 +22,10 @@
 >   collision with the original `Q*` series.)
 > - **Q11–Q14** — implementation-time decisions (worker build blocker, DB naming,
 >   project provisioning, cursor format).
+> - **Q15–Q20** — session 3: positioning & glossary (Q15), intelligence north
+>   star (Q16), v1.x local intelligence capabilities (Q17), cloud
+>   differentiators + extractor strategy (Q18), pricing extension — intelligence
+>   entitlement + hybrid add-on model (Q19), testing stack boundaries (Q20).
 >
 > **Relationship to other docs:**
 > - Governs and extends `docs/architecture/cloud-sync-and-refactor.md` (the
@@ -38,6 +50,11 @@
 >   Q10 (connector set) and the license decision (folded into Q8) are captured in
 >   this log; the provider-neutral `Connector` interface from Q10 folds into
 >   ADR 0002's extensibility coverage.
+> - **Session 3 (Q15–Q20) ADR updates:** ADR 0006 is **updated** by Q19 (adds
+>   `maxConsolidationRuns` + `maxPreWarmPerDay` + the v2 add-on architecture).
+>   Q18's extractor strategy folds into ADR 0004 + ADR 0003. Q15/Q16/Q17/Q20 are
+>   captured in this log only (positioning/roadmap/conventions, not
+>   hard-to-reverse architecture).
 >
 > **How to read:** each entry has `Question → Answer → Rationale → Status →
 > Open sub-questions`. A decision is **Locked** once the user confirms it;
@@ -977,4 +994,586 @@ apps/tekmemo-cloud/            ← NEW. ONE Cloudflare Worker, MIT.
   is unaffected.
 - **Candidate for ADR:** no — a trivial encoding choice, recorded here only so
   the handlers stay consistent.
+
+---
+
+## Session 3 — positioning, intelligence, cloud differentiation, pricing, testing
+
+> **Scope note:** the original session's Q1–Q10 and session 2's S2-Q1 plus
+> Q11–Q14 are all locked. This session continues the grill with six new
+> decisions, numbered **Q15–Q20** (continuing the main sequence; no `S3-`
+> prefix needed since Q15+ is collision-free). Trigger: lock further decisions
+> before building so implementation runs with minimal re-planning. Inputs: a
+> locked testing intent (MSW + Playwright + Vitest), a new positioning ambition
+> ("the default memory runtime for AI agents," "super intelligent"), and a
+> brainstorm ask for cloud differentiation beyond file-replica.
+
+## Q15 — Positioning & canonical glossary
+
+- **Question:** how does the ambition "the default memory runtime for AI agents"
+  relate to the existing "file-first memory" positioning, and what are the
+  canonical nouns?
+- **Clarification from user (important):** this is **not** a shift away from
+  file-first. File-first stays the trust mechanism. The new axis is
+  *intelligence* — the runtime must run (recall/extract/consolidate), not just
+  store. "Default" is a marketing goal, not a category change.
+- **Answer (locked, 2026-06-21):** four canonical nouns, each with one job:
+  - **TekMemo** — the OSS memory system as a whole (the product).
+  - **memory runtime** — the *function* layer (recall/extraction/consolidation
+    that runs). Canonical for code namespaces too (`TekMemoRuntimeMode`,
+    managed-runtime tier). The ambition word.
+  - **file-first** — the *storage/trust* mechanism (inspectable files under
+    `.tekmemo/`). Never the category; always the mechanism.
+  - **memory** — the content (facts, notes, graph, events).
+  - **Headline:** "TekMemo — the file-first memory runtime for AI agents."
+  - "Engine" is **demoted to a deprecated prose synonym**; it survives only
+    where code literally names something.
+- **Rationale:** prevents "runtime / engine / memory / file-first" from drifting
+  into synonyms across docs, marketing, and code. The glossary is captured in
+  `docs/CONTEXT.md` (canonical nouns section) per `grill-with-docs` discipline.
+- **Status:** **Locked.** Reflected in `docs/CONTEXT.md`.
+- **Candidate for ADR:** no — a glossary/positioning call, not a hard-to-reverse
+  architecture decision. Lives in `CONTEXT.md` + this log.
+
+## Q16 — Intelligence north star: cold-start token reduction
+
+- **Question:** how do we make "super intelligent" concrete and defensible
+  rather than a vibe?
+- **Answer (locked, 2026-06-21):** **the intelligence north star is cold-start
+  token reduction** — the single measurable metric every intelligence feature is
+  justified by: *how much does it shrink the tokens a fresh session burns to get
+  usable context?* "Super intelligent" := cuts cold-start tokens.
+- **Rationale:**
+  - It's the only "intelligence" claim that is both **measurable** and
+    **universally felt** (anyone who pastes context into an agent feels the
+    pain). Q5 explicitly warned the "super intelligent" claim must map to
+    specific capabilities — this is that mapping.
+  - It **does not expand v1 scope.** It reframes the locked Q5 v1 items
+    (hybrid recall, temporal resolution, LLM extractor, consolidation) as the
+    engine that delivers the token cut. Finishing Q5 *is* the v1 delivery of
+    the north star.
+  - It sets up the "110%" roadmap: every additional capability is prioritized
+    by how much further it cuts tokens / makes the agent smarter per token.
+- **Consequence:** marketing/demo can make a defensible quantitative claim
+  ("session A: 8,200 tokens of pasted context; session B with TekMemo recall:
+  640 tokens — same agent, same task"). The README "file-first" promise is
+  reframed (not broken): file-first is *why you trust it*; the runtime cutting
+  tokens is *why it's smart*.
+- **Status:** **Locked.**
+- **Candidate for ADR:** partial — folded into ADR 0004's intelligence surface
+  (it is the metric for that surface). No new ADR.
+
+## Q17 — v1.x local "110%" intelligence capabilities (Tier 2)
+
+- **Question:** which post-v1 local capabilities deliver the "110%"?
+- **Answer (locked, 2026-06-21):** commit **four Tier 2 capabilities**, sequenced
+  by leverage (each cuts cold-start tokens and leverages existing plumbing):
+
+  | # | Capability | Token-cut mechanism | Leverages |
+  |---|---|---|---|
+  | 1 | **Stale-fact hiding** | Never surface a superseded fact → context is current, never self-contradicting | `supersedes` edge + `GraphFactStatus` ✅ |
+  | 2 | **Entity-centric recall** | "current state of auth" (one resolved node) instead of "every mention of auth" (N fragments) | Graph + `resolveCurrentFacts` ✅ |
+  | 3 | **Progressive recall** | Ship a compact briefing first; agent expands only sections it needs. Biggest single cutter | `recall/hybrid` ranked slices ✅ |
+  | 4 | **Contradiction detection** | Refuse to feed conflicting facts; surface the conflict. Trust over efficiency | `GraphFactStatus: "conflicted"` ✅ |
+
+- **Rationale for the sequence:** stale-hiding is a prerequisite for the other
+  three (progressive/entity recall are worthless if they surface stale facts);
+  near-zero new code. Entity-centric is the high-token-cut "smart" demo.
+  Progressive is the headline marketing proof of the north star. Contradiction
+  is last (lowest token-cut, highest trust value).
+- **Rationale for committing all four:** "super intelligent" needs all four to
+  be defensible — drop progressive and there's no demo; drop entity-centric and
+  recall returns fragments not facts; drop contradiction and the runtime can
+  silently lie. They're a package.
+- **Dependency surfaced (critical path):** Tier 2's entity-centric recall and
+  contradiction detection depend on a well-formed graph, which is populated by
+  the **LLM extractor** (Tier 1, Q5) — and consolidation + cross-device conflict
+  resolution (cloud, Q18) also depend on extraction quality. **Extraction
+  quality is the critical path for everything above it.** This drives Q18.
+- **Status:** **Locked** (v1.x roadmap; not v1 scope).
+- **Candidate for ADR:** no — roadmap sequencing, lives here + ROADMAP.
+
+## Q18 — Cloud differentiators + extractor strategy
+
+- **Question:** what makes the cloud unmissable beyond file-replica, and where
+  does the first concrete extractor implementation live?
+- **Grounding:** Q4 locked the managed-runtime tier (v1.x/v2: same engine runs
+  on Cloudflare against R2-resident files; `TekMemoCloudClient` additively
+  re-expands to expose recall/memory/graph by API). All differentiators below
+  require the managed runtime — none are possible on a dumb file replica.
+- **Answer — cloud differentiators (locked, 2026-06-21):** lock **A1 + A2 + B3 +
+  C5** as the v1.x/v2 cloud differentiators:
+
+  | ID | Capability | Why only the cloud |
+  |---|---|---|
+  | **A1** | **Always-on consolidation** | The cloud's union-of-all-devices memory is continuously deduped/retired. You sleep; the cloud merges |
+  | **A2** | **Cross-device conflict resolution** | Two devices edited the same fact; cloud resolves + records the supersedence |
+  | **B3** | **One memory, many agents** | IDE agent + CI agent + Slack bot address the *same* memory via `tk_live_…` keys |
+  | **C5** | **Session pre-warming** | Cloud is always running; on session-start it pushes top-N likely memories before the agent queries. Directly attacks the north star (Q16) on the cloud's home turf |
+
+  - **Deferred to v2:** B4 (memory webhooks/events), D6 (cross-project/org
+    memory) — powerful but add scoping/privacy complexity competing with
+    launch-ASAP.
+  - **Rejected:** D7 (anonymous cross-user distillation) — the privacy posture
+    of a local-first product is a feature; aggregate learning muddies it.
+  - **Headline cloud promise:** "Your memory follows you everywhere — always
+    deduped, always current, shared across every agent you use, and pre-warmed
+    before you even ask."
+- **Answer — extractor strategy (locked, 2026-06-21):** **(c)** `tekmemo-adapter-extractor-transformers`
+  is the **v1 default + demo** (zero-API-key, runs offline, preserves the
+  file-first trust thesis); API extractors (`-openai`, `-voyage`, …) are opt-in
+  for frontier quality and the **managed-tier monetization lever** (cloud runs
+  frontier extraction on your behalf — a paid reason to upgrade).
+- **Rationale (extractor):**
+  - Only option that keeps the trust story intact — an API-key-gated extractor
+    for the headline intelligence would undercut the thesis the cloud
+    differentiators build on.
+  - Matches the embedder precedent (`tekmemo-adapter-transformers` is already
+    the zero-API-key embedder keystone per Q6).
+  - The API extractor becomes the managed-tier monetization lever — strengthens
+    A1/A2/C5 ("consolidation always clean *because the cloud runs frontier
+    extraction*").
+- **Cost accepted:** v1's local extraction is noisier than frontier. Mitigated
+  by (i) the rule-based extractor as deterministic fallback (Q5), (ii) swappable
+  local model.
+- **Status:** **Locked.**
+- **Candidate for ADR:** yes for the extractor strategy (it's the monetization
+  seam between OSS and cloud). Fold into ADR 0004 + ADR 0003 coverage rather
+  than a new ADR.
+
+## Q19 — Pricing: intelligence entitlement + hybrid add-on model
+
+- **Question:** do the new cloud differentiators change the locked Q9 pricing,
+  and is the entitlement model tiers-only or tiers + add-ons?
+- **Answer (locked, 2026-06-21):** **tier names and prices are unchanged**
+  (Free / Pro $9 / Teams $24 — Q9 stands). What changes is **what each tier
+  entitles**: a third entitlement dimension + a v2 add-on architecture.
+  - **Third entitlement: `maxConsolidationRuns`** (the intelligence-compute cap).
+    - Free = 1/day (a nightly pass — feels the intelligence, not always-on).
+    - Pro = 24/day (hourly — effectively always-current for one developer).
+    - Teams = ∞ (true always-on continuous consolidation).
+  - **Session pre-warming (C5) is Pro+:** gated as `maxPreWarmPerDay` (Free=0,
+    Pro>0, Teams=∞) — a numeric cap, not a `plan === "Pro"` check.
+  - **Add-on architecture (designed in at v1, shipped at v2):** capacity packs
+    (Memory Refresh Pack, Storage Pack, Connector Pack) let a user top up a
+    single dimension without jumping tiers. The entitlement schema must be
+    designed now to accommodate additive line items, not a hardcoded tier enum.
+- **Rationale (hybrid over pure tiers / pure add-ons):**
+  - The intelligence cost profile (LLM tokens + Workers CPU) is spiky and
+    user-behavior-dependent, unlike smooth/cheap storage — a flat tier price
+    struggles to cover heavy-intelligence Pro users. Some usage dimension is
+    warranted.
+  - vs **pure tiers:** the heavy-intelligence Pro user gets an upgrade path that
+    isn't "pay 2.6× for Teams just for more refreshes."
+  - vs **pure add-ons:** no "Free + paid add-on" funnel awkwardness at launch;
+    Free→Pro stays clean and bundled.
+  - Preserves Q9's locked rule (numeric caps, `count < cap`, never named-feature
+    allowlists). `maxConsolidationRuns` is checked exactly like
+    `connectors.length < maxConnectors`.
+  - **Monetizes the frontier-extractor lever (Q18):** the cloud runs frontier
+    extraction *during* each refresh, so `maxConsolidationRuns` literally caps
+    LLM spend — cost and entitlement align on one number.
+- **Sequencing (honest about broke+ASAP):**
+  - **v1 cloud (file replica):** tiers only; intelligence entitlements *present
+    but zero* (no managed runtime yet, nothing to gate). Prices as Q9.
+  - **v1.x (managed runtime lands):** tiers carry bundled
+    `maxConsolidationRuns` / `maxPreWarmPerDay`. Caps enforced; overage =
+    "upgrade."
+  - **v2 (add-ons):** capacity packs become purchasable via Polar metered
+    billing. Designed in at v1, shipped when Pro revenue/demand justifies.
+- **Status:** **Locked.** Extends ADR 0006 (entitlement model now has 3 caps +
+  a v2 add-on seam).
+- **Candidate for ADR:** yes — ADR 0006 must be **updated** to add
+  `maxConsolidationRuns` + `maxPreWarmPerDay` + the v2 add-on architecture. The
+  entitlement schema discipline (additive line items, not tier enum) is the
+  hard-to-reverse part.
+
+## Q20 — Testing stack: MSW + Playwright scoped to the cloud app
+
+- **Question:** lock the testing stack boundaries (MSW + Playwright + Vitest).
+- **Grounding (verified on branch, 2026-06-21):**
+  - **Vitest** is universal (v4.x via `tekmemo-testing`'s `createVitestConfig`;
+    every package uses `tests/**/*.test.ts`).
+  - **MSW** is declared only in `apps/cloud`; its handler file
+    (`apps/cloud/tests/mocks/index.ts`) has **every handler commented out** and
+    can't run under Vitest (imports `~/utils/env.server`, alias unresolvable per
+    `apps/cloud/vitest.config.ts`). Dead scaffold.
+  - The *working* HTTP-mock pattern is **fetch-injection**
+    (`createTekMemoCloudClient({ fetch })` in `packages/tekmemo/tests/cloud-client/`).
+  - **Playwright** is only in `apps/cloud`; `webServer`/`baseURL` commented out;
+    `tests/e2e/example.spec.ts` is the default boilerplate hitting
+    `https://playwright.dev`.
+- **Answer (locked, 2026-06-21):** **split the layer, not the tool.**
+  - **Vitest — everywhere** (unit + integration). No change; already universal.
+  - **MSW — `apps/cloud` only**, for outbound third-party HTTP (Polar, Plunk,
+    GitHub/Notion OAuth, Sentry). Resurrect the dead scaffold there with real
+    handlers. Packages keep fetch-injection.
+  - **Playwright — `apps/cloud` only**, e2e for marketing + auth + dashboard
+    (against a local Worker + MSW'd third parties). No browser e2e in packages.
+    CLI gets "e2e" via a thin `execa` smoke test in Vitest; MCP gets
+    protocol-level tests.
+  - **Grow `tekmemo-testing`** with a `createCloudMockFetch()` helper — the
+    fetch-injection factory for cloud-client contract tests, so packages stop
+    hand-rolling fakes. **No** shared MSW server in `tekmemo-testing` (MSW stays
+    cloud-app-scoped).
+- **Rationale:**
+  - MSW's sweet spot is a standing server with request matching + fixtures for
+    *third-party* outbound HTTP — exactly `apps/cloud`'s Polar/Plunk/OAuth
+    surface. It is **not** the right tool for the cloud-client *contract* tests,
+    which already work via fetch-injection and are faster/cleaner.
+  - Resurrecting MSW in `apps/cloud` gives it a real job; rewriting passing
+    cloud-client tests to use MSW would be pure churn.
+- **Status:** **Locked.**
+- **Candidate for ADR:** no — a conventions/tooling call; lives here + AGENTS.md
+  rules. The one architectural consequence (entitlement schema shape) is
+  captured under Q19.
+
+---
+
+## Session 4 — intelligent retrieval: surface + retrieval model + ship/defer
+
+> **Scope note:** sessions 1–3 (Q1–Q20 + S2-Q1) are locked. This session
+> continues the grill with the one seam those sessions never closed: *when and
+> how* memory is fetched — the retrieval model that turns "a search engine" into
+> "memory that feels intelligent." Trigger: the question "if our memory is
+> intelligent, an agent must know when/how to efficiently retrieve — work toward
+> this." Numbered **Q21–Q23** (collision-free continuation of Q1–Q20).
+
+## Q21 — Retrieval surface: MCP is primary for coding agents; pull-only accepted; tool surface collapses
+
+- **Question:** for coding agents (Claude Code, Codex, Cursor, Cline, Roo Code),
+  is MCP the primary surface, and is tool calling or MCP more efficient?
+- **Grounding (verified in host architectures + in code):**
+  - The locked runtime-first split (ADR 0007 / Q15 / CONTEXT.md) already
+    separates the **runtime** (`TekMemoMemoryRuntime` in core) from its
+    **surfaces** (MCP, AI-SDK adapter, future HTTP/Python). The runtime knows
+    nothing about OpenAI/Anthropic/MCP/LangChain. Surfaces are adapters.
+  - The MCP server today exposes **~21 model-facing tools**
+    (`packages/tekmemo-mcp-server/src/tools/definitions.ts`): `tekmemo.health`,
+    `.context`, `.recall`, `.remember`, `.read_core_memory`,
+    `.read_notes_memory`, `.list_recent_memories`, `.validate`, `.snapshot`,
+    `.update_core_memory`, `.sync_status`, `.sync_pull`, `.sync_push`,
+    `.graph_upsert_nodes`, `.graph_upsert_edges`, `.graph_neighbors`,
+    `.graph_path`, `.readiness`, `.consolidate`.
+  - The in-process push path exists in `tekmemo-adapter-ai-sdk`
+    (`buildRuntimeMemoryContext` / `buildPrepareCallMemoryText`) but its
+    retrieval trigger is a pass-through — it recalls on whatever `input.query`
+    the caller supplies, with no triggering/rewriting/budgeting/filtering.
+- **Hard constraint surfaced (structural, not preference):** **MCP is
+  pull-only.** Claude Code / Codex / Cursor / Cline / Roo Code load an MCP
+  server and invoke its *tools* when *they* decide to. There is no hook for
+  TekMemo to inject memory into their prompt *before* the model thinks.
+  Push-based retrieval (context injection — the mechanism that makes memory
+  *feel* smart, because it's just there) is **impossible through MCP**. It
+  requires in-process integration (the SDK/adapter path, ADR 0007). This is the
+  architecture of every closed coding-agent host; it is not negotiable.
+- **Answer (locked, 2026-06-21):**
+  1. **MCP is the primary surface for coding agents — non-negotiably.** Closed
+     coding-agent hosts (Claude Code, Codex, Cursor, Cline, Roo Code) speak MCP
+     and **do not** accept injected native functions. There is no "tool calls vs
+     MCP" choice for this audience. Native tools / the AI-SDK adapter serve a
+     *different* audience (in-process framework agents: Vercel AI SDK, OpenAI
+     Agents SDK, LangGraph, Mastra), governed by ADR 0007. Both surfaces are
+     first-class; neither is legacy. The runtime is one; the surfaces are many.
+  2. **Accept the pull-only constraint for MCP and design around it.** Since the
+     model must *decide* to retrieve, TekMemo's job is to make that one decision
+     maximally productive: the tool the model calls runs query-rewriting +
+     entity-centric resolution + progressive delivery + active-only filtering
+     *inside itself*, so one call returns a curated briefing, not a raw search
+     dump. The intelligence lives **inside the tool**, not in context injection.
+     (Context injection stays available on the in-process / adapter path — Q22.)
+  3. **Collapse the model-facing MCP surface to ~4 high-signal verbs.** The
+     current ~21-tool surface is a category error: it exposed developer-level
+     runtime methods as model-facing tools. The model isn't a developer; it
+     cannot choose intelligently among `graph_upsert_nodes` vs `graph_neighbors`
+     vs `graph_path`. For a pull-only channel, **the tool surface *is* the
+     intelligence surface.** The 4 verbs:
+     - `tekmemo.context` — the smart briefing composer. Returns a curated,
+       budgeted, active-only briefing for the current task. **Composes** recall
+       + entity-resolution + filtering behind one call. (The push-equivalent,
+       achieved inside a pull tool.)
+     - `tekmemo.recall` — deep semantic search when the model wants to dig
+       deeper than the briefing.
+     - `tekmemo.remember` — write memory.
+     - `tekmemo.consolidate` — the intelligence lever (ADR 0004): merge + retire.
+     The old tools are **not hidden MCP tools**; they become either (a)
+     **runtime methods** the developer calls imperatively
+     (`memo.graph.neighbors()`, `memo.sync.push()`, `memo.snapshots.create()` —
+     already the `TekMemoMemoryRuntime` surface), or (b) **parameters** on the 4
+     verbs (e.g. the active-only filter is a flag on `recall`/`context`). There
+     is no "hidden tool that `tekmemo.context` triggers" — `tekmemo.context`'s
+     implementation *calls runtime methods* as steps in building the briefing.
+     The model never sees those methods as things it could call.
+  4. **Power-tools MCP profile (deferred, optional):** a power-user developer
+     building a custom agent may want direct graph/sync access over MCP. For
+     them, an opt-in second MCP server entry ("developer mode") exposes the full
+     surface. Keeps the default clean without castrating the runtime. **Not v1.**
+  5. **Local HTTP adapter — rejected (not deferred).** A localhost HTTP surface
+     over the runtime is **not v1, not v1.x, not ever.** File-first makes it
+     redundant: if memory lives as inspectable files under `.tekmemo/`, every
+     language already has a driver — `open()`, `os.ReadFile()`,
+     `fs::read_to_string()`. A local HTTP server would be a socket wrapper
+     around files that are already directly readable — pure overhead that
+     reintroduces the exact problem file-first was chosen to solve. The
+     PostgreSQL-driver analogy does not transfer: Postgres needs drivers
+     because it lives behind a socket; TekMemo's "database" *is* the
+     filesystem. Two access paths cover everything:
+     - **Direct file read** — any language, zero dep, for raw facts (the
+       trust/audit layer; a consumer that only wants known facts reads files).
+     - **MCP** — the polyglot *intelligent* surface (any agent host, any
+       language, gets the 4 verbs + strategist without speaking TypeScript).
+     A Python/Go/Rust agent that wants intelligence uses MCP; one that wants
+       raw facts reads files. **There is no third path and no HTTP adapter.**
+     This is a rejection, not a deferral — recorded so it is not re-proposed.
+     **Distinct from the cloud HTTP API:** `apps/cloud` (ADR 0003/0005) *does*
+     expose the runtime over HTTP, but only at the managed tier, against
+     cloud-resident file *replicas* (D1/D2) — that is the cloud product, not a
+     local adapter. File-first holds in both: originals stay local; the cloud
+     holds a replica.
+- **Rationale:**
+  - The "tool calls vs MCP" question was a false dichotomy — they serve
+    different audiences (in-process frameworks vs closed hosts). The real
+    decision is the retrieval model (Q22), which is *constrained by* the surface.
+  - A pull-only channel's intelligence ceiling is set by **how much intelligence
+    fits inside one tool call**. Fewer verbs, each doing more, beats many verbs
+    the model can't choose among. This is the only way to make a pull-only
+    surface feel intelligent — non-retrieval (the model not choosing to call) is
+    the #1 failure mode of RAG-style agents.
+  - Collapsing to 4 aligns the model-facing surface with Q16's north star (cut
+    cold-start tokens): a curated briefing in one call cuts tokens vs. a model
+    fumbling through 21 tools, calling 5 of them, each returning a raw dump.
+- **Principle captured:** **the model gets ~4 verbs; the developer gets the full
+  runtime.**
+- **Status:** **Locked.**
+- **Open sub-questions:** the deferred power-tools profile; the exact parameter
+  shape of `tekmemo.context` (Q22 will inform it). These don't block locking the
+  4-verb shape.
+- **Candidate for ADR:** yes — strong candidate. Hard to reverse (defines the
+  model-facing surface, which once consumed is hard to shrink); surprising
+  (fewer tools = more intelligence, and "MCP is pull-only so push the
+  intelligence into the tool" is counter-intuitive); real trade-off (rich single
+  call vs many small calls, model-as-developer vs model-as-user). Promote after
+  Q22/Q23 resolve, so the ADR captures the full retrieval model in one place.
+- **Promoted 2026-06-22** to [ADR 0009](../adr/0009-intelligent-retrieval-model.md)
+  together with Q22 (write intelligence), Q23 (strategist), Q24-v1 (staleness
+  mechanical), Q26 (entity-centric), Q27 (progressive recall). Q22 is captured
+  as Component 6 of that ADR (the write-side of the same retrieval model); the
+  `tekmemo.context` parameter shape Q21 deferred to "Q22" is now fully
+  specified by Components 2–4 (strategist pipeline + Entities section +
+  expansion cursors).
+
+---
+
+## Session 5 — the retrieval model: write intelligence, strategist, staleness, entity-centric, progressive, concurrency
+
+> **Scope note:** sessions 1–4 (Q1–Q21) are locked. This session continues the
+> grill at the seam Q21 left open: the *retrieval model* — when and how memory
+> is fetched, what the agent receives, and how memory stays clean + safe. An
+> industry review (2026-06-22) converged on the same gaps from a different
+> angle (write discipline > retrieval cleverry; staleness ≠ decay; concurrency
+> is the honest limit of file-first). Two independent signals pointing at the
+> same place drove the priority order: write intelligence was grilled *first*
+> (highest leverage, zero code today), ahead of the retrieval strategist Q21
+> originally deferred to. Numbered **Q22–Q28** (collision-free continuation of
+> Q1–Q21). **All locked 2026-06-22.** Promoted to [ADR 0009](../adr/0009-intelligent-retrieval-model.md)
+> (Q21+Q22+Q23+Q24-v1+Q26+Q27), [ADR 0010](../adr/0010-cloud-concurrency-control-for-b3.md)
+> (Q25b), and an [ADR 0004](../adr/0004-v1-intelligence-extraction-and-consolidation.md)
+> revision (Q24-v1.x + Q25a).
+
+### Q22 — Write intelligence (the gate on `tekmemo.remember`)
+
+- **Question:** the retrieval model is only as good as the signal it retrieves.
+  `tekmemo.remember` / `writeMemory` today has no gate — it hashes content and
+  appends. How do we keep Tier 2 (`notes.md`) from becoming noise, without
+  violating the two sacred properties (file-first: a human can hand-edit
+  `notes.md`; audit thesis: mark, never delete)?
+- **Answer (locked 2026-06-22, shape C):** **two gates at two layers.**
+  1. **Hard-reject write blocklist** (secrets/PII) at the write API — the same
+     safety thesis as the connector `secretRef` model (ADR 0002), applied to
+     memory content. An agent writing an API key into syncable `notes.md` is a
+     security hole today. Deterministic regex, always-on, no LLM. **Ships as a
+     security fix regardless of the rest.**
+  2. **Soft durability tier**, 2-level (`durable` / `transient`), stamped on
+     every note. `durable` ↔ indexed into recall store + graph, surfaced by
+     `recall`/`context`. `transient` ↔ written to `notes.md` (audit trail +
+     `list_recent_memories`) but **not** indexed. **Files keep everything that
+     passes the blocklist; the disposable recall index + graph prune by tier.**
+- **Sub-decision (taxonomy, locked):** **2-level**, not 3. `durable` / `transient`
+  mirrors the existing `core.md` / `notes.md` file split. A 3-level
+  (`core`/`durable`/`transient`) was rejected: making `core` a *tier on a note*
+  creates two competing "always-in-context" mechanisms (the `core.md` file *and*
+  a `tier: "core"` flag); `core.md` as a replace-whole-file op is the better
+  Tier-1 enforcement. A future promotion op bridges note → core.
+- **Sub-decision (who produces the tier, locked):** **deterministic default +
+  LLM-enhanced** — the same seam as embedder/reranker/extractor. A
+  deterministic classifier assigns the tier from `kind` + `confidence` +
+  content shape (zero-config floor); a configured `Extractor`/LLM adapter
+  re-scores and can override. Cloud/Pro runs frontier-tier classification.
+- **Rationale:** the "most underrated lever" (industry review): clean memory
+  beats clever retrieval over noisy memory. Source cuts compound; sink cuts are
+  one-shot — so write discipline is the higher-leverage delivery of the Q16
+  north star. The files-keep-everything / index-prunes split is the only option
+  consistent with *both* sacred properties *and* the disposable-index thesis.
+- **Status:** **Locked.** Captured as Component 6 of
+  [ADR 0009](../adr/0009-intelligent-retrieval-model.md).
+
+### Q23 — The retrieval strategist (the brain inside `tekmemo.context`)
+
+- **Question:** Q21 locked the 4-verb surface and accepted MCP is pull-only, so
+  the intelligence must live *inside the tool*. Today `buildContext()` is a flat
+  assembler (directive → core → recent → recall → notes, byte-truncated; query
+  passed verbatim). What replaces it?
+- **Answer (locked 2026-06-22, shape C):** a **4-stage pipeline** replacing
+  `buildContext()`. Each stage is deterministic-by-default with an LLM-adapter
+  hook, and each is a pure function (mirroring the `consolidateGraph` /
+  `applyConsolidation` split — independently testable).
+  - **Rewrite** — lexicon/semantic query expansion ("login flow" → also auth,
+    JWT, OAuth).
+  - **Resolve** — collapse fragments to graph entities (alias/label lookup).
+  - **Filter** — `status === "active"` only (the Q24 v1 fix, enforced here).
+  - **Budget** — weighted section allocation by `maxBytes`, not tail-truncation.
+- **Sub-decision (core is non-negotiable, locked):** `core.md` is injected
+  *before* the strategist runs and is *excluded from budget competition* — it
+  gets its bytes first, always. The strategist only budgets the remaining
+  `maxBytes`. This is the read-side enforcement of the locked principle
+  (*"small core memory is always injected; everything else is explicitly
+  searched, not guessed at by the agent"*). The strategist decides what to
+  search; the model never guesses.
+- **Rationale:** a pull-only channel's intelligence ceiling is set by how much
+  intelligence fits inside one tool call. The strategist is the entire MCP
+  intelligence story — without it, 4 verbs return flat dumps. Deterministic
+  defaults mean every stage does useful work zero-config, so even before any
+  LLM the strategist beats today's flat assembler.
+- **Status:** **Locked.** Captured as Component 2 of
+  [ADR 0009](../adr/0009-intelligent-retrieval-model.md).
+
+### Q24 — The staleness loop (closing the recall ↔ consolidation gap)
+
+- **Question:** consolidation marks a node `status: "deprecated"`; recall never
+  checks (verified: zero `status`/`deprecated`/`active` matches in `src/recall/`).
+  So a superseded fact is still served. How do we close the loop, and what
+  about the harder case (repeatedly-contradicted facts without a clean edge)?
+- **Answer (locked 2026-06-22, shape C):** **two phases on the
+  deterministic/LLM seam.**
+  - **v1 = mechanical:** the strategist's Filter stage (Q23) drops/marks
+    anything whose extracted entities include a `deprecated` node. Pure wiring
+    — data already exists (consolidation produces it), Filter stage already
+    exists (Q23), they just connect. Near-zero new code. **Unblocks all of Q17
+    Tier-2.**
+  - **v1.x = semantic:** a **re-verification stage in consolidation**
+    (LLM-enhanced, when an adapter is configured) scores active facts for
+    consistency with recent memory; low-trust facts get `status: "unverified"`
+    (a third state — flagged, not retired), which the Filter surfaces with a
+    warning.
+- **Distinction (locked):** **decay** (old-and-rarely-relevant) ≠ **staleness**
+  (confidently wrong because the world changed). Decay is already solved by the
+  30-day recency half-life. Staleness is what ranking makes *worse*, not better.
+- **Status:** **Locked.** v1 mechanical → Component 5 of
+  [ADR 0009](../adr/0009-intelligent-retrieval-model.md). v1.x `unverified` →
+  [ADR 0004](../adr/0004-v1-intelligence-extraction-and-consolidation.md) revision
+  history.
+
+### Q25a — Writer-critic consolidation (cloud A1 made real)
+
+- **Question:** deterministic `consolidateGraph` only sees alias/label collisions
+  and clean `supersedes` edges. Semantic duplication ("We auth with JWT" vs
+  "Login uses JSON Web Tokens") is invisible to it. How does semantic dedup
+  ship without crippling the OSS consolidation?
+- **Answer (locked 2026-06-22, shape C):** **writer-critic as an LLM-enhanced
+  consolidation stage; deterministic floor unchanged.** The deterministic
+  `consolidateGraph` stays as the zero-config floor. When an LLM adapter is
+  configured, a semantic stage runs *before* it: the adapter proposes semantic
+  merges/retirements, a **critic** check gates each proposal against the
+  originals for data loss/hallucination, and passed proposals feed into the
+  deterministic pass as if they were alias collisions / supersedes edges.
+- **Rationale:** makes the cloud's A1 differentiator ("always-on
+  consolidation", Q18) real; keeps OSS consolidation honest (not crippled); and
+  is the most auditable form of semantic dedup file-first supports (originals
+  preserved, merge decision recorded).
+- **Status:** **Locked.** Captured in the
+  [ADR 0004](../adr/0004-v1-intelligence-extraction-and-consolidation.md) revision
+  history (elaboration of ADR 0004's consolidation decision, not a new ADR).
+
+### Q25b — Concurrency-control layer for B3 (the cloud-only transactional layer)
+
+- **Question:** B3 ("one memory, many agents", Q18) is concurrent multi-writer
+  access to the same project. D6 (last-writer-wins + snapshot) silently loses
+  one of two simultaneous pushes. How does the cloud support B3 safely?
+- **Answer (locked 2026-06-22, shape C):** **a Turso/libSQL concurrency-control
+  layer in front of the R2 file replica.** Multi-agent writers to the same
+  project serialize through it (project-lock → validate-against-manifest →
+  apply → release). R2 files remain the durable source of truth; the DB is a
+  derived, rebuildable concurrency-control layer — the same relationship the
+  local recall store has to local files. File-first holds.
+- **Rationale:** reuses Turso already in the cloud stack (ADR 0005). The first
+  cloud-only capability — and the correct asymmetry: concurrency is a
+  cloud-scale problem (many agents over the network), not a local one
+  (single-process, enforced by the Q28 advisory lock).
+- **Status:** **Locked.** Promoted to
+  [ADR 0010](../adr/0010-cloud-concurrency-control-for-b3.md) (revises ADR 0003).
+
+### Q26 — Entity-centric recall: output shape
+
+- **Question:** Q17 locked entity-centric recall ("current state of auth" = one
+  resolved node, not N fragments) with mechanism "Graph +
+  `resolveCurrentFacts`". The strategist's Resolve stage (Q23) calls it — but
+  *what does `tekmemo.context` return*? Q23 delivered the substrate but not the
+  output shape.
+- **Answer (locked 2026-06-22, shape B):** a **separate "Entities" section** in
+  `tekmemo.context`, emitted **after core** (Tier-1, non-negotiable) and
+  **before recall** (unresolved Tier-2 fragments). Each resolved entity renders
+  as label + type + current-state summary (active edges only — the Q24 filter)
+  + provenance. This is the trust ordering: core = what's true; entities =
+  what's currently true about the things in this task (resolved, high-trust);
+  recall = everything else relevant (unresolved fragments, lower-trust,
+  broader). Degrades gracefully — empty section when the graph has nothing.
+- **Rejected:** folding into recall (loses high-trust artifact distinction); a
+  separate tool verb (violates Q21's 4-verb discipline); replacing fragment
+  recall outright (collapses for any note the extractor didn't process).
+- **Status:** **Locked.** Captured as Component 3 of
+  [ADR 0009](../adr/0009-intelligent-retrieval-model.md).
+
+### Q27 — Progressive recall: interaction protocol
+
+- **Question:** Q17 called progressive recall the **"biggest single cutter"** of
+  the four Tier-2 capabilities (the headline delivery of the Q16 north star).
+  Q23's Budget stage allocates bytes *one-shot*; progressive means disclosure
+  *across calls*. What protocol?
+- **Answer (locked 2026-06-22, shape B):** **per-section expansion cursors via
+  a parameter on `tekmemo.context`.** First call returns a compact briefing
+  with expandable sections, each carrying an opaque expansion token; the agent
+  calls back with `section` + `expand` to pull only what it needs. Compact ≈
+  6kb; full ≈ 80kb; the agent pulls the 2kb it needs and stops — vs ~64kb
+  truncated today. The token is opaque and encodes resolved pointers from the
+  first call, so the second call re-resolves fast.
+- **New machinery:** the strategist must be **stateful across two calls**
+  (session-scoped cursor cache), which today's stateless `buildContext()` is
+  not. This is the one real new piece Q27 introduces.
+- **Rejected:** sequential cursor pagination (loads everything in order — not
+  "expand only what I need"); a `tekmemo.expand` verb (violates 4-verb
+  discipline); LLM-decided agentic expansion (the industry-review anti-pattern
+  — re-introduces the judgment load the strategist exists to remove).
+- **Status:** **Locked.** Captured as Component 4 of
+  [ADR 0009](../adr/0009-intelligent-retrieval-model.md).
+
+### Q28 — Local concurrency enforcement
+
+- **Question:** the industry review flagged concurrency as the honest limit of
+  file-first. Local is single-process by contract, but two Claude Code windows
+  on one repo is a day-one v1 scenario. Today a replace-whole-file race on
+  `core.md` silently loses a write, and the pre-sync snapshot (D6) is for *sync*
+  recovery, not local-race recovery. What enforces the local contract?
+- **Answer (locked 2026-06-22, shape B):** **advisory file lock at the
+  MemoryStore layer** (`.tekmemo/.lock`), the git-index model. Acquired on
+  first mutating write, held process-lifetime or per-op; a second process
+  attempting a mutating op gets a clear error. Non-mutating reads don't block.
+  Carries PID + timestamp so a stale lock (crashed process) is detectable and
+  reclaimable. Lives in the `MemoryStore` abstraction so every store impl gets
+  it; in-memory store (tests) no-ops.
+- **Distinction (locked):** local *serializes* (a second local process is
+  almost always accidental, not a workload); cloud (Q25b) *serializes-through-
+  a-DB* (multi-agent writers are the intended B3 workload). Two different
+  mechanisms for two different scales.
+- **Status:** **Locked.** Not ADR-worthy (storage-layer convention, like D6);
+  recorded here + to be captured in AGENTS.md rules.
 

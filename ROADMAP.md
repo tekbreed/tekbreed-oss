@@ -37,7 +37,7 @@ Active focus — the work in flight toward a stable 1.0.
 
 In flight after 1.0 — team features and the managed-runtime tier.
 
-- **Managed-runtime tier** — run the *same* local `Tekmemo` engine + an embedder
+- **Managed-runtime tier** — run the *same* local `Tekmemo` memory runtime + an embedder
   on hosted infra against the user's R2-resident files; expose hosted recall /
   graph / evals by API. The long-term purpose of the cloud ([ADR 0003](docs/adr/0003-managed-runtime-tier.md));
   v1's file-replica sync is the foundation for it.

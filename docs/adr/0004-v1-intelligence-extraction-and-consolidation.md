@@ -4,6 +4,12 @@
 - **Date:** 2026-06-20
 - **Deciders:** Christopher S. Aondona
 
+> **Terminology note (post-Q15):** this ADR predates the Q15 glossary lock
+> (2026-06-21). Uses of "engine" refer to what is now canonically the "memory
+> runtime." Uses of "smart" and "intelligent" as unquantified claims are now
+> avoided; the canonical metric is cold-start token reduction (Q16). See
+> `docs/CONTEXT.md` → Canonical product nouns + Intelligence north star.
+
 ## Context
 
 TekMemo markets itself as "intelligent memory." An audit of the actual code
@@ -118,3 +124,54 @@ facts." Not a vague adjective. Tracked as a doc fix.
   `packages/tekmemo/src/graph/invalidation/invalidate-superseded-edges.ts`
 - Adapter pattern precedent:
   `packages/tekmemo-adapter-{openai,voyage,transformers}`
+
+## Revision history
+
+- **2026-06-20** — Accepted (v1 intelligence = LLM extraction + consolidation,
+  provider-neutral adapter).
+- **2026-06-22** — Elaborated by decisions log Q24 (v1.x) and Q25a, recorded
+  here so the v1 intelligence surface stays in one place. No change to the v1
+  decision itself; two v1.x extensions added:
+
+  ### v1.x extension 1 — `unverified` status (from Q24)
+
+  The v1 staleness fix is mechanical and lives in [ADR 0009](./0009-intelligent-retrieval-model.md)
+  Component 5 (the strategist's Filter stage drops `status: "deprecated"`
+  nodes). The **v1.x semantic extension** lives *here*, as a consolidation
+  stage: a **re-verification stage** (LLM-enhanced, when an adapter is
+  configured) scores active facts for consistency with recent memory. Facts
+  below a trust threshold get `status: "unverified"` — a **third node status**
+  (alongside `active` and `deprecated`), meaning *flagged, not retired*. The
+  strategist's Filter (ADR 0009) surfaces `unverified` facts **with a warning**,
+  not hidden. This closes the harder form of staleness the industry review
+  flagged ("a highly-retrieved memory is accurate right until it changes, then
+  becomes confidently wrong") without the data loss that silent retirement
+  would cause. Zero-config users get the mechanical v1 fix only; adapter users
+  get re-verification — the same deterministic-default + adapter-enhanced seam.
+
+  ### v1.x extension 2 — Writer-critic consolidation (from Q25a)
+
+  The deterministic `consolidateGraph` (alias/label merges + `supersedes`
+  retirements) stays as the **zero-config floor**, unchanged. When an LLM
+  adapter is configured, a **semantic consolidation stage** runs *before* it:
+  the adapter proposes semantic merges/retirements the deterministic pass
+  can't see (e.g. "We auth with JWT" vs "Login uses JSON Web Tokens" — same
+  fact, no shared label, no alias, no `supersedes`), and a **critic** check
+  gates each proposal against the originals for data loss / hallucination /
+  correct conflict resolution. Proposals that pass feed into the deterministic
+  pass as if they were alias collisions / supersedes edges.
+
+  This is the cloud's A1 differentiator ("always-on consolidation",
+  decisions log Q18) made real, and the most auditable form of semantic dedup
+  the file-first model supports: originals preserved, merge decision recorded,
+  nothing silently overwritten. It also makes critic-gating the cloud's
+  *reason-to-exist* on consolidation (the managed-runtime tier runs the
+  critic-gated semantic pass on the user's behalf), not a tax the OSS pays —
+  the OSS consolidation stays genuinely useful (deterministic), the cloud
+  consolidation stays genuinely better (semantic + critic).
+
+  - **References for both extensions:** decisions log Q24 (v1.x) and Q25a;
+    [ADR 0009](./0009-intelligent-retrieval-model.md) Component 5 (the Filter
+    stage that honors `deprecated` at v1 and `unverified` at v1.x);
+    `packages/tekmemo/src/graph/consolidation/consolidate.ts` (the
+    deterministic floor both extensions layer on).
