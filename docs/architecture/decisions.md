@@ -12,7 +12,7 @@
 > session 2 (ai-sdk extraction, package review, docs IA) and session 3
 > (positioning, intelligence north star, cloud differentiators, pricing
 > extension, testing). Updated inline as each branch of the design tree is
-> resolved. **Q1–Q10 + S2-Q1 + Q11–Q20 are all locked.** Numbering is
+> resolved. **Q1–Q10 + S2-Q1 + Q11–Q28 are all locked.** Numbering is
 > collision-free:
 > - **Q1–Q5** — original open questions (connectors, decay/conflict, cloud
 >   purpose, intelligence scope).
@@ -26,12 +26,20 @@
 >   star (Q16), v1.x local intelligence capabilities (Q17), cloud
 >   differentiators + extractor strategy (Q18), pricing extension — intelligence
 >   entitlement + hybrid add-on model (Q19), testing stack boundaries (Q20).
+> - **Q21–Q28** — session 4: the retrieval model surface (Q21 four-verb tool
+>   surface), write intelligence (Q22), the retrieval strategist (Q23), the
+>   staleness loop (Q24), writer-critic consolidation (Q25a), cloud concurrency
+>   control for B3 (Q25b), entity-centric recall output (Q26), progressive
+>   recall protocol (Q27), local concurrency enforcement (Q28).
 >
 > **Relationship to other docs:**
 > - Governs and extends `docs/architecture/cloud-sync-and-refactor.md` (the
 >   locked cloud-sync refactor spec, decisions D1–D9).
 > - Supersedes the rough proposal in root `new-architecture.md` (its open
 >   questions are answered here one by one).
+> - Projects into [`docs/architecture/screens-locked.md`](./screens-locked.md)
+>   (the frozen screen IA for the Cloud + Docs apps; `SC-*` decisions trace back
+>   here).
 > - ADRs (`docs/adr/`) are reserved for decisions that are hard-to-reverse,
 >   surprising without context, and the result of a real trade-off. Decisions
 >   from this session promoted to ADRs:
@@ -47,6 +55,16 @@
 >   - [ADR 0007](../adr/0007-ai-sdk-extraction.md) — extract the Vercel AI SDK
 >     integration to an adapter package; runtime-via-Tekmemo contract origin
 >     (from S2-Q1).
+>   - [ADR 0008](../adr/0008-docs-information-architecture.md) — docs information
+>     architecture: four rules + routing blueprint (from session 2, S2-Q3
+>     follow-on).
+>   - [ADR 0009](../adr/0009-intelligent-retrieval-model.md) — the intelligent
+>     retrieval model: 4-verb surface, write-side gate, 4-stage strategist,
+>     staleness hiding, entity-centric + progressive recall (from Q21–Q24, Q26,
+>     Q27).
+>   - [ADR 0010](../adr/0010-cloud-concurrency-control-for-b3.md) — a Turso/libSQL
+>     concurrency-control layer for the cloud B3 multi-writer workload (from
+>     Q25b).
 >   Q10 (connector set) and the license decision (folded into Q8) are captured in
 >   this log; the provider-neutral `Connector` interface from Q10 folds into
 >   ADR 0002's extensibility coverage.
@@ -1576,4 +1594,16 @@ apps/tekmemo-cloud/            ← NEW. ONE Cloudflare Worker, MIT.
   mechanisms for two different scales.
 - **Status:** **Locked.** Not ADR-worthy (storage-layer convention, like D6);
   recorded here + to be captured in AGENTS.md rules.
+
+---
+
+## Locked screen IA
+
+The product/architecture decisions above are projected into a frozen screen
+map in [`screens-locked.md`](./screens-locked.md) — the locked information
+architecture for the Cloud app (`memo.tekbreed.com`) and the Docs app
+(`docs.tekbreed.com`). Screen-level decisions are numbered `SC-*` there and
+trace back to the decisions in this log and ADRs 0002–0008. The IA is frozen;
+`copywriting` + `frontend-design` refine per-page prose and layout without
+re-opening a screen decision (ADR 0008 Rule 3).
 
