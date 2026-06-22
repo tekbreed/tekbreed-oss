@@ -577,5 +577,32 @@ export function createToolDefinitions(
 			},
 			inputSchema: objectSchema({}),
 		},
+		{
+			name: "tekmemo.consolidate",
+			title: "Consolidate TekMemo Graph Memory",
+			description:
+				"Run a memory consolidation pass over the local graph: merge duplicate entities and retire facts superseded by a `supersedes` edge. The audit trail is preserved — nothing is deleted, only marked `deprecated`. This is the second half of v1 intelligence (ADR 0004): extraction grows the graph, consolidation keeps it tidy. Pass apply=false to preview the plan without persisting. Hosts should authorize this write when apply is true.",
+			safety: "write",
+			annotations: {
+				readOnlyHint: false,
+				destructiveHint: false,
+				idempotentHint: true,
+				openWorldHint: false,
+			},
+			inputSchema: objectSchema({
+				...commonScopeProperties,
+				apply: booleanSchema(
+					"Persist the computed plan (merges + retirements). Defaults to true; pass false to preview.",
+				),
+				now: stringSchema(
+					"Override the `now` timestamp stamped on retirements (ISO 8601). Mainly for tests.",
+					64,
+				),
+				supersedingEdgeType: stringSchema(
+					"Edge type expressing 'A replaces B'. Defaults to 'supersedes'.",
+					128,
+				),
+			}),
+		},
 	];
 }

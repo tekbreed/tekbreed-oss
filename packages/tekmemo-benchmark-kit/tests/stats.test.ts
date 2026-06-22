@@ -3,7 +3,7 @@ import {
 	BenchmarkValidationError,
 	percentile,
 	summarizeIterations,
-} from "../../src";
+} from "../src";
 
 describe("stats", () => {
 	it("computes percentiles", () => {

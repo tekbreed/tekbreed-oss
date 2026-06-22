@@ -4,7 +4,7 @@ import {
 	BenchmarkValidationError,
 	createBenchmarkSuite,
 	DeterministicBenchmarkClock,
-} from "../../src";
+} from "../src";
 
 describe("BenchmarkRunner", () => {
 	it("runs a benchmark suite", async () => {

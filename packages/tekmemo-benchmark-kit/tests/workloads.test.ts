@@ -8,13 +8,13 @@ import {
 	createRecallQueryBenchmarkCase,
 	createRecallUpsertBenchmarkCase,
 	createRerankBenchmarkCase,
-} from "../../src";
+} from "../src";
 import {
 	createFakeEmbedder,
 	createFakeMemoryStore,
 	createFakeRecallStore,
 	createFakeReranker,
-} from "../../src/testing";
+} from "../src/testing";
 
 describe("workload helpers", () => {
 	it("runs workload benchmark cases", async () => {

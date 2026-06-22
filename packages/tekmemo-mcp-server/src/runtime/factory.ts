@@ -251,6 +251,10 @@ export function createTekMemoMcpRuntimeFromTekmemo(
 			return memo.graph.listEdges(input, signal);
 		},
 
+		async consolidateMemory(input, signal) {
+			return memo.consolidate(input, signal);
+		},
+
 		async readiness(signal) {
 			if (memo.cloud) return memo.cloud.readiness(signal);
 			return { ok: true };

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { evaluateBenchmarkThresholds } from "../../src";
+import { evaluateBenchmarkThresholds } from "../src";
 
 describe("thresholds", () => {
 	it("returns ok when thresholds pass", () => {

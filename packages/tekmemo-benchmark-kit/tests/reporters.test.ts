@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { jsonBenchmarkReport, markdownBenchmarkReport } from "../../src";
+import { jsonBenchmarkReport, markdownBenchmarkReport } from "../src";
 
 const result = {
 	name: "suite",

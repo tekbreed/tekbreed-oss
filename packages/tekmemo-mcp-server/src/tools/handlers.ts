@@ -233,6 +233,10 @@ async function executeTool(
 			return textResult(
 				await callOptionalRuntime(options, "graphPath", args, signal),
 			);
+		case "tekmemo.consolidate":
+			return textResult(
+				await callOptionalRuntime(options, "consolidateMemory", args, signal),
+			);
 		case "tekmemo.readiness":
 			return textResult(
 				(await options.runtime.readiness?.(signal)) ?? {
@@ -664,6 +668,32 @@ function validateToolArguments(
 		}
 		case "tekmemo.readiness": {
 			return { args: {}, safety: "read" };
+		}
+		case "tekmemo.consolidate": {
+			const scope = scopeArgs(object);
+			const apply = optionalBoolean(object.apply, "apply");
+			const now = optionalString(object.now, "now", 64);
+			const supersedingEdgeType = optionalString(
+				object.supersedingEdgeType,
+				"supersedingEdgeType",
+				128,
+			);
+			// Consolidation is dual-nature: a preview (apply=false) is a read-only
+			// pass that computes the plan without persisting; an applied pass
+			// (apply=true, the default) mutates the graph. Derive safety from the
+			// flag so read-only servers can still run previews, while applied
+			// consolidation goes through the write authorization path.
+			const safety: ToolSafety = apply === false ? "read" : "write";
+			return {
+				args: {
+					...scope,
+					...(apply === undefined ? {} : { apply }),
+					...(now === undefined ? {} : { now }),
+					...(supersedingEdgeType === undefined ? {} : { supersedingEdgeType }),
+				},
+				safety,
+				workspaceId: scope.workspaceId,
+			};
 		}
 		default:
 			throw new McpValidationError(`Unknown tool: ${toolName}.`);

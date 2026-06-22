@@ -20,6 +20,8 @@ export type {
 	AgentSessionFileInput,
 	AgentSessionResult,
 	AgentSessionStartInput,
+	ConsolidateMemoryInput,
+	ConsolidateMemoryResult,
 	GraphEdgeInput,
 	GraphNeighborsInput,
 	GraphNodeInput,
@@ -65,6 +67,8 @@ import type {
 	AgentSessionFileInput,
 	AgentSessionResult,
 	AgentSessionStartInput,
+	ConsolidateMemoryInput,
+	ConsolidateMemoryResult,
 	GraphEdgeInput,
 	GraphNeighborsInput,
 	GraphNodeInput,
@@ -293,6 +297,10 @@ export interface TekMemoMcpRuntime {
 		input: ListGraphInput,
 		signal?: AbortSignal,
 	): Promise<Page<GraphEdgeInput>>;
+	consolidateMemory?(
+		input: ConsolidateMemoryInput,
+		signal?: AbortSignal,
+	): Promise<ConsolidateMemoryResult>;
 }
 
 import type { Page } from "@tekbreed/tekmemo";

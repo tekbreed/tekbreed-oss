@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SeededRandom } from "../../src";
+import { SeededRandom } from "../src";
 
 describe("SeededRandom", () => {
 	it("is deterministic", () => {
