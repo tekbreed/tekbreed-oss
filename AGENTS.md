@@ -25,6 +25,7 @@ This file contains only behavioral rules and pointers — no project facts.
 - **Do not** add `prettier` — it has been removed; all formatting goes through Biome
 - **Do not** use `@repo/` for public OSS packages — that scope is for internal tooling only
 - **Do not** copy-paste tsdown options into new packages — import `pkgConfig` from `@repo/tsdown` instead
+- **Do not** create a second `Tekmemo`/`NodeFsMemoryStore` instance on the same `.tekmemo/` root — the local contract is single-process (Q28); a second writer gets a `LockHeldError`. Call `dispose()` to release before handing the root to another process, or pass `lock: false` only when an external coordinator serializes access
 - **DRY & SSOT**: Do not duplicate knowledge in this file that already exists in TekMemo memory
 
 ## Pointers
