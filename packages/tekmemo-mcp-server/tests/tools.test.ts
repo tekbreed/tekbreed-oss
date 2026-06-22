@@ -128,23 +128,6 @@ describe("MCP tools", () => {
 		expect(text).toMatch(/path/);
 	});
 
-	it("graph node upsert rejects duplicate batch ids", async () => {
-		const result = await callTekMemoTool(
-			{ runtime: createTekMemoMcpRuntimeFromConfig({ mode: "memory" }) },
-			"tekmemo.graph_upsert_nodes",
-			{
-				nodes: [
-					{ id: "a", type: "project", label: "A" },
-					{ id: "a", type: "project", label: "A again" },
-				],
-			},
-		);
-		expect(result.isError).toBe(true);
-		const text =
-			result.content[0]?.type === "text" ? result.content[0]?.text : "";
-		expect(text).toMatch(/Duplicate node id/);
-	});
-
 	it("output text is truncated safely when max output bytes is small", async () => {
 		const runtime = createTekMemoMcpRuntimeFromConfig({ mode: "memory" });
 		const write = await callTekMemoTool({ runtime }, "tekmemo.remember", {
@@ -163,19 +146,13 @@ describe("MCP tools", () => {
 	});
 
 	it("resources/read exposes graph nodes as JSON content", async () => {
-		const server = createTekMemoMcpProtocolServer({
-			runtime: createTekMemoMcpRuntimeFromConfig({ mode: "memory" }),
-		});
-		await server.handleJsonRpcMessage({
-			jsonrpc: "2.0",
-			id: 1,
-			method: "tools/call",
-			params: {
-				name: "tekmemo.graph_upsert_nodes",
-				arguments: {
-					nodes: [{ id: "node1", type: "project", label: "Node 1" }],
-				},
-			},
+		const runtime = createTekMemoMcpRuntimeFromConfig({ mode: "memory" });
+		const server = createTekMemoMcpProtocolServer({ runtime });
+		// Seed via the runtime method (graph_upsert_nodes is no longer a tool,
+		// but the resources surface still reads the graph store it writes).
+		// biome-ignore lint/style/noNonNullAssertion: local factory always wires upsertGraphNodes
+		await runtime.upsertGraphNodes!({
+			nodes: [{ id: "node1", type: "project", label: "Node 1" }],
 		});
 		const response = (await server.handleJsonRpcMessage({
 			jsonrpc: "2.0",
@@ -195,16 +172,12 @@ describe("MCP tools", () => {
 			client,
 			projectId: "proj_1",
 		});
-		const result = await callTekMemoTool(
-			{ runtime },
-			"tekmemo.sync_status",
-			{},
-		);
-		expect(result.isError).toBeUndefined();
+		// sync_status was demoted to a runtime method (ADR 0009 Component 1).
+		// biome-ignore lint/style/noNonNullAssertion: cloud runtime always wires syncStatus
+		const result = await runtime.syncStatus!({});
 		expect(calls).toEqual(["sync.status:proj_1"]);
-		const structured = result.structuredContent as Record<string, unknown>;
-		expect(structured.cursor).toBe("srv-cursor-7");
-		expect(structured.storageBytes).toBe(1337);
+		expect(result.cursor).toBe("srv-cursor-7");
+		expect(result.storageBytes).toBe(1337);
 	});
 
 	it("cloud runtime delegates sync push to the two-phase file-replica contract", async () => {
@@ -214,16 +187,15 @@ describe("MCP tools", () => {
 			client,
 			projectId: "proj_1",
 		});
-		// sync_push is the runtime.syncPush surface; the cloud-runtime maps it
-		// 1:1 onto client.sync.push (the first phase of the push contract). The
-		// HTTP/Worker runtime only orchestrates presigned URLs — the byte upload
-		// + complete run in the local file-sync layer (see cloud.ts).
-		const result = await callTekMemoTool({ runtime }, "tekmemo.sync_push", {});
-		expect(result.isError).toBeUndefined();
+		// sync_push is now runtime.syncPush; the cloud-runtime maps it 1:1 onto
+		// client.sync.push (the first phase of the push contract). The HTTP/Worker
+		// runtime only orchestrates presigned URLs — the byte upload + complete
+		// run in the local file-sync layer (see cloud.ts).
+		// biome-ignore lint/style/noNonNullAssertion: cloud runtime always wires syncPush
+		const result = await runtime.syncPush!({ manifest: {} });
 		expect(calls).toEqual(["sync.push:proj_1"]);
-		const structured = result.structuredContent as Record<string, unknown>;
-		expect(structured.cursor).toBe("cursor-after-push");
-		expect(Array.isArray(structured.upload)).toBe(true);
+		expect(result.cursor).toBe("cursor-after-push");
+		expect(Array.isArray(result.upload)).toBe(true);
 	});
 
 	it("cloud runtime rejects engine-backed tools (recall) that the file replica does not host", async () => {
@@ -246,22 +218,17 @@ describe("MCP tools", () => {
 		expect(calls).toEqual([]);
 	});
 
-	it("cloud runtime rejects graph tools that the file replica does not host", async () => {
+	it("cloud runtime exposes no graph methods (demoted surface is absent on file replica)", async () => {
 		const calls: string[] = [];
 		const client = makeFakeCloudClient(calls);
 		const runtime = createTekMemoCloudMcpRuntime({
 			client,
 			projectId: "proj_1",
 		});
-		const result = await callTekMemoTool(
-			{ runtime },
-			"tekmemo.graph_neighbors",
-			{ nodeId: "node1" },
-		);
-		expect(result.isError).toBe(true);
-		const text =
-			result.content[0]?.type === "text" ? result.content[0]?.text : "";
-		expect(text).toMatch(/does not support graphNeighbors/i);
+		// The cloud is a file replica, not an engine: graph ops run only locally.
+		// The Worker-safe runtime omits graphNeighbors entirely (it was always a
+		// runtime-only capability, now no longer wrapped as a tool either).
+		expect(runtime.graphNeighbors).toBeUndefined();
 		expect(calls).toEqual([]);
 	});
 });

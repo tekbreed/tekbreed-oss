@@ -67,7 +67,7 @@ export interface TekMemoMcpProtocolServer {
 }
 
 const DEFAULT_INSTRUCTIONS =
-	"Use TekMemo MCP for grounded memory recall and explicitly authorized memory writes. Read-only tools may be used for context. Write tools should only be called after user approval from the host.";
+	"TekMemo exposes four memory verbs: tekmemo.context (task briefing), tekmemo.recall (semantic search), tekmemo.remember (write a durable fact), and tekmemo.consolidate (merge/retire graph memory). Call tekmemo.context first, then write tools (remember/consolidate) only after host approval. AgentFS session tools (tekmemo_agent_session_*) drive a coding-agent scratch filesystem.";
 
 /**
  * Factory function to create a new TekMemoMcpProtocolServer instance.

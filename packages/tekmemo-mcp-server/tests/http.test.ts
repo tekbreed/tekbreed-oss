@@ -91,12 +91,15 @@ describe("MCP HTTP adapter", () => {
 	});
 
 	it("calls read tools through the HTTP adapter", async () => {
+		// tekmemo.health was demoted to a runtime method (ADR 0009 Component 1);
+		// exercise the HTTP read dispatch through tekmemo.context, a surviving
+		// read verb.
 		const response = await handleTekMemoMcpRequest(
 			mcpRequest({
 				jsonrpc: "2.0",
-				id: "health",
+				id: "context",
 				method: "tools/call",
-				params: { name: "tekmemo.health", arguments: {} },
+				params: { name: "tekmemo.context", arguments: { query: "auth" } },
 			}),
 			{ runtime, auth },
 		);
@@ -105,8 +108,9 @@ describe("MCP HTTP adapter", () => {
 		const body = await jsonRpc(response);
 		const result = "result" in body ? body.result : undefined;
 		expect(
-			(result as { structuredContent: { ok: boolean } }).structuredContent.ok,
-		).toBe(true);
+			typeof (result as { structuredContent: { text: string } })
+				.structuredContent.text,
+		).toBe("string");
 	});
 
 	it("returns 202 for notifications", async () => {

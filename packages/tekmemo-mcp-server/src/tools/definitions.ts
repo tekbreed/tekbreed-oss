@@ -1,13 +1,25 @@
 /**
  * MCP Tool definitions configuration mapping schemas and safety constraints.
  *
+ * The model-facing surface is two namespaces and ten tools (ADR 0009 Component 1):
+ *
+ *  - 4 memory verbs: `tekmemo.context`, `tekmemo.recall`, `tekmemo.remember`,
+ *    `tekmemo.consolidate`. This is the entire memory lifecycle the model
+ *    drives. Graph/sync/health/snapshot/validation/core-memory-update ops were
+ *    demoted to runtime methods (`TekMemoMcpRuntime`) the developer/host calls
+ *    imperatively — capabilities are preserved, only the model-facing wrapper
+ *    was removed. The strategist (ADR 0009 Component 2) lives behind
+ *    `tekmemo.context`; the write gate (Component 6) lives behind
+ *    `tekmemo.remember`.
+ *  - 6 AgentFS session tools: `tekmemo_agent_session_*`. A separate axis (a
+ *    coding-agent scratch filesystem, not the memory store), kept model-facing
+ *    because agents drive their own sessions mid-work.
+ *
  * @module definitions
  */
 
 import {
 	booleanSchema,
-	graphEdgeSchema,
-	graphNodeSchema,
 	numberSchema,
 	objectSchema,
 	sourceRefSchema,
@@ -38,8 +50,11 @@ const kindSchema: JsonObject = {
 };
 
 /**
- * Creates and returns all MCP tool definitions supported by TekMemo.
- * Configures lists pagination properties to match maxPageSize where appropriate.
+ * Creates and returns all model-facing MCP tool definitions supported by TekMemo.
+ *
+ * The surface is the 4 memory verbs plus the 6 AgentFS session tools (ADR 0009
+ * Component 1). Developer-level operations (graph/sync/health/snapshot/validate/
+ * core-memory-update) are runtime methods on `TekMemoMcpRuntime`, not tools.
  *
  * @param maxPageSize - The maximum allowed page limit size constraint.
  * @returns An array of all available McpToolDefinitions.
@@ -177,29 +192,6 @@ export function createToolDefinitions(
 			),
 		},
 		{
-			name: "tekmemo.health",
-			title: "TekMemo Health",
-			description:
-				"Check TekMemo MCP runtime health, mode, and available capabilities.",
-			safety: "read",
-			annotations: {
-				readOnlyHint: true,
-				idempotentHint: true,
-				openWorldHint: false,
-			},
-			inputSchema: objectSchema({}),
-			outputSchema: objectSchema(
-				{
-					ok: { type: "boolean" },
-					name: { type: "string" },
-					version: { type: "string" },
-					mode: { type: "string" },
-					capabilities: { type: "array", items: { type: "string" } },
-				},
-				["ok", "name", "version", "capabilities"],
-			),
-		},
-		{
 			name: "tekmemo.context",
 			title: "Build TekMemo Agent Context",
 			description:
@@ -304,278 +296,6 @@ export function createToolDefinitions(
 				},
 				["content"],
 			),
-		},
-
-		{
-			name: "tekmemo.read_core_memory",
-			title: "Read Core Memory",
-			description:
-				"Read core memory: the stable, hand-curated project identity, rules, and constraints. This is authoritative — treat its contents as hard constraints that override assumptions. Read-only.",
-			safety: "read",
-			annotations: {
-				readOnlyHint: true,
-				idempotentHint: true,
-				openWorldHint: false,
-			},
-			inputSchema: objectSchema(commonScopeProperties),
-		},
-		{
-			name: "tekmemo.read_notes_memory",
-			title: "Read Notes Memory",
-			description: "Read TekMemo notes memory.",
-			safety: "read",
-			annotations: {
-				readOnlyHint: true,
-				idempotentHint: true,
-				openWorldHint: false,
-			},
-			inputSchema: objectSchema(commonScopeProperties),
-		},
-		{
-			name: "tekmemo.list_recent_memories",
-			title: "List Recent Memory Events",
-			description:
-				"List recent TekMemo memory events for review and debugging.",
-			safety: "read",
-			annotations: {
-				readOnlyHint: true,
-				idempotentHint: true,
-				openWorldHint: false,
-			},
-			inputSchema: objectSchema({
-				...commonScopeProperties,
-				limit: { type: "integer", minimum: 1, maximum: maxPageSize },
-			}),
-		},
-		{
-			name: "tekmemo.validate",
-			title: "Validate TekMemo Memory",
-			description: "Validate TekMemo memory health and report warnings/errors.",
-			safety: "read",
-			annotations: {
-				readOnlyHint: true,
-				idempotentHint: true,
-				openWorldHint: false,
-			},
-			inputSchema: objectSchema({
-				...commonScopeProperties,
-				strict: booleanSchema("Treat warnings as deployment blockers."),
-			}),
-		},
-		{
-			name: "tekmemo.snapshot",
-			title: "Create TekMemo Snapshot",
-			description:
-				"Create a memory snapshot before major agentic changes. Hosts should request authorization.",
-			safety: "write",
-			annotations: {
-				readOnlyHint: false,
-				destructiveHint: false,
-				idempotentHint: false,
-				openWorldHint: false,
-			},
-			inputSchema: objectSchema({
-				...commonScopeProperties,
-				label: stringSchema("Short snapshot label.", 128),
-				type: {
-					type: "string",
-					enum: ["manual", "automatic", "pre-sync", "pre-restore"],
-				},
-			}),
-		},
-		{
-			name: "tekmemo.update_core_memory",
-			title: "Update Core Memory",
-			description:
-				"Replace stable core memory. This is high-impact and should require explicit user approval.",
-			safety: "write",
-			annotations: {
-				readOnlyHint: false,
-				destructiveHint: false,
-				idempotentHint: false,
-				openWorldHint: false,
-			},
-			inputSchema: objectSchema(
-				{
-					content: stringSchema("New core memory markdown.", 200_000),
-					...commonScopeProperties,
-				},
-				["content"],
-			),
-		},
-
-		{
-			name: "tekmemo.sync_status",
-			title: "TekMemo Sync Status",
-			description:
-				"Read the cloud file-replica status for this project: the server manifest, the current cursor, storage usage, and last sync timestamp. Read-only.",
-			safety: "read",
-			annotations: {
-				readOnlyHint: true,
-				idempotentHint: true,
-				openWorldHint: false,
-			},
-			inputSchema: objectSchema(commonScopeProperties),
-		},
-		{
-			name: "tekmemo.sync_pull",
-			title: "TekMemo Sync Pull",
-			description:
-				"Pull file replicas from TekMemo Cloud: request presigned download URLs for files the local workspace is missing or behind on, plus paths removed server-side. The runtime performs the actual byte download, verify, and write.",
-			safety: "read",
-			annotations: {
-				readOnlyHint: true,
-				idempotentHint: false,
-				openWorldHint: false,
-			},
-			inputSchema: objectSchema({
-				...commonScopeProperties,
-				since: stringSchema(
-					"Opaque cursor to pull everything changed since.",
-					512,
-				),
-			}),
-		},
-		{
-			name: "tekmemo.sync_push",
-			title: "TekMemo Sync Push",
-			description:
-				"Push local `.tekmemo/` file replicas to TekMemo Cloud using the two-phase push contract: request presigned upload URLs for changed/missing files, then confirm the uploads. The runtime performs the actual byte upload between the two phases. Hosts should authorize this write.",
-			safety: "write",
-			annotations: {
-				readOnlyHint: false,
-				destructiveHint: false,
-				idempotentHint: false,
-				openWorldHint: false,
-			},
-			inputSchema: objectSchema({
-				...commonScopeProperties,
-				baseCursor: stringSchema(
-					"Optional cursor the client last synced at.",
-					512,
-				),
-			}),
-		},
-		{
-			name: "tekmemo.graph_upsert_nodes",
-			title: "Upsert Graph Nodes",
-			description:
-				"Create or update graph memory nodes. This is a write operation and should require user authorization.",
-			safety: "write",
-			annotations: {
-				readOnlyHint: false,
-				destructiveHint: false,
-				idempotentHint: true,
-				openWorldHint: false,
-			},
-			inputSchema: objectSchema(
-				{
-					workspaceId: stringSchema("Workspace id.", 256),
-					nodes: {
-						type: "array",
-						items: graphNodeSchema,
-						minItems: 1,
-						maxItems: 100,
-					},
-				},
-				["nodes"],
-			),
-		},
-		{
-			name: "tekmemo.graph_upsert_edges",
-			title: "Upsert Graph Edges",
-			description:
-				"Create or update graph memory edges. This is a write operation and should require user authorization.",
-			safety: "write",
-			annotations: {
-				readOnlyHint: false,
-				destructiveHint: false,
-				idempotentHint: true,
-				openWorldHint: false,
-			},
-			inputSchema: objectSchema(
-				{
-					workspaceId: stringSchema("Workspace id.", 256),
-					edges: {
-						type: "array",
-						items: graphEdgeSchema,
-						minItems: 1,
-						maxItems: 200,
-					},
-				},
-				["edges"],
-			),
-		},
-		{
-			name: "tekmemo.graph_neighbors",
-			title: "Find Graph Neighbors",
-			description:
-				"Read graph neighbors around a node with direction, edge type, weight, cursor, and limit controls.",
-			safety: "read",
-			annotations: {
-				readOnlyHint: true,
-				idempotentHint: true,
-				openWorldHint: false,
-			},
-			inputSchema: objectSchema(
-				{
-					workspaceId: stringSchema("Workspace id.", 256),
-					nodeId: stringSchema("Seed node id.", 256),
-					direction: { type: "string", enum: ["in", "out", "both"] },
-					edgeTypes: {
-						type: "array",
-						items: stringSchema("Edge type", 128),
-						maxItems: 50,
-					},
-					minWeight: numberSchema("Minimum edge weight.", 0, 1),
-					limit: { type: "integer", minimum: 1, maximum: maxPageSize },
-					cursor: stringSchema(
-						"Opaque cursor returned by a previous call.",
-						512,
-					),
-				},
-				["nodeId"],
-			),
-		},
-		{
-			name: "tekmemo.graph_path",
-			title: "Find Graph Path",
-			description:
-				"Find a graph path between two nodes. Use weighted=true for strength-aware pathfinding when supported by the runtime.",
-			safety: "read",
-			annotations: {
-				readOnlyHint: true,
-				idempotentHint: true,
-				openWorldHint: false,
-			},
-			inputSchema: objectSchema(
-				{
-					workspaceId: stringSchema("Workspace id.", 256),
-					from: stringSchema("Start node id.", 256),
-					to: stringSchema("Target node id.", 256),
-					weighted: booleanSchema("Prefer weighted pathfinding."),
-					maxDepth: { type: "integer", minimum: 1, maximum: 25 },
-					edgeTypes: {
-						type: "array",
-						items: stringSchema("Edge type", 128),
-						maxItems: 50,
-					},
-					minWeight: numberSchema("Minimum edge weight.", 0, 1),
-				},
-				["from", "to"],
-			),
-		},
-		{
-			name: "tekmemo.readiness",
-			title: "TekMemo Readiness",
-			description: "Check TekMemo Cloud production readiness.",
-			safety: "read",
-			annotations: {
-				readOnlyHint: true,
-				idempotentHint: true,
-				openWorldHint: false,
-			},
-			inputSchema: objectSchema({}),
 		},
 		{
 			name: "tekmemo.consolidate",

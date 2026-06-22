@@ -46,17 +46,21 @@ describe("Security", () => {
 
 	it("runtime timeouts are converted into tool-level errors", async () => {
 		const runtime = createTekMemoMcpRuntimeFromConfig({ mode: "memory" });
+		// tekmemo.health was demoted to a runtime method (ADR 0009 Component 1),
+		// so exercise the timeout path through tekmemo.recall — a surviving read
+		// verb. The wrapped recall stalls past the 1ms deadline.
 		const slow = {
 			...runtime,
-			async health(signal?: AbortSignal) {
+			async recall(input: unknown, signal?: AbortSignal) {
 				await new Promise((resolve) => setTimeout(resolve, 50));
-				return runtime.health(signal);
+				// biome-ignore lint/style/noNonNullAssertion: local factory always wires recall
+				return runtime.recall!(input as never, signal);
 			},
 		};
 		const result = await callTekMemoTool(
 			{ runtime: slow, requestTimeoutMs: 1 },
-			"tekmemo.health",
-			{},
+			"tekmemo.recall",
+			{ query: "slow" },
 		);
 		expect(result.isError).toBe(true);
 		const text =
