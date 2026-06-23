@@ -1,17 +1,26 @@
 import type { DefaultTheme } from "vitepress";
 
 const tekmemo = [
+	// ── Introduction ──
 	{ text: "Overview", link: "/packages/tekmemo/" },
+	{ text: "Core concepts", link: "/packages/tekmemo/concepts" },
+
+	// ── Getting started ──
 	{ text: "Getting started", link: "/packages/tekmemo/getting-started" },
 	{ text: "Installation", link: "/packages/tekmemo/installation" },
-	{ text: "The `Tekmemo` client", link: "/packages/tekmemo/client" },
-	{ text: "Core concepts", link: "/packages/tekmemo/concepts" },
+
+	// ── Guides ──
 	{ text: "Configuration", link: "/packages/tekmemo/configuration" },
 	{ text: "File-first memory", link: "/packages/tekmemo/file-first-memory" },
-	{ text: "Memory filesystem", link: "/packages/tekmemo/filesystem-layout" },
+	{ text: "The `Tekmemo` client", link: "/packages/tekmemo/client" },
 	{ text: "Memory records", link: "/packages/tekmemo/memory-records" },
+	{ text: "Memory filesystem", link: "/packages/tekmemo/filesystem-layout" },
+	{ text: "Memory intelligence", link: "/packages/tekmemo/intelligence" },
+
+	// ── Integrations ──
 	{
 		text: "AI SDK",
+		collapsed: true,
 		items: [
 			{ text: "Overview", link: "/packages/tekmemo/ai-sdk/" },
 			{ text: "Tools", link: "/packages/tekmemo/ai-sdk/tools" },
@@ -21,20 +30,13 @@ const tekmemo = [
 			},
 		],
 	},
-	{
-		text: "Cloud client",
-		link: "/packages/tekmemo/cloud-client",
-	},
-	{
-		text: "Errors",
-		link: "/packages/tekmemo/errors",
-	},
-	{
-		text: "Production checklist",
-		link: "/packages/tekmemo/production-checklist",
-	},
+	{ text: "Cloud client", link: "/packages/tekmemo/cloud-client" },
+	{ text: "Connectors", link: "/packages/tekmemo/connectors" },
+
+	// ── Architecture ──
 	{
 		text: "Architecture",
+		collapsed: true,
 		items: [
 			{ text: "Overview", link: "/packages/tekmemo/architecture/" },
 			{
@@ -60,6 +62,13 @@ const tekmemo = [
 			{ text: "Security", link: "/packages/tekmemo/architecture/security" },
 		],
 	},
+
+	// ── Reference ──
+	{
+		text: "Production checklist",
+		link: "/packages/tekmemo/production-checklist",
+	},
+	{ text: "Errors", link: "/packages/tekmemo/errors" },
 	{ text: "FAQ", link: "/packages/tekmemo/faq" },
 ];
 
@@ -70,10 +79,13 @@ const tekmemoCli = [
 	{ text: "Agent workflow", link: "/packages/cli/agent-workflow" },
 ];
 const tekmemoMcp = [
+	// ── Getting started ──
 	{ text: "Getting started", link: "/packages/mcp/" },
-	{ text: "Hosted MCP", link: "/packages/mcp/hosted" },
 	{ text: "Client Setup", link: "/packages/mcp/client-setup" },
+	{ text: "Hosted MCP", link: "/packages/mcp/hosted" },
+	// ── Guides ──
 	{ text: "Runtime modes", link: "/packages/mcp/runtime-modes" },
+	// ── Reference ──
 	{ text: "Tools", link: "/packages/mcp/tools" },
 	{ text: "Resources", link: "/packages/mcp/resources" },
 	{ text: "Prompts", link: "/packages/mcp/prompts" },
@@ -85,6 +97,7 @@ const tekMemoApi = [
 	{ text: "`Tekmemo` class", link: "/api/tekmemo/tekmemo" },
 	{
 		text: "Integrations",
+		collapsed: true,
 		items: [
 			{ text: "AI SDK", link: "/api/tekmemo/ai-sdk" },
 			{ text: "Cloud client", link: "/api/tekmemo/cloud-client" },
@@ -92,6 +105,7 @@ const tekMemoApi = [
 	},
 	{
 		text: "Modules",
+		collapsed: true,
 		items: [
 			{ text: "Core Primitives", link: "/api/tekmemo/core" },
 			{ text: "Filesystem Store", link: "/api/tekmemo/fs" },
@@ -109,6 +123,7 @@ const blog = [
 	{ text: "Home", link: "/blog/" },
 	{
 		text: "Posts",
+		collapsed: true,
 		items: [{ text: "Introducing TekMemo", link: "/blog/introducing-tekmemo" }],
 	},
 ];

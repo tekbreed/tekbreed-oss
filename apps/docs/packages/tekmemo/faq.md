@@ -101,17 +101,17 @@ Graph memory stores **entities** (files, concepts, decisions) and **relationship
 
 See [Graph memory](/packages/tekmemo/architecture/graph-memory) for the architecture details.
 
-<!-- ## Where can I host TekMemo?
+## Where can I run the runtime?
 
-TekMemo runs in any JavaScript environment. Supported platforms:
+The open-source runtime runs in any modern JavaScript environment. It's server-side only (it touches the filesystem), so the constraint is keeping it out of browser bundles:
 
 | Runtime | Best for |
 | --- | --- |
 | **Node.js** | Express, Fastify, CLI tools, MCP servers, background jobs |
 | **Cloudflare Workers** | Edge functions, Workers AI, D1-backed apps |
-| **Vercel** | Next.js route handlers, server actions, edge middleware |
+| **Vercel / Next.js** | Route handlers, server actions, edge middleware |
 
-The only constraint is keeping Cloud API keys server-side. -->
+Cloud API keys are server-side only — never ship them to the browser. If you want hosted memory without running the runtime yourself, that's what [TekMemo Cloud](https://memo.tekbreed.com) is for.
 
 ## What is a context package?
 
@@ -140,8 +140,15 @@ npx tekmemo context --query "current task"
 
 Since memory is file-first, you can also directly read `.tekmemo/core.md` and `.tekmemo/notes.md` in your editor.
 
-<!-- ## Do I need to install multiple packages?
+## Do I need to install multiple packages?
 
-No. TekMemo is published as one unified package, `@tekbreed/tekmemo`. It contains all memory stores, provider adapters, CLI commands, the MCP server, and the AI SDK integrations. You only need to install a single package to use all features.
+Only two for the core experience: `@tekbreed/tekmemo` (the runtime) and `@tekbreed/tekmemo-cli` (the command line). Everything else is opt-in:
 
-See [Packages](/api/tekmemo/) for the module breakdown. -->
+- **`@tekbreed/tekmemo`** — the runtime engine, `Tekmemo` client, recall, graph, and the cloud client. The one package every integration builds on.
+- **`@tekbreed/tekmemo-cli`** — the `tekmemo` command (`init`, `remember`, `context`, `sync`, `connectors`, …).
+- **`@tekbreed/tekmemo-mcp-server`** — the MCP server for coding agents (Claude Code, Cursor, Codex).
+- **`@tekbreed/tekmemo-adapter-ai-sdk`** — AI SDK tool/runtime helpers.
+- **`@tekbreed/tekmemo-connectors`** — the connector framework (GitHub, Notion) and `tekmemo connectors`.
+- **Provider adapters** (optional) — `@tekbreed/tekmemo-adapter-transformers` (zero-key local embeddings), `-openai`, `-voyage`.
+
+Install just core + CLI to start; add the others as you need them. See [Installation](./installation) for the full matrix.
