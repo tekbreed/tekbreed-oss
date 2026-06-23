@@ -5,8 +5,8 @@ TekMemo exposes **one** AI SDK-compatible memory tool via
 lets a model read project memory, recall relevant notes, and (optionally)
 record new facts — all behind TekMemo's scope and permission model.
 
-These helpers are exported from `@tekbreed/tekmemo` and are built on the
-`TekMemoAiRuntime` interface. Build the runtime with
+These helpers are exported from `@tekbreed/tekmemo-adapter-ai-sdk` and are built on the
+`TekMemoMemoryRuntime` interface. Build the runtime with
 `createAiSdkRuntimeFromTekmemo(memo)` and it works identically against a local
 filesystem store, a TekMemo Cloud-backed client, or a hybrid setup — recall
 always goes through the same intelligent engine.
@@ -17,7 +17,7 @@ always goes through the same intelligent engine.
 | --- | --- |
 | `buildRuntimeMemoryToolDefinition(options)` | Returns an AI SDK tool definition (`{ description, inputSchema, execute }`) that dispatches to the memory runtime. |
 | `runRuntimeMemoryTool(options, input)` | Imperatively execute a single memory command (the same logic the tool runs). Useful in tests or non-LLM code paths. |
-| `createAiSdkRuntimeFromTekmemo(memo)` | Build a `TekMemoAiRuntime` backed by a `Tekmemo` client. The recommended way to create a runtime — local, cloud, or hybrid. |
+| `createAiSdkRuntimeFromTekmemo(memo)` | Build a `TekMemoMemoryRuntime` backed by a `Tekmemo` client. The recommended way to create a runtime — local, hybrid, or cloud-backed. |
 
 ## Tool commands
 
@@ -48,7 +48,7 @@ the model calls it.
 
 | Option | Default | Description |
 | --- | --- | --- |
-| `runtime` | — | A `TekMemoAiRuntime`, from `createAiSdkRuntimeFromTekmemo(memo)`. |
+| `runtime` | — | A `TekMemoMemoryRuntime`, from `createAiSdkRuntimeFromTekmemo(memo)`. |
 | `access` | — | Scope context: `{ projectId, workspaceId?, tenantId?, userId?, conversationId? }`. Drives read/write scope filtering. |
 | `allowWrites` | `false` | Enable the `remember` command. |
 | `allowCoreUpdates` | `false` | Enable the `update_core_memory` command. |

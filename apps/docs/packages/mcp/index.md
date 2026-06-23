@@ -57,7 +57,7 @@ Expose memory hosted on TekMemo Cloud without running the hosted server:
 ```bash
 tekmemo-mcp \
   --runtime cloud \
-  --cloud-url https://api.tekbreed.com/memo/v1 \
+  --cloud-url https://memo.tekbreed.com/api/v1 \
   --api-key "$TEKMEMO_API_KEY" \
   --project-id proj_123
 ```
@@ -70,7 +70,7 @@ Combine a local `.tekmemo/` folder with cloud recall and sync:
 tekmemo-mcp \
   --runtime hybrid \
   --root . \
-  --cloud-url https://api.tekbreed.com/memo/v1 \
+  --cloud-url https://memo.tekbreed.com/api/v1 \
   --api-key "$TEKMEMO_API_KEY" \
   --read-policy local-first \
   --write-policy local-first

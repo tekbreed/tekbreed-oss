@@ -67,7 +67,7 @@ The CLI reads an optional `config.json` file at `.tekmemo/config.json`. This all
   "runtime": "hybrid", 
   "root": ".",
   "cloud": {
-    "baseUrl": "https://api.tekbreed.com/memo/v1",
+    "baseUrl": "https://memo.tekbreed.com/api/v1",
     "projectId": "proj_123", 
     "workspaceId": "ws_456",
     "timeoutMs": 10000

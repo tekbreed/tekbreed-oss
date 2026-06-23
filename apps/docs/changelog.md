@@ -11,7 +11,7 @@ All notable changes to TekMemo packages are documented here.
 - Core memory management (core, notes, recent, graph)
 - Cloud sync with TekMemo Cloud
 - AI SDK integration (tools, runtime, agent sessions)
-- Vector adapters (VoyageAI, OpenAI, Upstash)
+- Vector adapters (VoyageAI, OpenAI)
 - Reranking support with fallback
 - AgentFS for agent session persistence
 - Benchmark kit for memory evaluation

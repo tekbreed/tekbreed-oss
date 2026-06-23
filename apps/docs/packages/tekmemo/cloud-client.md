@@ -10,29 +10,29 @@ Use it to access hosted project memory, sync, recall, graph APIs, and more from 
 npm install @tekbreed/tekmemo
 ```
 
-## Quick start with Tekmemo
+## Use it through Tekmemo (hybrid)
 
-The recommended way to use the cloud client is through the [`Tekmemo`](/api/tekmemo/tekmemo) class. Set `mode: "cloud"` and Tekmemo handles client creation for you:
+Cloud is a **sync transport**, not a standalone runtime mode. You reach it by running the engine locally (`mode: "hybrid"`) and pointing the `cloud` block at the hosted API — Tekmemo builds the client for you:
 
 ```ts
 import { Tekmemo } from "@tekbreed/tekmemo";
 
 const memo = new Tekmemo({
-  mode: "cloud",
+  mode: "hybrid",
   projectId: "proj_123",
   cloud: {
-    baseUrl: "https://api.tekbreed.com/memo/v1",
+    baseUrl: "https://memo.tekbreed.com/api/v1",
     apiKey: process.env.TEKMEMO_API_KEY!,
   },
 });
 
-// All cloud operations go through Tekmemo namespaces
+// Reads/writes hit local first, then sync to cloud per your policies
 const core = await memo.core.read();
 await memo.notes.record({ content: "New decision", kind: "decision" });
 const hits = await memo.recall("architecture decisions");
 ```
 
-Use `mode: "hybrid"` to combine local and cloud operations with configurable read/write policies.
+The `readPolicy` / `writePolicy` options (`local-first`, `cloud-first`, or `local-only`) control how each operation fans out between the local engine and the cloud replica. See [The `Tekmemo` client](/packages/tekmemo/client) for the full policy matrix.
 
 ## Create a client directly
 
@@ -42,7 +42,7 @@ For advanced use cases where you need the raw cloud client (e.g., custom tooling
 import { createTekMemoCloudClient } from "@tekbreed/tekmemo";
 
 const client = createTekMemoCloudClient({
-  baseUrl: "https://api.tekbreed.com/memo/v1",
+  baseUrl: "https://memo.tekbreed.com/api/v1",
   apiKey: process.env.TEKMEMO_API_KEY!,
   defaultProjectId: "proj_123",
 });
@@ -161,7 +161,7 @@ Manage AgentFS sandboxed coding sessions.
 | `exports` | `client.exports.create()`, `client.exports.downloadUrl()` | Backup and export project memory. |
 | `snapshots` | `client.snapshots.create()`, `client.snapshots.downloadUrl()` | Point-in-time immutable memory backups. |
 | `extraction` | `client.extraction.run()`, `client.extraction.jobs()` | Trigger and monitor background memory extraction. |
-| `providers` | `client.providers.list()`, `client.providers.create()`, `client.providers.update()`, `client.providers.delete()`, `client.providers.test()` | Configure external models (OpenAI, VoyageAI, Upstash). |
+| `providers` | `client.providers.list()`, `client.providers.create()`, `client.providers.update()`, `client.providers.delete()`, `client.providers.test()` | Configure external models (OpenAI, VoyageAI). |
 | `evals` | `client.evals.run()` | Run context quality evaluations. |
 | `benchmarks` | `client.benchmarks.run()` | Run context benchmarks. |
 
@@ -174,7 +174,7 @@ Manage AgentFS sandboxed coding sessions.
 
 ## Cloud runtime helpers
 
-The cloud client module can create runtime objects used by CLI, MCP, and AI SDK helpers. However, the [`Tekmemo`](/api/tekmemo/tekmemo) class handles this automatically — prefer `new Tekmemo({ mode: "cloud", ... })` when possible.
+The cloud client module can create runtime objects used by CLI, MCP, and AI SDK helpers. However, the [`Tekmemo`](/api/tekmemo/tekmemo) class handles this automatically — prefer `new Tekmemo({ mode: "hybrid", cloud: { ... } })` when possible.
 
 ```ts
 import { createCloudTekMemoRuntime, createTekMemoCloudClient } from "@tekbreed/tekmemo";

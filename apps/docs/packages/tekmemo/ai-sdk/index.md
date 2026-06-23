@@ -1,15 +1,15 @@
 # Vercel AI SDK Integration
 
-TekMemo provides official helpers for integrating memory into applications built with the [Vercel AI SDK](https://sdk.vercel.ai). These helpers are built directly into the `@tekbreed/tekmemo` package.
+TekMemo provides official helpers for integrating memory into applications built with the [Vercel AI SDK](https://sdk.vercel.ai). These helpers live in the separate **`@tekbreed/tekmemo-adapter-ai-sdk`** adapter package and implement the framework-neutral [`TekMemoMemoryRuntime`](/api/tekmemo/) contract defined in core.
 
 It allows your agents to automatically search memory for context and record new decisions or facts during a conversation.
 
 ## Installation
 
-Ensure you install the Vercel AI SDK peer dependency alongside the main package:
+Install the adapter alongside core and the Vercel AI SDK peer dependency:
 
 ```bash
-npm install ai @tekbreed/tekmemo
+npm install @tekbreed/tekmemo @tekbreed/tekmemo-adapter-ai-sdk ai
 ```
 
 ## Core Helpers
@@ -31,12 +31,12 @@ vectors when an embedder is configured + recency + reranker).
 ```ts
 import { generateText, stepCountIs } from "ai";
 import { openai } from "@ai-sdk/openai";
+import { Tekmemo } from "@tekbreed/tekmemo";
 import {
   buildRuntimeMemoryContext,
   buildRuntimeMemoryToolDefinition,
   createAiSdkRuntimeFromTekmemo,
-  Tekmemo,
-} from "@tekbreed/tekmemo";
+} from "@tekbreed/tekmemo-adapter-ai-sdk";
 
 const memo = new Tekmemo({ rootDir: "./.tekmemo", projectId: "my-project" });
 const runtime = createAiSdkRuntimeFromTekmemo(memo);
@@ -77,8 +77,8 @@ async function chat(userPrompt: string) {
 ## Architectural Note
 
 The AI SDK helpers are designed to be "pluggable." They rely on the
-`TekMemoAiRuntime` interface, and `createAiSdkRuntimeFromTekmemo()` adapts the
-full `Tekmemo` class to that contract — so recall, context, and writes use the
-same intelligent engine whether the `Tekmemo` instance is backed by the local
-filesystem (`mode: "local"`) or TekMemo Cloud (`mode: "cloud"`). Only the
-`Tekmemo` construction changes; the agent code is identical.
+`TekMemoMemoryRuntime` interface (defined in core, implemented by the adapter), and
+`createAiSdkRuntimeFromTekmemo()` adapts the full `Tekmemo` class to that contract — so recall,
+context, and writes use the same intelligent engine whether the `Tekmemo` instance is backed by the
+local filesystem (`mode: "local"`), a hybrid setup, or a cloud-backed client. Only the `Tekmemo`
+construction changes; the agent code is identical.

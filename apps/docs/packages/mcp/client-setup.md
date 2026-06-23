@@ -183,7 +183,6 @@ When running the stdio server in `hybrid` mode, control where reads and writes g
 | `local-first` | Try local first, fall back to cloud |
 | `cloud-first` | Try cloud first, fall back to local |
 | `local-only` | Only local `.tekmemo/` |
-| `cloud-only` | Only TekMemo Cloud API |
 
 ```json
 {

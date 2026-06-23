@@ -49,7 +49,7 @@ For application code, import the [`Tekmemo`](/packages/tekmemo/client) class fro
 | **Context package** | A structured payload combining core memory, notes, recall results, and graph data to be sent to an AI model. |
 | **Core memory** | The stable project briefing (`core.md`). Contains facts the agent must know every time it starts working. |
 | **Graph memory** | Nodes (entities, concepts, files) and edges (relationships) that help tools answer architectural questions. |
-| **Hybrid runtime** | A runtime mode that combines local and cloud, routing every read and write through read/write policies (`local-first`, `cloud-first`, `local-only`, `cloud-only`). |
+| **Hybrid runtime** | A runtime mode that combines local and cloud, routing every read and write through read/write policies (`local-first`, `cloud-first`, `local-only`). |
 | **MCP** | Model Context Protocol. An open standard used to expose TekMemo memory to IDEs and agents. Available as a hosted cloud-only endpoint (`https://mcp.memo.tekbreed.com/`) or a self-hosted stdio server (`@tekbreed/tekmemo-mcp-server`) for local/cloud/hybrid memory. |
 | **Note** | A durable memory record (e.g., a decision, constraint, or summary) saved to `notes.md`. |
 | **Recall** | The process of retrieving relevant memory for a query. Can use keywords (local) or embeddings (cloud/provider). |

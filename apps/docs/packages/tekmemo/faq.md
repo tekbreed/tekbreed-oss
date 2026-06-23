@@ -42,7 +42,7 @@ Local-only memory is fine for single-developer projects, CI, or when you want ev
 
 ## What is the hybrid runtime?
 
-Hybrid mode combines the **local** filesystem store and the **cloud** client, routing every read and write through a [read/write policy](/packages/tekmemo/client#read-and-write-policies) (`local-first`, `cloud-first`, `local-only`, or `cloud-only`). Reads hit the primary store and fall back to the secondary on error; writes go to the primary first and then the secondary, with failures surfaced as warnings rather than thrown. Configure it with:
+Hybrid mode combines the **local** filesystem store and the **cloud** client, routing every read and write through a [read/write policy](/packages/tekmemo/client#read-and-write-policies) (`local-first`, `cloud-first`, or `local-only`). Reads hit the primary store and fall back to the secondary on error; writes go to the primary first and then the secondary, with failures surfaced as warnings rather than thrown. Configure it with:
 
 ```bash
 npx tekmemo config init --runtime hybrid

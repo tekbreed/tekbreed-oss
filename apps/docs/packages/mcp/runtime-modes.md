@@ -33,7 +33,6 @@ When using stdio `hybrid` mode, you can configure separate read and write polici
 | `local-first` | Try local storage first, fall back to cloud |
 | `cloud-first` | Try cloud first, fall back to local |
 | `local-only` | Only read from local `.tekmemo/` |
-| `cloud-only` | Only read from TekMemo Cloud API |
 
 ### Write policies
 
@@ -42,7 +41,6 @@ When using stdio `hybrid` mode, you can configure separate read and write polici
 | `local-first` | Write to local first, then replicate to cloud |
 | `cloud-first` | Write to cloud first, then replicate to local |
 | `local-only` | Only write to local |
-| `cloud-only` | Only write to cloud |
 
 Policies only apply to stdio `hybrid` mode. The hosted server ignores them — it is cloud-only.
 
@@ -54,7 +52,7 @@ tekmemo-mcp \
   --root . \
   --read-policy local-first \
   --write-policy local-first \
-  --cloud-url https://api.tekbreed.com/memo/v1 \
+  --cloud-url https://memo.tekbreed.com/api/v1 \
   --api-key "$TEKMEMO_API_KEY"
 ```
 
@@ -76,7 +74,7 @@ tekmemo-mcp \
   --root . \
   --read-policy local-first \
   --write-policy local-first \
-  --cloud-url https://api.tekbreed.com/memo/v1 \
+  --cloud-url https://memo.tekbreed.com/api/v1 \
   --api-key "$TEKMEMO_API_KEY"
 ```
 

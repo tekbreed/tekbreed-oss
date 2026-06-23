@@ -19,9 +19,13 @@ const hits = await memo.recall("architecture decisions");
 | Mode | Strategy | Use when |
 | --- | --- | --- |
 | `local` (default) | Filesystem store (`createNodeFsMemoryStore`) | You want inspectable project memory in `.tekmemo/`. |
-| `cloud` | `TekMemoCloudClient` only | You want hosted memory, recall, sync, and graph APIs. |
-| `hybrid` | Local **and** cloud, routed by read/write policies | You want local files plus cloud recall and sync. |
+| `hybrid` | Local **and** cloud, routed by read/write policies | You want local files plus a cloud replica for sync and recall. |
 | `memory` | Volatile, Map-backed store | You write tests, demos, or sandboxes. Nothing persists. |
+
+There is no `cloud` mode. Cloud is a **sync transport** — a file replica of your local `.tekmemo/`.
+To use it, pick `hybrid` mode and inject a [`cloudClient`](./cloud-client) (or configure `cloud` +
+`sync.*`), then push/pull memory between machines. The hosted MCP endpoint is a separate product
+that runs the engine against TekMemo Cloud — see [Cloud client](./cloud-client).
 
 Resolution priority: **constructor args → env vars → `.tekmemo/config.json` → defaults**. See [Configuration](./configuration).
 
@@ -38,17 +42,28 @@ const memo = new Tekmemo({
 });
 ```
 
-### Cloud
+### Cloud-backed (hybrid + sync)
+
+Cloud is reached through a `cloudClient` in hybrid mode — there is no `mode: "cloud"`. The cloud
+is a file replica: push your `.tekmemo/` up, pull changes down.
 
 ```ts
+import {
+  Tekmemo,
+  createTekMemoCloudClient,
+} from "@tekbreed/tekmemo";
+
 const memo = new Tekmemo({
-  mode: "cloud",
+  mode: "hybrid",
   projectId: "proj_123",
-  cloud: {
-    baseUrl: "https://api.tekbreed.com/memo/v1",
+  rootDir: "./.tekmemo",
+  cloudClient: createTekMemoCloudClient({
+    baseUrl: "https://memo.tekbreed.com/api/v1",
     apiKey: process.env.TEKMEMO_API_KEY,
-  },
+  }),
 });
+
+await memo.sync.push({ /* files */ });
 ```
 
 ### Hybrid with policies
@@ -60,7 +75,7 @@ const memo = new Tekmemo({
   readPolicy: "local-first",
   writePolicy: "local-first",
   cloud: {
-    baseUrl: "https://api.tekbreed.com/memo/v1",
+    baseUrl: "https://memo.tekbreed.com/api/v1",
     apiKey: process.env.TEKMEMO_API_KEY,
   },
 });
@@ -89,7 +104,7 @@ const memo = new Tekmemo({
   embedder: myEmbedder, // enables vector-backed local recall
   recallStore: myRecallStore,
   cloudClient: createTekMemoCloudClient({
-    baseUrl: "https://api.tekbreed.com/memo/v1",
+    baseUrl: "https://memo.tekbreed.com/api/v1",
     apiKey: process.env.TEKMEMO_API_KEY!,
   }),
 });
@@ -99,14 +114,13 @@ When an `embedder` is provided without a `recallStore`, the client creates an in
 
 ## Read and write policies
 
-Hybrid mode routes every operation through a read policy and a write policy. Each accepts one of four values:
+Hybrid mode routes every operation through a read policy and a write policy. Each accepts one of three values:
 
 | Policy value | Behaviour |
 | --- | --- |
 | `local-first` (default) | Try local first, fall back to cloud on failure. Writes go to local, then cloud. |
 | `cloud-first` | Try cloud first, fall back to local. Writes go to cloud, then local. |
 | `local-only` | Never touch the cloud. |
-| `cloud-only` | Never touch local. |
 
 Reads use the primary store and fall back to the secondary on error. Writes go to the primary store first; a secondary-write failure is captured as a warning rather than thrown. Recall merges and de-duplicates results from both stores.
 
@@ -163,15 +177,17 @@ const path = await memo.graph.path({ from: "auth", to: "db" });
 
 Not every operation is available in every mode. Calls that a mode does not support throw a clear runtime error instead of silently no-op'ing:
 
-| Operation | `local` | `cloud` | `hybrid` | `memory` |
-| --- | :---: | :---: | :---: | :---: |
-| `core`, `notes`, `recall`, `context` | ✅ | ✅ | ✅ | ✅ |
-| `graph.*` | ✅ | planned | ✅ | ✅ |
-| `snapshots` | ✅ | planned | ✅ | stub |
-| `agentfs` file I/O | ✅ | cloud sessions only | ✅ | — |
-| `sync.*` | — | ✅ | ✅ | — |
+| Operation | `local` | `hybrid` | `memory` |
+| --- | :---: | :---: | :---: |
+| `core`, `notes`, `recall`, `context` | ✅ | ✅ | ✅ |
+| `graph.*` | ✅ | ✅ | ✅ |
+| `snapshots` | ✅ | ✅ | stub |
+| `agentfs` file I/O | ✅ | ✅ | — |
+| `sync.*` | — | ✅ (needs `cloudClient`) | — |
 
-"planned" means the cloud API surface exists on the client but the cloud backend is still rolling out; the call throws a descriptive error today.
+> The hosted MCP **endpoint** is a separate product that runs the engine against TekMemo Cloud and
+> can't read your local disk. It is not a `mode` of this client — see
+> [Cloud client](./cloud-client) and [Hosted MCP](../mcp/hosted).
 
 ## How it relates to the rest of the package
 

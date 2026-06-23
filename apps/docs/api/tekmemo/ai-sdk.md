@@ -4,24 +4,27 @@ The AI SDK module provides Vercel AI SDK helpers for integrating TekMemo memory 
 
 ## Installation
 
-Ensure you install the Vercel AI SDK peer dependency alongside the main package:
+The AI SDK helpers live in the **`@tekbreed/tekmemo-adapter-ai-sdk`** adapter package.
+Install it alongside core and the Vercel AI SDK peer dependency:
 
 ```bash
-npm install ai @tekbreed/tekmemo
+npm install @tekbreed/tekmemo @tekbreed/tekmemo-adapter-ai-sdk ai
 ```
 
 ## Import
 
-All AI SDK helper APIs are imported directly from `@tekbreed/tekmemo`:
+The AI SDK helpers are imported from the adapter package; `Tekmemo` and the
+`TekMemoMemoryRuntime` contract come from core:
 
 ```ts
+import { Tekmemo } from "@tekbreed/tekmemo";
 import {
   buildRuntimeMemoryToolDefinition,
   buildRuntimeMemoryContext,
   runRuntimeMemoryTool,
   createAiSdkRuntimeFromTekmemo,
   buildAgentSessionInstructions,
-} from "@tekbreed/tekmemo";
+} from "@tekbreed/tekmemo-adapter-ai-sdk";
 ```
 
 ## Purpose
@@ -45,12 +48,12 @@ the full hybrid engine rather than a naive search:
 ```ts
 import { generateText, stepCountIs } from "ai";
 import { openai } from "@ai-sdk/openai";
+import { Tekmemo } from "@tekbreed/tekmemo";
 import {
-  Tekmemo,
   buildRuntimeMemoryContext,
   buildRuntimeMemoryToolDefinition,
   createAiSdkRuntimeFromTekmemo,
-} from "@tekbreed/tekmemo";
+} from "@tekbreed/tekmemo-adapter-ai-sdk";
 
 const memo = new Tekmemo({ rootDir: "./.tekmemo", projectId: "demo" });
 const runtime = createAiSdkRuntimeFromTekmemo(memo);
@@ -76,26 +79,28 @@ await generateText({
 
 ## Cloud-backed tools
 
-For cloud-backed memory tools, construct a `Tekmemo` client in cloud mode and
-pass it to the same factory — the agent code does not change:
+For cloud-backed memory, construct a `Tekmemo` client in hybrid mode with a cloud
+client (the cloud is a file replica — there is no `mode: "cloud"`) and pass it to the same
+factory. The agent code does not change:
 
 ```ts
 import { generateText } from "ai";
 import { openai } from "@ai-sdk/openai";
+import { Tekmemo, createTekMemoCloudClient } from "@tekbreed/tekmemo";
 import {
-  Tekmemo,
   createAiSdkRuntimeFromTekmemo,
   buildRuntimeMemoryContext,
   buildRuntimeMemoryToolDefinition,
-} from "@tekbreed/tekmemo";
+} from "@tekbreed/tekmemo-adapter-ai-sdk";
 
 const memo = new Tekmemo({
-  mode: "cloud",
+  mode: "hybrid",
   projectId: "proj_123",
-  cloud: {
-    baseUrl: "https://api.tekbreed.com/memo/v1",
+  rootDir: "./.tekmemo",
+  cloudClient: createTekMemoCloudClient({
+    baseUrl: "https://memo.tekbreed.com/api/v1",
     apiKey: process.env.TEKMEMO_API_KEY!,
-  },
+  }),
 });
 
 const runtime = createAiSdkRuntimeFromTekmemo(memo);

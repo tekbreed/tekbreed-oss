@@ -28,7 +28,7 @@ Provider-backed recall uses semantic embeddings (vectors) to find context based 
 **How it works:**
 1. Memory is chunked.
 2. An embedding provider (like OpenAI or VoyageAI) converts the chunks into vectors.
-3. The vectors are stored in a vector database (like Upstash).
+3. The vectors are stored in a local recall index (`.tekmemo/indexes/chunks.jsonl`).
 4. When a query is made, it is embedded and compared against the database.
 5. A reranker (like Voyage Rerank) can optionally re-order the top results for maximum relevance.
 

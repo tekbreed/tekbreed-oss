@@ -27,7 +27,7 @@ import {
 import { createTekMemoCloudClient } from "@tekbreed/tekmemo";
 
 const client = createTekMemoCloudClient({
-  baseUrl: "https://api.tekbreed.com/memo/v1",
+  baseUrl: "https://memo.tekbreed.com/api/v1",
   apiKey: process.env.TEKMEMO_API_KEY!,
   defaultProjectId: "proj_123",
 });
@@ -51,7 +51,7 @@ Reads `TEKMEMO_CLOUD_URL` (or `TEKMEMO_API_URL`), `TEKMEMO_API_KEY`, `TEKMEMO_PR
 import { createTekMemoCloudClient, createProjectScopedClient } from "@tekbreed/tekmemo";
 
 const baseClient = createTekMemoCloudClient({
-  baseUrl: "https://api.tekbreed.com/memo/v1",
+  baseUrl: "https://memo.tekbreed.com/api/v1",
   apiKey: process.env.TEKMEMO_API_KEY!,
 });
 

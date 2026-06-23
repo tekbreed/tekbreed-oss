@@ -27,22 +27,31 @@ import { Tekmemo } from "@tekbreed/tekmemo";
 const memo = new Tekmemo({ mode: "local", rootDir: "./.tekmemo" });
 ```
 
-## Cloud
+## Cloud-backed memory
+
+There is no `mode: "cloud"`. Cloud is a **sync transport** — a file replica of your local
+`.tekmemo/`. Configure the cloud endpoint and reach it in hybrid mode:
 
 ```bash
-export TEKMEMO_CLOUD_URL="https://api.tekbreed.com/memo/v1"
+export TEKMEMO_CLOUD_URL="https://memo.tekbreed.com/api/v1"
 export TEKMEMO_API_KEY="tk_live_..."
 export TEKMEMO_PROJECT_ID="proj_123"
 ```
 
 ```ts
+import { Tekmemo } from "@tekbreed/tekmemo";
+
 const memo = new Tekmemo({
-  mode: "cloud",
+  mode: "hybrid",
+  rootDir: "./.tekmemo",
   cloud: {
-    baseUrl: "https://api.tekbreed.com/memo/v1",
+    baseUrl: "https://memo.tekbreed.com/api/v1",
     apiKey: process.env.TEKMEMO_API_KEY!,
   },
 });
+
+// Mirror local memory to the cloud replica
+await memo.sync.push({ /* files */ });
 ```
 
 ## Hybrid
@@ -50,7 +59,7 @@ const memo = new Tekmemo({
 ```bash
 tekmemo config init \
   --runtime hybrid \
-  --cloud-url https://api.tekbreed.com/memo/v1 \
+  --cloud-url https://memo.tekbreed.com/api/v1 \
   --project-id proj_123 \
   --read-policy local-first \
   --write-policy local-first
@@ -63,14 +72,14 @@ In hybrid mode, every read and write is routed through the [read/write policies]
 | Variable | Purpose |
 | --- | --- |
 | `TEKMEMO_ROOT` | Root directory for local memory (defaults to `.`). |
-| `TEKMEMO_RUNTIME` | Runtime mode: `local`, `cloud`, `hybrid`, or `memory`. |
+| `TEKMEMO_RUNTIME` | Runtime mode: `local`, `hybrid`, or `memory`. (There is no `cloud` mode — cloud is a sync transport.) |
 | `TEKMEMO_PROJECT_ID` | Default Cloud project (defaults to `default`). |
 | `TEKMEMO_WORKSPACE_ID` | Optional caller-side workspace context. |
-| `TEKMEMO_CLOUD_URL` | Cloud API base URL ending in `/api/v1`. Also accepted as `TEKMEMO_API_URL`. |
+| `TEKMEMO_CLOUD_URL` | Cloud API base URL (e.g. ending in `/memo/v1`). Also accepted as `TEKMEMO_API_URL`. |
 | `TEKMEMO_API_KEY` | TekMemo Cloud API key. |
 | `TEKMEMO_CLOUD_TIMEOUT_MS` | Cloud request timeout in milliseconds (positive integer). |
-| `TEKMEMO_READ_POLICY` | Hybrid read policy. |
-| `TEKMEMO_WRITE_POLICY` | Hybrid write policy. |
+| `TEKMEMO_READ_POLICY` | Hybrid read policy (`local-first`, `cloud-first`, or `local-only`). |
+| `TEKMEMO_WRITE_POLICY` | Hybrid write policy (`local-first`, `cloud-first`, or `local-only`). |
 | `TEKMEMO_RECALL_ENGINE` | Local recall strategy: `lexical`, `vector`, `hybrid`, or `auto` (default). |
 | `TEKMEMO_LOCAL_EMBEDDINGS` | Set to `1` or `true` to lazy-load a local ONNX embedder for hybrid recall with zero API keys. |
 | `TEKMEMO_EMBEDDING_MODEL` | Transformers.js-compatible local embedding model id (default `Xenova/all-MiniLM-L6-v2`). |
@@ -79,7 +88,7 @@ In hybrid mode, every read and write is routed through the [read/write policies]
 
 | Field | Description |
 | --- | --- |
-| `runtime` | `"local"`, `"cloud"`, `"hybrid"`, or `"memory"`. |
+| `runtime` | `"local"`, `"hybrid"`, or `"memory"`. |
 | `root` | Relative path to the folder where memory operations should run. |
 | `projectId` | Default Cloud project. |
 | `workspaceId` | Optional caller-side workspace context. |
@@ -88,8 +97,8 @@ In hybrid mode, every read and write is routed through the [read/write policies]
 | `cloud.workspaceId` | Default workspace ID. |
 | `cloud.projectId` | Default project ID. |
 | `cloud.timeoutMs` | Timeout in milliseconds (positive integer). |
-| `hybrid.readPolicy` | `"local-first"`, `"cloud-first"`, `"local-only"`, or `"cloud-only"`. |
-| `hybrid.writePolicy` | `"local-first"`, `"cloud-first"`, `"local-only"`, or `"cloud-only"`. |
+| `hybrid.readPolicy` | `"local-first"`, `"cloud-first"`, or `"local-only"`. |
+| `hybrid.writePolicy` | `"local-first"`, `"cloud-first"`, or `"local-only"`. |
 | `recall.engine` | `"lexical"`, `"vector"`, `"hybrid"`, or `"auto"` (default). See [Recall engine](#recall-engine). |
 | `recall.localEmbeddings` | `true` to lazy-load a local ONNX embedder for zero-API-key hybrid recall. Defaults to `false`. |
 | `recall.embeddingModel` | Transformers.js-compatible model id (default `Xenova/all-MiniLM-L6-v2`). |
@@ -169,7 +178,7 @@ Reference the schema from your config file for editor validation:
   "runtime": "hybrid",
   "root": ".",
   "cloud": {
-    "baseUrl": "https://api.tekbreed.com/memo/v1",
+    "baseUrl": "https://memo.tekbreed.com/api/v1",
     "projectId": "proj_123",
     "workspaceId": "ws_456",
     "timeoutMs": 10000

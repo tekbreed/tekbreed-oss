@@ -37,9 +37,10 @@ Depending on which features you use, you may need to install one or more peer de
 
 | Feature | Dependency | Install Command |
 | --- | --- | --- |
-| **Vercel AI SDK integration** | `ai` | `npm install ai` |
-| **OpenAI embeddings/chat** | `openai` | `npm install openai` |
-| **Upstash Vector recall** | `@upstash/vector` | `npm install @upstash/vector` |
+| **Vercel AI SDK integration** | `@tekbreed/tekmemo-adapter-ai-sdk`, `ai` | `npm install @tekbreed/tekmemo-adapter-ai-sdk ai` |
+| **Voyage AI embeddings/reranking** | `@tekbreed/tekmemo-adapter-voyage`, `voyageai` | `npm install @tekbreed/tekmemo-adapter-voyage voyageai` |
+| **OpenAI embeddings** | `@tekbreed/tekmemo-adapter-openai`, `openai` | `npm install @tekbreed/tekmemo-adapter-openai openai` |
+| **Local zero-API-key embeddings** | `@tekbreed/tekmemo-adapter-transformers` | `npm install @tekbreed/tekmemo-adapter-transformers` |
 | **MCP client setup** (e.g. for custom scripts) | `@modelcontextprotocol/sdk` | `npm install @modelcontextprotocol/sdk` |
 
 ## Supported Package Managers
