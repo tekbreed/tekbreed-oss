@@ -67,11 +67,11 @@ unless you have an explicit, reviewed reason to store sensitive material.
 ```ts
 import { generateText } from "ai";
 import { openai } from "@ai-sdk/openai";
+import { Tekmemo } from "@tekbreed/tekmemo";
 import {
   buildRuntimeMemoryToolDefinition,
   createAiSdkRuntimeFromTekmemo,
-  Tekmemo,
-} from "@tekbreed/tekmemo";
+} from "@tekbreed/tekmemo-adapter-ai-sdk";
 
 const memo = new Tekmemo({ rootDir: "./.tekmemo", projectId: "demo" });
 const runtime = createAiSdkRuntimeFromTekmemo(memo);
@@ -107,17 +107,27 @@ for example, a background "memory consolidation" step, not a live chat turn.
 
 ## Imperative usage (without an LLM)
 
-The same logic is available outside tool calls:
+For code paths that don't go through the model, call the runtime methods
+directly. `createAiSdkRuntimeFromTekmemo` returns a `TekMemoMemoryRuntime`, so
+recall and reads are plain async calls:
 
 ```ts
-import { runRuntimeMemoryTool } from "@tekbreed/tekmemo";
+import { Tekmemo } from "@tekbreed/tekmemo";
+import { createAiSdkRuntimeFromTekmemo } from "@tekbreed/tekmemo-adapter-ai-sdk";
 
-const hits = await runRuntimeMemoryTool(
-  { runtime, access: { projectId: "demo" } },
-  { command: "recall", query: "database choice", topK: 5 },
-);
-// hits is a JSON string: { ok: true, data: { items: [...], ... } }
+const memo = new Tekmemo({ rootDir: "./.tekmemo", projectId: "demo" });
+const runtime = createAiSdkRuntimeFromTekmemo(memo);
+
+// recall returns ranked, scope-filtered hits
+const { items } = await runtime.recall({
+  query: "database choice",
+  topK: 5,
+  filters: { projectId: "demo" },
+});
 ```
+
+This is the same path `buildRuntimeMemoryToolDefinition` dispatches to under
+the hood — there is no separate imperative helper to remember.
 
 ## Multi-step (agentic) usage
 

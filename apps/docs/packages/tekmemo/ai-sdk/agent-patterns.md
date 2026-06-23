@@ -33,12 +33,12 @@ User turn
 ```ts
 import { generateText, stepCountIs } from "ai";
 import { openai } from "@ai-sdk/openai";
+import { Tekmemo } from "@tekbreed/tekmemo";
 import {
   buildRuntimeMemoryContext,
   buildRuntimeMemoryToolDefinition,
   createAiSdkRuntimeFromTekmemo,
-  Tekmemo,
-} from "@tekbreed/tekmemo";
+} from "@tekbreed/tekmemo-adapter-ai-sdk";
 
 const memo = new Tekmemo({ rootDir: "./.tekmemo", projectId: "demo" });
 const runtime = createAiSdkRuntimeFromTekmemo(memo);
@@ -84,12 +84,12 @@ This is the shape to reach for in chat UIs:
 ```ts
 import { streamText, stepCountIs } from "ai";
 import { openai } from "@ai-sdk/openai";
+import { Tekmemo } from "@tekbreed/tekmemo";
 import {
   buildRuntimeMemoryContext,
   buildRuntimeMemoryToolDefinition,
   createAiSdkRuntimeFromTekmemo,
-  Tekmemo,
-} from "@tekbreed/tekmemo";
+} from "@tekbreed/tekmemo-adapter-ai-sdk";
 
 const memo = new Tekmemo({ rootDir: "./.tekmemo", projectId: "demo" });
 const runtime = createAiSdkRuntimeFromTekmemo(memo);
@@ -130,9 +130,10 @@ call the tool directly:
 Recall always routes through the same TekMemo hybrid engine, regardless of
 mode: **BM25 + fuzzy token matching**, a **vector channel** (when an embedder is
 configured), a **recency boost**, and an optional **reranker**. The model gets
-ranked, explainable hits — not raw keyword grep. In local mode the engine runs
-over `.tekmemo/` files; in cloud/hybrid mode it adds hosted vector recall and
-sync. No mode degrades to plain text search.
+ranked, explainable hits — not raw keyword grep. The engine runs locally over
+your `.tekmemo/` files in every mode; in hybrid mode the cloud mirrors those
+files across machines but does not run its own engine. No mode degrades to
+plain text search.
 
 ## After durable decisions: remember
 
@@ -168,7 +169,7 @@ private notes and a project agent can't leak across projects.
 
 Provide `userId` / `conversationId` in `access` to enable finer scopes.
 
-## Local mode vs. cloud mode
+## Local mode vs. hybrid mode
 
 The runtime is identical in both modes — `createAiSdkRuntimeFromTekmemo(memo)`
 delegates every call to the `Tekmemo` class, so recall, context, and writes use
@@ -179,21 +180,27 @@ the **same hybrid engine** everywhere. Only the backing store differs:
   apps. No API keys, works offline. The hybrid engine runs with whatever
   channels are configured locally (BM25 + fuzzy always; vectors + reranker when
   an embedder/reranker is provided).
-- **Cloud / hybrid mode** — `new Tekmemo({ ... cloud: { ... } })`. Memory is
-  backed by a TekMemo Cloud client. Adds hosted vector recall, sync across
-  processes, and a managed reranker. Same tool and context helpers; only the
-  `Tekmemo` construction changes.
+- **Hybrid mode** — `new Tekmemo({ ... cloud: { ... } })`. The same local
+  engine, plus a cloud client that mirrors your `.tekmemo/` files across
+  machines by path + sha256. The cloud is a file replica, not a hosted engine,
+  so there is no separate "hosted recall" — recall reads the synced local files.
+  Use hybrid when you need the same memory on multiple machines. Same tool and
+  context helpers; only the `Tekmemo` construction changes.
 
 ```ts
 // local
 const memo = new Tekmemo({ rootDir: "./.tekmemo", projectId: "demo" });
-// cloud/hybrid
-const cloudMemo = new Tekmemo({
+// hybrid (cloud mirrors the local files)
+const hybridMemo = new Tekmemo({
   projectId: "demo",
-  cloud: { apiUrl: process.env.TEKMEMO_API_URL!, apiKey: process.env.TEKMEMO_API_KEY! },
+  mode: "hybrid",
+  cloud: {
+    baseUrl: "https://memo.tekbreed.com/api/v1",
+    apiKey: process.env.TEKMEMO_API_KEY!,
+  },
 });
 
-const runtime = createAiSdkRuntimeFromTekmemo(memo); // or cloudMemo
+const runtime = createAiSdkRuntimeFromTekmemo(memo); // or hybridMemo
 ```
 
 The rest of the agent code is unchanged.

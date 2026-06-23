@@ -7,6 +7,11 @@ export const nav: DefaultTheme.NavItem[] = [
 		activeMatch: "/packages/tekmemo/",
 	},
 	{
+		text: "TekMemo",
+		link: "/packages/tekmemo",
+		activeMatch: "/packages/tekmemo/",
+	},
+	{
 		text: "CLI",
 		link: "/packages/cli",
 		activeMatch: "/packages/cli/",
@@ -22,9 +27,8 @@ export const nav: DefaultTheme.NavItem[] = [
 		activeMatch: "/api/tekmemo/",
 	},
 	{
-		text: "Changelog",
-		link: "/changelog/",
-		activeMatch: "/changelog/",
+		text: "Cloud",
+		link: "https://memo.tekbreed.com",
 	},
 	{
 		text: "Blog",
