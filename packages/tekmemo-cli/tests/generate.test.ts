@@ -66,7 +66,7 @@ describe("generate agent-rules (pure emitter)", () => {
 	it("always embeds the TekMemo MCP workflow directive", () => {
 		const file = emitAgentRules({ target: "agents" });
 		expect(file.content).toContain("TekMemo Memory (REQUIRED)");
-		expect(file.content).toContain("tekmemo_tekmemo_context");
+		expect(file.content).toContain("tekmemo.context");
 	});
 
 	it("rejects output that would exceed the line cap", () => {

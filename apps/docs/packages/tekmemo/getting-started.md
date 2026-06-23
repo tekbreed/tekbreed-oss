@@ -18,19 +18,31 @@ npx tekmemo init
 
 This creates a `.tekmemo/` directory with core memory, notes, events, indexes, graph files, snapshots, and temp space.
 
-## 3. Store a durable decision
+## 3. Bootstrap your coding agents
+
+Generate the per-platform instructions file that tells your agents (Claude Code, Cursor, Codex, etc.) how to use TekMemo — load context, recall, and remember on every task. Run one per agent you use:
+
+```bash
+npx tekmemo generate agent-rules claude      # → CLAUDE.md
+npx tekmemo generate agent-rules cursor      # → .cursor/rules/tekmemo.mdc
+npx tekmemo generate agent-rules agents      # → AGENTS.md
+```
+
+Each file is behavioral only (no project facts — those live in memory) and includes a pointer to where that platform stores its MCP server config. Commit them so every contributor's agents start with the same workflow. See [Generate agent rules](../cli/generate-agent-rules.md) for all targets.
+
+## 4. Store a durable decision
 
 ```bash
 npx tekmemo remember "Use Cloudflare D1 for tenant metadata." --kind decision --tag database
 ```
 
-## 4. Ask for context before coding
+## 5. Ask for context before coding
 
 ```bash
 npx tekmemo context --query "database schema work" --json
 ```
 
-## 5. Connect coding agents via MCP
+## 6. Connect coding agents via MCP
 
 There are two ways to expose TekMemo to MCP-compatible agents (Claude Code, Cursor, Codex, etc.):
 

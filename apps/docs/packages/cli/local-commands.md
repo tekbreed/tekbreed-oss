@@ -133,6 +133,7 @@ npx tekmemo validate
 
 ## See also
 
+- [Generate agent rules](./generate-agent-rules.md) — the `generate agent-rules` command that bootstraps `AGENTS.md` / `CLAUDE.md` / `.cursor/rules/*.mdc` for each coding agent.
 - [Agent workflow](./agent-workflow.md) — the `agent start` / `paths` / `extract` / `complete` commands for AgentFS-backed coding sessions.
 - [Cloud commands](./cloud-commands.md) — the `cloud` namespace (health, readiness, sync).
 - [Connectors](../tekmemo/connectors.md) — the `connectors add` / `remove` / `list` / `run` commands for external-source ingestion.

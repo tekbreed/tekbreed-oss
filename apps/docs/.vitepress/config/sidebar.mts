@@ -77,6 +77,7 @@ const tekmemoCli = [
 	{ text: "Local commands", link: "/packages/cli/local-commands" },
 	{ text: "Cloud commands", link: "/packages/cli/cloud-commands" },
 	{ text: "Agent workflow", link: "/packages/cli/agent-workflow" },
+	{ text: "Generate agent rules", link: "/packages/cli/generate-agent-rules" },
 ];
 const tekmemoMcp = [
 	// ── Getting started ──

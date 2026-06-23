@@ -216,16 +216,16 @@ function buildBody(opts: {
 	lines.push("At the **start of every task**, agents MUST:");
 	lines.push("");
 	lines.push(
-		"1. **Load context** — call `tekmemo_tekmemo_context` with the task description.",
+		"1. **Load context** — call the TekMemo `context` tool (e.g. `tekmemo.context`) with the task description to load core memory, notes, and recall.",
 	);
 	lines.push(
-		"2. **Look up details** — use `tekmemo_tekmemo_recall` for specific lookups.",
+		"2. **Look up details** — use the TekMemo `recall` tool (e.g. `tekmemo.recall`) for specific lookups when context is insufficient.",
 	);
 	lines.push(
 		"3. **Adhere to memory** — follow constraints, decisions, and references returned.",
 	);
 	lines.push(
-		"4. **Persist new facts** — store discovered facts/decisions via `tekmemo_tekmemo_remember`.",
+		"4. **Persist new facts** — store discovered facts/decisions via the TekMemo `remember` tool (e.g. `tekmemo.remember`).",
 	);
 	lines.push("");
 	lines.push(
