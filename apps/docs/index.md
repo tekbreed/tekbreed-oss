@@ -9,7 +9,7 @@ hero:
   actions:
     - theme: brand
       text: "Get Started"
-      link: /packages/tekmemo/overview
+      link: /packages/tekmemo/
     - theme: alt
       text: "Star on GitHub"
       link: https://github.com/tekbreed/tekmemo
@@ -23,10 +23,10 @@ features:
     icon: 🔒
     link: /packages/tekmemo/configuration
     details: Works offline with zero cloud setup. Your memory never leaves your repo unless you say so.
-  - title: Cloud when you need it
+  - title: Sync when you need it
     icon: ☁️
     link: /packages/tekmemo/cloud-client
-    details: Add hosted sync and semantic search with one flag. Same API, same code — no rewrites.
+    details: Add a cloud replica so memory follows you across machines. Same engine, same files, same code — the cloud is a sync transport, not a separate system.
   - title: Works with your coding agent
     icon: 🧠
     link: /packages/mcp/

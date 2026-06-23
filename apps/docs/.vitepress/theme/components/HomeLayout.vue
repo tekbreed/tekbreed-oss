@@ -7,6 +7,12 @@ import SidebarBrand from "./SidebarBrand.vue";
 
 const { Layout } = DefaultTheme;
 
+/**
+ * Deploys is the live mode-toggle shown in the feature showcase. It reflects
+ * the shipped `Tekmemo` constructor (D4): there is no `mode: "cloud"` flag.
+ * Cloud is a *sync transport*, reached via the cloud client / hosted
+ * endpoints — not a runtime mode. Managed-runtime-as-a-service is future.
+ */
 const activeMode = ref(0);
 
 const handleScroll = () => {
@@ -34,8 +40,11 @@ onUnmounted(() => {
 const modes = [
 	{
 		label: "Local",
+		kicker: "Zero cloud. Works offline.",
 		code: `import { Tekmemo } from "@tekbreed/tekmemo";
 
+// Default. Memory lives in .tekmemo/ as markdown + JSON.
+// No API keys, no network. Read it, diff it, commit it.
 const memo = new Tekmemo({
   mode: "local",
   rootDir: "./.tekmemo",
@@ -43,21 +52,12 @@ const memo = new Tekmemo({
 });`,
 	},
 	{
-		label: "Cloud",
+		label: "Hybrid + sync",
+		kicker: "Local first, cloud as a replica.",
 		code: `import { Tekmemo } from "@tekbreed/tekmemo";
 
-const memo = new Tekmemo({
-  mode: "cloud",
-  cloud: {
-    baseUrl: process.env.TEKMEMO_CLOUD_URL!,
-    apiKey: process.env.TEKMEMO_API_KEY!,
-  },
-});`,
-	},
-	{
-		label: "Hybrid",
-		code: `import { Tekmemo } from "@tekbreed/tekmemo";
-
+// Same engine, same files — plus a cloud replica for other machines.
+// Reads/writes hit local first; sync.push / sync.pull mirror .tekmemo/.
 const memo = new Tekmemo({
   mode: "hybrid",
   rootDir: "./.tekmemo",
@@ -69,6 +69,18 @@ const memo = new Tekmemo({
   writePolicy: "local-first",
 });`,
 	},
+	{
+		label: "Managed (later)",
+		kicker: "TekMemo Cloud runs the engine.",
+		code: `// TekMemo Cloud can host the runtime so thin clients (CI, dashboards)
+// read memory over HTTPS without a local checkout.
+//
+//   • Cloud client: a file-sync transport today
+//     (push / complete / pull / status).
+//   • Managed runtime: coming after early access.
+//
+// Same data model either way — .tekmemo/ is always the source of truth.`,
+	},
 ];
 </script>
 
@@ -78,7 +90,7 @@ const memo = new Tekmemo({
       <div class="alpha-announcement-bar">
         <span class="alpha-badge">Cloud</span>
         <span class="alpha-text">
-          The TekMemo core runtime is open source and free. TekMemo Cloud (hosted sync, managed MCP, team features) is in early access.
+          The core runtime is open source and free. TekMemo Cloud (hosted sync, managed MCP, team features) is in early access.
           <a href="https://memo.tekbreed.com" class="alpha-link" target="_blank" rel="noopener noreferrer">Join the waitlist →</a>
         </span>
       </div>
@@ -100,6 +112,7 @@ const memo = new Tekmemo({
 
     <template #home-hero-after>
       <div class="home-custom-sections">
+        <!-- Credibility: works with the agents devs already use -->
         <section class="credibility-section">
           <div class="credibility-container">
             <div class="credibility-row">
@@ -122,19 +135,23 @@ const memo = new Tekmemo({
 
     <template #home-features-after>
       <div class="home-custom-sections">
-        <section class="problem-section">
+        <!-- Problem: name the pain before pitching -->
+        <section class="problem-section tek-reveal">
           <div class="container">
+            <span class="section-kicker">The problem</span>
             <h2>Every new session starts from zero.</h2>
             <p>
-              You walk your agent through the auth system. It gets it. Next session — blank stare.
-              You paste the architecture doc again, and it ships code that contradicts last week's
-              decision. It has no memory of what you chose.
+              You walk your agent through the auth system. It gets it. Next session — a blank
+              stare. You paste the architecture doc again, and it ships code that contradicts last
+              week's decision. It has no memory of what you chose, because there was nowhere to put it.
             </p>
           </div>
         </section>
 
-        <section class="how-it-works-section">
+        <!-- How it works: reduce perceived complexity to three commands -->
+        <section class="how-it-works-section tek-reveal">
           <div class="container">
+            <span class="section-kicker">How it works</span>
             <h2>Three commands. Your agent remembers.</h2>
             <div class="steps">
               <div class="step">
@@ -189,20 +206,23 @@ const memo = new Tekmemo({
               </div>
             </div>
             <p class="result-text">
-              Next session, your agent already knows. No repeating yourself. No contradictions. No "what were we working on again?"
+              Next session, your agent already knows. No repeating yourself. No contradictions. No
+              "what were we working on again?"
             </p>
           </div>
         </section>
 
-        <section class="feature-showcase">
+        <!-- Feature showcase: three pillars, each with a live visual -->
+        <section class="feature-showcase tek-reveal">
           <div class="showcase-container">
             <div class="feature-showcase-item">
               <div class="feature-showcase-content">
+                <span class="section-kicker">File-first</span>
                 <h3>Memory you can read</h3>
                 <p>
                   Every decision, convention, and note sits in plain text under
                   <code>.tekmemo/</code>. Open it in your editor. Diff it in review. Commit it with
-                  your code.
+                  your code. Memory stops being a black box.
                 </p>
                 <a href="/packages/tekmemo/file-first-memory" class="showcase-link">
                   Learn about file-first memory →
@@ -233,10 +253,12 @@ const memo = new Tekmemo({
 
             <div class="feature-showcase-item reverse">
               <div class="feature-showcase-content">
-                <h3>Recall that fetches itself</h3>
+                <span class="section-kicker">Recall</span>
+                <h3>The right memory, fetched for you</h3>
                 <p>
                   Stop scrolling through old prompts. TekMemo indexes your memory and returns the
-                  right fragment for the task — semantically, not by keyword.
+                  fragment that fits the task — semantically, not by keyword. Hybrid recall merges
+                  lexical and vector search, then reranks.
                 </p>
                 <a href="/packages/tekmemo/architecture/indexing-recall" class="showcase-link">
                   See how recall works →
@@ -283,13 +305,15 @@ const memo = new Tekmemo({
 
             <div class="feature-showcase-item">
               <div class="feature-showcase-content">
-                <h3>One API, three modes</h3>
+                <span class="section-kicker">Deploys</span>
+                <h3>One engine, three ways to run it</h3>
                 <p>
-                  Local mode works offline. Cloud mode adds sync and hosted search. Hybrid gives you
-                  both. Switch with one flag — your code stays the same.
+                  Local mode works offline. Hybrid adds a cloud replica so your memory follows you
+                  across machines. Managed runtime is on the roadmap. The engine and the API stay
+                  the same — you only change how memory is stored and synced.
                 </p>
                 <a href="/packages/tekmemo/cloud-client" class="showcase-link">
-                  Explore cloud client →
+                  Explore the cloud client →
                 </a>
               </div>
               <div class="feature-showcase-visual">
@@ -305,6 +329,7 @@ const memo = new Tekmemo({
                       {{ m.label }}
                     </button>
                   </div>
+                  <div class="mode-toggle-kicker">{{ modes[activeMode].kicker }}</div>
                   <div class="mode-toggle-code">
                     <pre><code>{{ modes[activeMode].code }}</code></pre>
                   </div>
@@ -314,23 +339,29 @@ const memo = new Tekmemo({
           </div>
         </section>
 
-        <section class="audience-section">
+        <!-- Audience: two doors for two intents -->
+        <section class="audience-section tek-reveal">
           <div class="container">
-            <h2>Built for how you work</h2>
+            <span class="section-kicker">Built for how you work</span>
+            <h2>Two ways in</h2>
             <div class="audience-grid">
               <div class="audience-card">
+                <span class="audience-emoji">🧩</span>
                 <h3>Building AI apps</h3>
                 <p>
-                  Give your apps durable memory. Import <code>@tekbreed/tekmemo</code>. Same API
-                  whether memory lives in local files, cloud, or both. AI SDK tools ship in the box.
+                  Give your app durable memory. Import <code>@tekbreed/tekmemo</code> — the same API
+                  whether memory lives in local files, the cloud, or both. The AI SDK runtime ships
+                  recall, context-building, and a tool definition ready to wire into any agent.
                 </p>
                 <a href="/api/tekmemo/" class="audience-link">See the API reference →</a>
               </div>
               <div class="audience-card">
+                <span class="audience-emoji">🤖</span>
                 <h3>Using a coding agent</h3>
                 <p>
-                  Your coding agent finally remembers your project. Install the MCP server, add one
-                  config block, and your agent gets project context every session — automatically.
+                  Your coding agent finally remembers your project. Install the MCP server, drop one
+                  config block into Claude Code, Cursor, or Codex, and your agent gets project
+                  context every session — automatically.
                 </p>
                 <a href="/packages/mcp/client-setup" class="audience-link">Connect your agent →</a>
               </div>
@@ -338,12 +369,15 @@ const memo = new Tekmemo({
           </div>
         </section>
 
-        <section class="comparison-section">
+        <!-- Comparison: the honest "why file-first" -->
+        <section class="comparison-section tek-reveal">
           <div class="container">
-            <h2>Why TekMemo over hosted memory tools?</h2>
+            <span class="section-kicker">Why file-first</span>
+            <h2>TekMemo vs. hosted memory tools</h2>
             <p>
               Most memory tools hide your data in a dashboard you can't inspect. TekMemo stores
-              everything as plain text and JSON in your project's <code>.tekmemo/</code> directory.
+              everything as plain text and JSON in your project's <code>.tekmemo/</code> directory —
+              alongside the code it describes.
             </p>
             <div class="comparison-table-wrapper">
               <table class="comparison-table">
@@ -357,28 +391,28 @@ const memo = new Tekmemo({
                 <tbody>
                   <tr>
                     <td>Where memory lives</td>
-                    <td>Plain files in your repo</td>
-                    <td>Locked in a remote dashboard</td>
+                    <td><span class="comparison-table-check">✓</span> Plain files in your repo</td>
+                    <td><span class="comparison-table-cross">Locked in a remote dashboard</span></td>
                   </tr>
                   <tr>
                     <td>Inspect &amp; edit</td>
-                    <td>Any text editor, any diff tool</td>
-                    <td>Vendor UI only</td>
+                    <td><span class="comparison-table-check">✓</span> Any editor, any diff tool</td>
+                    <td><span class="comparison-table-cross">Vendor UI only</span></td>
                   </tr>
                   <tr>
                     <td>Version control</td>
-                    <td>Git-tracked with your code</td>
-                    <td>Separate system (if at all)</td>
+                    <td><span class="comparison-table-check">✓</span> Git-tracked with your code</td>
+                    <td><span class="comparison-table-cross">Separate system (if at all)</span></td>
                   </tr>
                   <tr>
                     <td>Ownership</td>
-                    <td>You own every byte</td>
-                    <td>Vendor-dependent</td>
+                    <td><span class="comparison-table-check">✓</span> You own every byte</td>
+                    <td><span class="comparison-table-cross">Vendor-dependent</span></td>
                   </tr>
                   <tr>
                     <td>Offline support</td>
-                    <td>Full offline by default</td>
-                    <td>Requires internet connection</td>
+                    <td><span class="comparison-table-check">✓</span> Full offline by default</td>
+                    <td><span class="comparison-table-cross">Requires internet</span></td>
                   </tr>
                 </tbody>
               </table>
@@ -386,15 +420,19 @@ const memo = new Tekmemo({
           </div>
         </section>
 
-        <section class="bottom-cta-section">
+        <!-- Bottom CTA -->
+        <section class="bottom-cta-section tek-reveal">
           <div class="container">
-            <p class="oss-badge">MIT Licensed</p>
+            <p class="oss-badge">MIT Licensed · 100% open source</p>
             <h2>One command. Your agent never forgets.</h2>
             <div class="code-snippet large">
               <code>npx tekmemo init</code>
             </div>
             <div class="cta-buttons">
               <a href="/packages/tekmemo/" class="cta-button primary">Read the Quick Start →</a>
+              <a href="https://memo.tekbreed.com" class="cta-button secondary" target="_blank" rel="noopener noreferrer">
+                Explore TekMemo Cloud →
+              </a>
             </div>
             <a href="https://github.com/tekbreed/tekmemo" class="bottom-cta-link">
               View on GitHub
@@ -419,7 +457,36 @@ const memo = new Tekmemo({
   justify-content: center;
 }
 
-/* Credibility Section */
+/* Section kicker — a small uppercase label that sets up the headline */
+.section-kicker {
+  display: inline-block;
+  font-family: var(--vp-font-family-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vp-c-brand-1);
+  margin-bottom: 14px;
+}
+
+/* Staggered page-load reveal — one orchestrated cascade */
+.tek-reveal {
+  animation: tekReveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.tek-reveal:nth-of-type(1) { animation-delay: 0.05s; }
+.tek-reveal:nth-of-type(2) { animation-delay: 0.12s; }
+.tek-reveal:nth-of-type(3) { animation-delay: 0.19s; }
+.tek-reveal:nth-of-type(4) { animation-delay: 0.26s; }
+.tek-reveal:nth-of-type(5) { animation-delay: 0.33s; }
+.tek-reveal:nth-of-type(6) { animation-delay: 0.40s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tek-reveal { animation: none; }
+}
+
+/* ===================================================================
+   Credibility Section
+   =================================================================== */
 .credibility-section {
   padding: 32px 24px 24px;
   margin-top: 48px;
@@ -440,7 +507,8 @@ const memo = new Tekmemo({
 }
 
 .compat-line {
-  font-size: 14px;
+  font-family: var(--vp-font-family-mono);
+  font-size: 13px;
   font-weight: 500;
   color: var(--vp-c-text-2);
   margin: 0;
@@ -450,6 +518,11 @@ const memo = new Tekmemo({
 .compat-tool {
   color: var(--vp-c-text-1);
   font-weight: 600;
+  transition: color 0.2s;
+}
+
+.compat-tool:hover {
+  color: var(--vp-c-brand-1);
 }
 
 .compat-sep {
@@ -457,93 +530,50 @@ const memo = new Tekmemo({
   margin: 0 4px;
 }
 
-.alpha-box {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 16px;
-  border-radius: 8px;
-  background: var(--vp-c-brand-soft);
-  border: 1px solid var(--vp-c-brand-1);
-}
-
-.alpha-box-badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--vp-c-brand-1);
-  background: var(--vp-c-bg);
-  border: 1px solid var(--vp-c-brand-1);
-  flex-shrink: 0;
-}
-
-.alpha-box-text {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--vp-c-text-1);
-  margin: 0;
-  white-space: nowrap;
-}
-
-.alpha-box-link {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--vp-c-brand-1);
-  text-decoration: none;
-  margin-left: 2px;
-}
-
-.alpha-box-link:hover {
-  text-decoration: underline;
-  color: var(--vp-c-brand-2);
-}
-
 @media (max-width: 640px) {
   .credibility-row {
-    flex-direction: column;
     gap: 12px;
   }
 
-  .alpha-box-text {
+  .compat-line {
     white-space: normal;
+    text-align: center;
   }
 }
 
-/* Problem Section */
+/* ===================================================================
+   Problem Section
+   =================================================================== */
 .problem-section {
   padding: 72px 0 96px 0;
 }
 
 .problem-section h2 {
-  font-size: 28px;
+  font-size: 30px;
   font-weight: 700;
   color: var(--vp-c-text-1);
-  line-height: 1.3;
-  letter-spacing: -0.02em;
+  line-height: 1.25;
   margin-bottom: 20px;
 }
 
 .problem-section p {
   font-size: 17px;
   color: var(--vp-c-text-2);
-  line-height: 1.7;
+  line-height: 1.75;
 }
 
-/* How It Works */
+/* ===================================================================
+   How It Works
+   =================================================================== */
 .how-it-works-section {
   padding: 96px 0;
 }
 
 .how-it-works-section h2 {
-  font-size: 28px;
+  font-size: 30px;
   font-weight: 700;
   color: var(--vp-c-text-1);
-  line-height: 1.3;
-  letter-spacing: -0.02em;
+  line-height: 1.25;
   margin-bottom: 48px;
 }
 
@@ -564,13 +594,15 @@ const memo = new Tekmemo({
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: var(--vp-c-brand-1);
+  background: linear-gradient(135deg, var(--vp-c-brand-1), var(--vp-c-brand-2));
   color: var(--vp-c-bg);
+  font-family: var(--vp-font-family-display);
   font-weight: 700;
   font-size: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: var(--tek-shadow-md);
 }
 
 .step-content {
@@ -601,7 +633,8 @@ const memo = new Tekmemo({
 
 .code-snippet {
   background: var(--vp-code-block-bg);
-  border-radius: 8px;
+  border: 1px solid var(--vp-c-border);
+  border-radius: var(--tek-radius);
   padding: 12px 16px;
   font-family: var(--vp-font-family-mono);
   font-size: 13.5px;
@@ -618,10 +651,12 @@ const memo = new Tekmemo({
   margin-top: 40px;
   font-size: 17px;
   color: var(--vp-c-text-2);
-  line-height: 1.7;
+  line-height: 1.75;
 }
 
-/* Feature Showcase */
+/* ===================================================================
+   Feature Showcase
+   =================================================================== */
 .showcase-container {
   max-width: 1100px;
   margin: 0 auto;
@@ -645,7 +680,7 @@ const memo = new Tekmemo({
 }
 
 .feature-showcase-content h3 {
-  font-size: 28px;
+  font-size: 30px;
   font-weight: 600;
   color: var(--vp-c-text-1);
   margin-bottom: 16px;
@@ -655,7 +690,7 @@ const memo = new Tekmemo({
 .feature-showcase-content p {
   font-size: 17px;
   color: var(--vp-c-text-2);
-  line-height: 1.6;
+  line-height: 1.65;
   margin-bottom: 24px;
 }
 
@@ -667,22 +702,29 @@ const memo = new Tekmemo({
 }
 
 .showcase-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--vp-font-family-display);
   font-size: 15px;
   font-weight: 600;
   color: var(--vp-c-brand-1);
   text-decoration: none;
+  transition: gap 0.2s;
 }
 
 .showcase-link:hover {
-  text-decoration: underline;
+  text-decoration: none;
+  gap: 8px;
 }
 
 /* File Tree Mockup */
 .file-tree-mockup {
   background: var(--vp-code-block-bg);
   border: 1px solid var(--vp-c-border);
-  border-radius: 12px;
+  border-radius: var(--tek-radius);
   overflow: hidden;
+  box-shadow: var(--tek-shadow-lg);
 }
 
 .file-tree-header {
@@ -723,8 +765,9 @@ const memo = new Tekmemo({
 .recall-mockup {
   background: var(--vp-c-bg-soft);
   border: 1px solid var(--vp-c-border);
-  border-radius: 12px;
+  border-radius: var(--tek-radius);
   overflow: hidden;
+  box-shadow: var(--tek-shadow-lg);
 }
 
 .recall-query {
@@ -736,6 +779,7 @@ const memo = new Tekmemo({
 }
 
 .recall-query-label {
+  font-family: var(--vp-font-family-mono);
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
@@ -760,10 +804,15 @@ const memo = new Tekmemo({
   gap: 12px;
   padding: 12px 16px;
   border-bottom: 1px solid var(--vp-c-border);
+  transition: background-color 0.2s;
 }
 
 .recall-result:last-child {
   border-bottom: none;
+}
+
+.recall-result:hover {
+  background: var(--vp-c-bg-mute);
 }
 
 .recall-score {
@@ -797,8 +846,9 @@ const memo = new Tekmemo({
 .mode-toggle-mockup {
   background: var(--vp-code-block-bg);
   border: 1px solid var(--vp-c-border);
-  border-radius: 12px;
+  border-radius: var(--tek-radius);
   overflow: hidden;
+  box-shadow: var(--tek-shadow-lg);
 }
 
 .mode-toggle-buttons {
@@ -812,6 +862,7 @@ const memo = new Tekmemo({
   padding: 6px 16px;
   border: none;
   border-radius: 6px;
+  font-family: var(--vp-font-family-display);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -829,8 +880,16 @@ const memo = new Tekmemo({
   color: var(--vp-c-brand-1);
 }
 
+.mode-toggle-kicker {
+  padding: 10px 16px 0;
+  font-family: var(--vp-font-family-mono);
+  font-size: 12px;
+  color: var(--vp-c-brand-1);
+  font-weight: 600;
+}
+
 .mode-toggle-code {
-  padding: 20px;
+  padding: 14px 20px 20px;
   overflow-x: auto;
 }
 
@@ -840,22 +899,23 @@ const memo = new Tekmemo({
 
 .mode-toggle-code code {
   font-family: var(--vp-font-family-mono);
-  font-size: 13.5px;
+  font-size: 13px;
   line-height: 1.7;
   color: var(--vp-c-text-1);
 }
 
-/* Audience Section */
+/* ===================================================================
+   Audience Section
+   =================================================================== */
 .audience-section {
   padding: 0 0 96px 0;
 }
 
 .audience-section h2 {
-  font-size: 28px;
+  font-size: 30px;
   font-weight: 700;
   color: var(--vp-c-text-1);
-  line-height: 1.3;
-  letter-spacing: -0.02em;
+  line-height: 1.25;
   margin-bottom: 36px;
 }
 
@@ -867,9 +927,24 @@ const memo = new Tekmemo({
 
 .audience-card {
   background: var(--vp-c-bg-soft);
-  border: 1px solid var(--vp-c-border);
-  border-radius: 12px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: var(--tek-radius);
   padding: 32px;
+  box-shadow: var(--tek-shadow-sm);
+  transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+}
+
+.audience-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--vp-c-brand-1);
+  box-shadow: var(--tek-shadow-glow);
+}
+
+.audience-emoji {
+  font-size: 28px;
+  line-height: 1;
+  display: block;
+  margin-bottom: 16px;
 }
 
 .audience-card h3 {
@@ -894,27 +969,34 @@ const memo = new Tekmemo({
 }
 
 .audience-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--vp-font-family-display);
   font-size: 15px;
   font-weight: 600;
   color: var(--vp-c-brand-1);
   text-decoration: none;
+  transition: gap 0.2s;
 }
 
 .audience-link:hover {
-  text-decoration: underline;
+  text-decoration: none;
+  gap: 8px;
 }
 
-/* Comparison Section */
+/* ===================================================================
+   Comparison Section
+   =================================================================== */
 .comparison-section {
   padding: 0 0 96px 0;
 }
 
 .comparison-section h2 {
-  font-size: 28px;
+  font-size: 30px;
   font-weight: 700;
   color: var(--vp-c-text-1);
-  line-height: 1.3;
-  letter-spacing: -0.02em;
+  line-height: 1.25;
   margin-bottom: 20px;
 }
 
@@ -932,93 +1014,27 @@ const memo = new Tekmemo({
   font-size: 13px;
 }
 
-.comparison-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.comparison-list li {
-  position: relative;
-  padding-left: 28px;
-  margin-bottom: 12px;
-  font-size: 15px;
-  color: var(--vp-c-text-2);
-  line-height: 1.6;
-}
-
-.comparison-list li::before {
-  content: "✓";
-  position: absolute;
-  left: 0;
-  color: var(--vp-c-brand-1);
-  font-weight: 700;
-  font-size: 16px;
-}
-
-/* Stats Section */
-.stats-section {
-  padding: 64px 0;
-  border-top: 1px solid var(--vp-c-border);
-  border-bottom: 1px solid var(--vp-c-border);
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 32px;
-  text-align: center;
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.stat-number {
-  font-size: 36px;
-  font-weight: 800;
-  color: var(--vp-c-brand-1);
-  line-height: 1;
-  letter-spacing: -0.02em;
-  margin-bottom: 4px;
-}
-
-.stat-label-primary {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--vp-c-text-1);
-  line-height: 1.3;
-}
-
-.stat-label-secondary {
-  font-size: 13px;
-  font-weight: 400;
-  color: var(--vp-c-text-2);
-  line-height: 1.4;
-}
-
-/* Bottom CTA */
+/* ===================================================================
+   Bottom CTA
+   =================================================================== */
 .bottom-cta-section {
-  padding: 0 0 96px 0;
+  padding: 80px 0 96px 0;
   text-align: center;
   border-top: 1px solid var(--vp-c-border);
-  padding-top: 80px;
 }
 
 .bottom-cta-section .oss-badge {
-  font-size: 14px;
+  font-family: var(--vp-font-family-mono);
+  font-size: 13px;
   color: var(--vp-c-text-2);
   margin-bottom: 16px;
 }
 
 .bottom-cta-section h2 {
-  font-size: 24px;
+  font-size: 30px;
   font-weight: 700;
   color: var(--vp-c-text-1);
-  line-height: 1.3;
-  letter-spacing: -0.02em;
+  line-height: 1.25;
   margin-bottom: 24px;
 }
 
@@ -1032,12 +1048,14 @@ const memo = new Tekmemo({
   justify-content: center;
   gap: 16px;
   margin-bottom: 24px;
+  flex-wrap: wrap;
 }
 
 .cta-button {
   display: inline-block;
-  padding: 10px 24px;
+  padding: 11px 24px;
   border-radius: 8px;
+  font-family: var(--vp-font-family-display);
   font-size: 15px;
   font-weight: 600;
   text-decoration: none;
@@ -1045,12 +1063,14 @@ const memo = new Tekmemo({
 }
 
 .cta-button.primary {
-  background: var(--vp-c-brand-1);
+  background: linear-gradient(135deg, var(--vp-c-brand-1), var(--vp-c-brand-2));
   color: var(--vp-c-bg);
+  box-shadow: var(--tek-shadow-md);
 }
 
 .cta-button.primary:hover {
-  background: var(--vp-c-brand-2);
+  transform: translateY(-2px);
+  box-shadow: var(--tek-shadow-glow);
 }
 
 .cta-button.secondary {
@@ -1062,10 +1082,12 @@ const memo = new Tekmemo({
 .cta-button.secondary:hover {
   border-color: var(--vp-c-brand-1);
   color: var(--vp-c-brand-1);
+  transform: translateY(-2px);
 }
 
 .bottom-cta-link {
   display: block;
+  font-family: var(--vp-font-family-display);
   font-size: 15px;
   font-weight: 600;
   color: var(--vp-c-text-2);
@@ -1076,7 +1098,9 @@ const memo = new Tekmemo({
   color: var(--vp-c-brand-1);
 }
 
-/* Responsive */
+/* ===================================================================
+   Responsive
+   =================================================================== */
 @media (max-width: 768px) {
   .feature-showcase-item {
     grid-template-columns: 1fr;
@@ -1085,11 +1109,6 @@ const memo = new Tekmemo({
 
   .feature-showcase-item.reverse .feature-showcase-visual {
     order: 0;
-  }
-
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
   }
 }
 
@@ -1103,9 +1122,13 @@ const memo = new Tekmemo({
     gap: 12px;
   }
 
-  .stats-grid {
-    grid-template-columns: 1fr;
-    gap: 20px;
+  .cta-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cta-button {
+    text-align: center;
   }
 }
 </style>

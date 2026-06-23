@@ -4,7 +4,9 @@ import { site } from "./site.mts";
 export const GTAG_ID = "G-D6Q96NPN7K";
 
 export const head: HeadConfig[] = [
-	["meta", { name: "theme-color", content: "#2563eb" }],
+	// theme-color matches the true brand palette (#258acb light / #1b1b1f dark),
+	// not the stray Tailwind blue-600 value it held before.
+	["meta", { name: "theme-color", content: "#258acb" }],
 	["meta", { property: "og:title", content: "TekMemo" }],
 	["meta", { property: "og:description", content: site.description }],
 	["meta", { property: "og:type", content: "website" }],
