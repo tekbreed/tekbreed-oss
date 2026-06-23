@@ -281,7 +281,7 @@ _Avoid:_ "knowledge," "data" when you mean the memory content.
 
 - **Entitlement model** — Cloud enforcement uses **numeric capability caps**,
   never `plan === "Pro"` checks (§12.3). Three entitlement dimensions (locked
-  Q19): `maxHostedStorageBytes` (Free ~1GB / Pro ~25GB / Teams ~100GB),
+  Q19): `maxHostedStorageBytes` (Free 500MB / Pro 10GB / Teams 50GB),
   `maxConnectors` (Free=1 / Pro=3 / Teams=∞), and **`maxConsolidationRuns`**
   (Free=1/day, Pro=24/day, Teams=∞ — the intelligence-compute cap, enforced
   once the managed-runtime tier lands). All checked as `count < cap`.

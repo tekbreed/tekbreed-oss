@@ -620,9 +620,9 @@ apps/tekmemo-cloud/            ← NEW. ONE Cloudflare Worker, MIT.
 
   | Tier | Price | Storage | Connectors | Status |
   |---|---|---|---|---|
-  | **Free** | $0 | ~1 GB hosted | **1** (GitHub *or* Notion) | Ships v1 |
-  | **Pro** | **$9/mo** | ~25 GB hosted | **up to 3** (GitHub, Notion, + whatever ships) | Ships v1 |
-  | **Teams** | **$24/mo** (list price, shown disabled) | ~100 GB + shared workspace (future) | **unlimited** | "Coming Soon" button, disabled — captures demand, no billing built |
+  | **Free** | $0 | 500 MB hosted | **1** (GitHub *or* Notion) | Ships v1 |
+  | **Pro** | **$9/mo** | 10 GB hosted | **up to 3** (GitHub, Notion, + whatever ships) | Ships v1 |
+  | **Teams** | **$24/seat/mo** (list price, shown disabled) | 50 GB + shared workspace (future) | **unlimited** | "Coming Soon" button, disabled — captures demand, no billing built |
 
 - **Rationale:**
   - **Generous Free tier** is non-negotiable for OSS dev-tool adoption (the
@@ -636,7 +636,10 @@ apps/tekmemo-cloud/            ← NEW. ONE Cloudflare Worker, MIT.
     billing/seat-management prematurely.
 - **Entitlement model (numeric caps, not named-feature allowlists):**
   - Storage: `entitlements.maxHostedStorageBytes` (already locked, §12.3). Free
-    ~1GB, Pro ~25GB, Teams ~100GB.
+    500MB, Pro 10GB, Teams 50GB. *(Revised 2026-06-23 from the earlier
+    ~1GB/~25GB/~100GB placeholders: a tighter base ladder keeps ~97–98% gross
+    margin at current R2 pricing while reserving headroom for paid storage
+    add-ons later — see "Add-ons" below.)*
   - **Connectors: `entitlements.maxConnectors`** (new). Enforced as
     `connectors.length < maxConnectors` — Free=1, Pro=3, Teams=∞. **Not** a
     per-connector allowlist, per §12.3's "no `plan === 'Pro'`" principle.
@@ -645,9 +648,9 @@ apps/tekmemo-cloud/            ← NEW. ONE Cloudflare Worker, MIT.
       GitHub+Notion ship at launch, Pro users get a 3-slot allowance that fills
       when connector #3 lands (Q10). **No phantom promise.**
     - Teams: unlimited, whatever the catalog holds when Teams ships.
-- **Cost/margin math (honest):** R2 ≈ $0.015/GB → 25GB ≈ $0.38/mo cost at Pro
-  (~96% margin at $9); 100GB ≈ $1.50/mo at Teams (~94% margin at $24). Free at
-  1GB ≈ $0.015/mo — negligible.
+- **Cost/margin math (honest):** R2 ≈ $0.015/GB → 10GB ≈ $0.15/mo cost at Pro
+  (~98% margin at $9); 50GB ≈ $0.75/mo at Teams (~97% margin at $24/seat). Free
+  at 500MB ≈ $0.008/mo — negligible.
 - **Billing provider (locked, corrects earlier Stripe assumption): Polar, not
   Stripe.** Verified fit:
   - **Merchant of Record** → handles global sales tax/VAT (Stripe Tax would be
@@ -668,6 +671,14 @@ apps/tekmemo-cloud/            ← NEW. ONE Cloudflare Worker, MIT.
   - **Per-seat billing model (intended, for honest page copy): $24/seat/mo.**
     Implementation (seats, shared workspace, SCIM) deferred to when Teams ships,
     gated on Pro revenue or sponsorships (per ADR 0003).
+- **Add-ons (deferred, intentional headroom):** the conservative base storage
+  ladder (500MB / 10GB / 50GB) is deliberately sized to leave a clean upsell
+  ladder — paid storage packs (+10GB / +50GB) and a future higher tier — to add
+  once billing is live and demand is observable. Do not build add-on SKUs at v1.
+- **Annual billing (deferred):** not at v1 — same "avoid premature billing
+  complexity" principle as the one-paid-tier decision. The pricing FAQ already
+  states "Not yet, but we're planning to introduce one." Cheap fast-follower
+  post-launch; Polar supports annual natively, so no rewrite.
 - **Status:** **Locked.**
 - **Candidate for ADR:** yes — defines the commercial shape + the
   entitlement-based enforcement model. Promote at end of session.

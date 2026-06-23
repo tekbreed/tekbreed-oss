@@ -55,7 +55,7 @@
   | Route | Type | Purpose |
   |---|---|---|
   | `/` | Landing | The Cloud front door. Hero + preview sections (connectors, pricing, use-cases) each linking to its dedicated page; bottom CTA → `/signup`. |
-  | `/pricing` | Dedicated | Full Free / Pro $9 / Teams $24-coming-soon table (ADR 0006). Linked from the landing's pricing preview section. |
+  | `/pricing` | Dedicated | Full Free / Pro $9 / Teams $24-per-seat-coming-soon table (ADR 0006). Linked from the landing's pricing preview section. |
   | `/use-cases` | Dedicated | Concrete "what TekMemo Cloud is for" (multi-device sync, connector ingestion, team memory later). |
   | `/privacy` | Legal | Privacy policy (required for any auth + paid product). |
   | `/terms` | Legal | Terms of service (required for paid product + Polar MoR). |
@@ -87,7 +87,7 @@ Each preview section is a *teaser* that links to its dedicated page.
    pages). The "learn more" link goes to `docs.tekbreed.com` (the
    `packages/tekmemo/connectors.md` page the ADR 0008 triage already flags as
    missing-to-create), so connector detail has one home per ADR 0008 Rule 2.
-6. **Pricing preview** → `/pricing` (Free / Pro $9 / Teams $24-soon — ADR 0006).
+6. **Pricing preview** → `/pricing` (Free / Pro $9 / Teams $24/seat-soon — ADR 0006).
 7. **Use-cases preview** → `/use-cases`.
 8. **Comparison** — TekMemo Cloud vs self-hosting (git / Syncthing / Dropbox):
    automatic pre-sync snapshots, content-addressed blobs, one-click rollback,
@@ -101,7 +101,7 @@ Each preview section is a *teaser* that links to its dedicated page.
 > set below is stable regardless of the check outcome; only the implementation
 > (password vs magic-link, 2FA) depends on it.
 
-- **SC4 — Auth screen set (5 screens + 1 callback):**
+- **SC4 — Auth screen set (originally 5 screens + 1 callback, password-based):**
   - `/login` — email + password, plus **[Continue with GitHub]** and
     **[Continue with Google]** OAuth buttons. (GitHub-as-**login-IdP** is
     distinct from GitHub-as-**data-connector** — a user logging in with Google
@@ -113,6 +113,42 @@ Each preview section is a *teaser* that links to its dedicated page.
   - `/verify` — post-signup email-verification landing.
 - Post-auth: redirect to `/dashboard` (Overview, SC3.1), or to the
   `?next=` path if the user was bounced off an auth-gated route.
+
+### SC4.1 — Passwordless (magic-link) auth — supersedes SC4's password flow
+
+- **Decision (locked 2026-06-23):** TekMemo Cloud authenticates users via
+  **email magic links** + OAuth (GitHub/Google), **not** passwords. Better
+  Auth's `magicLink` plugin handles issuance/consumption; OAuth handles the
+  two social providers already in SC4. SC4's framing ("only the implementation
+  depends on the capability check") explicitly anticipated this — no ADR 0005
+  re-litigation, only the screen-shape consequence below.
+- **Screen-set change (6 → 4 screens):**
+  - `/login` — email-entry only → sends magic link. Plus the two OAuth buttons
+    (unchanged from SC4).
+  - `/signup` — same surface, account-creation framing (same email → magic-link
+    flow; no separate "password" field).
+  - `/oauth/callback` — GitHub/Google OAuth redirect target (unchanged).
+  - `/verify` — **repurposed**: the magic-link-consumed landing (the click *is*
+    verification). Was "post-signup email-verification" under SC4; now the
+    terminal step of both sign-in and sign-up.
+  - **Removed:** `/reset` and `/reset/confirm` — there is no password to reset
+    under passwordless. (If a user loses email access, recovery is account-
+    support flows, not a self-serve reset page.)
+- **Disposable-email defense (required, since email is the only factor):**
+  1. **Static blocklist** — reject signup from known disposable/temporary
+     domains via a vendored list (e.g. `disposable-email-domains`), refreshed
+     periodically. Free, no API dependency.
+  2. **MX-record check** at signup — reject addresses whose domain has no MX
+     record (can't receive mail). `libSQL`-cached DNS lookups.
+  3. **Rate-limit** the magic-link endpoint via Upstash (already in stack,
+     ADR 0005) — per-IP + per-email throttling to blunt link-spam/abuse.
+  - **No paid email-validation API** (Kickbox/Abstract) at v1 — the broke+ASAP
+    posture; revisit if abuse warrants.
+- **2FA:** N/A under passwordless. The magic link *is* the possession factor;
+  email is the knowledge factor via the inbox. If a second factor is later
+  required (e.g. for Teams admin actions), it's a TOTP/passkey add-on, not a
+    password-based 2FA.
+- **Counts (updated):** Cloud auth 6 → 4 screens; total cloud 18 → 16 screens.
 
 ## Cloud app (`apps/cloud`) — product / dashboard screens
 
@@ -232,6 +268,31 @@ build a billing engine.
   hygiene expectation for a service holding user files). Confirmation flow
   (re-auth + typed confirmation).
 
+## Cloud app (`apps/cloud`) — admin (deferred)
+
+- **SC6 — Admin panel: deferred to post-revenue, namespace reserved at v1.**
+  - **Decision (locked 2026-06-23):** TekMemo Cloud ships **no admin/staff panel
+    at v1**. Platform monitoring + control during the broke+ASAP launch phase is
+    covered by the existing stack's dashboards: Polar (subscriptions/billing),
+    Turso console (DB), Cloudflare dashboard (Workers/R2/observability), Sentry
+    (errors). Building a bespoke admin panel duplicates all four and adds scope
+    against "launch ASAP."
+  - **Reserved at v1 (no surface, but no paint-into-corner):**
+    - `/admin/*` route namespace — never registered as a public route, ready to
+      claim later.
+    - `accounts.is_staff` boolean flag on the accounts table (defaults false) —
+      the gate a future admin plugin checks. Added now so we don't migrate auth
+      later.
+    - Better Auth `admin` plugin is available when needed; we don't wire it at v1.
+  - **When it ships (post-revenue, gated like Teams on ADR 0003):** user
+    impersonation, per-account storage/bandwidth/consumption views, connector-
+    run logs, manual entitlement overrides, disposable-email/abuse dashboards,
+    manual magic-link throttling. Not a customer-facing surface; staff-only.
+  - **Scope discipline:** this decision does **not** add a screen to the locked
+    inventory or the dashboard nav (SC3 stays 6 user-facing items). It is
+    recorded so "no admin at v1" is an explicit, traceable decision rather than
+    an omission.
+
 ## Docs app (`apps/docs`) — scope + screens
 
 - **SC5 — Docs app scope (resolves ADR 0008 Rule 5):** docs **keeps** `/blog`,
@@ -339,23 +400,21 @@ a screen; every screen points at the `SC-*` decision that locks it.
 | # | Route | Type | One-line purpose | Scope | Lock |
 |---|---|---|---|---|---|
 | 1 | `/` | Landing | Cloud front door: 10 sections (hero→problem→solution→sync→connectors→pricing→use-cases→comparison→FAQ→CTA) | Public | SC2.1 |
-| 2 | `/pricing` | Dedicated | Free/Pro $9/Teams $24-soon table | Public | SC2 |
+| 2 | `/pricing` | Dedicated | Free/Pro $9/Teams $24-soon-per-seat table | Public | SC2 |
 | 3 | `/use-cases` | Dedicated | What Cloud is for (sync, connectors, teams-later) | Public | SC2 |
 | 4 | `/privacy` | Legal | Privacy policy | Public | SC2 |
 | 5 | `/terms` | Legal | Terms of service (Polar MoR needs it) | Public | SC2 |
-| 6 | `/login` | Auth | Email+pwd + GitHub/Google OAuth buttons | Public | SC4 |
-| 7 | `/signup` | Auth | Same surface, account-creation framing | Public | SC4 |
-| 8 | `/oauth/callback` | Auth | GitHub/Google login redirect target | Public | SC4 |
-| 9 | `/reset` | Auth | Request password reset (email via Plunk) | Public | SC4 |
-| 10 | `/reset/confirm` | Auth | Token-gated new-password landing | Public | SC4 |
-| 11 | `/verify` | Auth | Post-signup email-verification landing | Public | SC4 |
-| 12 | `/dashboard` (Overview) | Product | 4 project-scoped cards (sync/storage/connectors/quick-start) | Auth | SC3.1 |
-| 13 | `/dashboard/projects` | Product | Project list + "register name" modal (auto-provision on first push, Q13) | Auth | SC3.2 |
-| 14 | `/dashboard/projects/:id` | Product | File manifest + cursor history for one project (read-only) | Auth | SC3.2 |
-| 15 | `/dashboard/connectors` | Product | Per-project connector catalog + cards (cap visible) | Auth, project-scoped | SC3.3 |
-| 16 | `/dashboard/api-keys` | Product | Key list + one-time-reveal create + soft-revoke | Auth, account-wide | SC3.4 |
-| 17 | `/dashboard/billing` | Product | Plan/usage snapshot + Polar checkout/portal links out | Auth, account-wide | SC3.5 |
-| 18 | `/dashboard/settings` | Product | Profile + security + danger-zone delete | Auth, account-wide | SC3.6 |
+| 6 | `/login` | Auth | Email-entry → magic link + GitHub/Google OAuth buttons | Public | SC4.1 |
+| 7 | `/signup` | Auth | Same surface, account-creation framing | Public | SC4.1 |
+| 8 | `/oauth/callback` | Auth | GitHub/Google login redirect target | Public | SC4.1 |
+| 9 | `/verify` | Auth | Magic-link-consumed landing (sign-in + sign-up terminal step) | Public | SC4.1 |
+| 10 | `/dashboard` (Overview) | Product | 4 project-scoped cards (sync/storage/connectors/quick-start) | Auth | SC3.1 |
+| 11 | `/dashboard/projects` | Product | Project list + "register name" modal (auto-provision on first push, Q13) | Auth | SC3.2 |
+| 12 | `/dashboard/projects/:id` | Product | File manifest + cursor history for one project (read-only) | Auth | SC3.2 |
+| 13 | `/dashboard/connectors` | Product | Per-project connector catalog + cards (cap visible) | Auth, project-scoped | SC3.3 |
+| 14 | `/dashboard/api-keys` | Product | Key list + one-time-reveal create + soft-revoke | Auth, account-wide | SC3.4 |
+| 15 | `/dashboard/billing` | Product | Plan/usage snapshot + Polar checkout/portal links out | Auth, account-wide | SC3.5 |
+| 16 | `/dashboard/settings` | Product | Profile + security + danger-zone delete | Auth, account-wide | SC3.6 |
 
 **Cloud dashboard shell:** top-nav 6 entries (Overview · Projects · Connectors ·
 API Keys · Billing · Settings) + global project switcher in header. The
@@ -382,7 +441,10 @@ Lock: SC3.
 
 ### Counts
 
-- **Cloud:** 18 screens (5 marketing/legal + 6 auth + 7 dashboard incl. shell).
+- **Cloud:** 16 screens (5 marketing/legal + 4 auth + 7 dashboard incl. shell).
+  Auth dropped 6 → 4 under SC4.1 (passwordless: `/reset` + `/reset/confirm`
+  removed, `/verify` repurposed). Admin is deferred + namespace-reserved (SC6) —
+  not counted as a v1 screen.
 - **Docs:** 8 sections + 1 external link; top-nav locked at 7 items.
 - **Cross-app rule (SC1):** cloud marketing/pricing/dashboard live **only** on
   `memo.tekbreed.com`; OSS docs/blog/changelog live **only** on
