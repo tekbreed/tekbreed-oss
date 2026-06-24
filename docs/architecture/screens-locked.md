@@ -230,15 +230,15 @@ source:
 ### SC3.4 — API Keys (account-wide)
 
 The cloud authenticates sync requests by **Bearer token** (`Authorization:
-Bearer tk_live_…`); the raw key is shown **ONCE at provisioning** and only a
+Bearer tm_…`); the raw key is shown **ONCE at provisioning** and only a
 salted sha256 (`key_hash`) is stored (schema `api_keys`, ADR 0006). The screen
 reflects that contract:
 
 - **List:** one row per key — `label` ("laptop", "ci", …), `lastFour`
-  (`tk_live_…abcd`), created date, last-seen, revoked status. No raw key is
+  (`tm_…abcd`), created date, last-seen, revoked status. No raw key is
   ever displayed after creation.
 - **Create flow:** label input → generate → **one-time-reveal modal** showing
-  the full `tk_live_…` key with a copy button + a hard warning ("You won't see
+  the full `tm_…` key with a copy button + a hard warning ("You won't see
   this again"). Closing the modal drops into the list with the new row.
 - **Revoke:** soft-delete (`revoked_at`); subsequent sync with that key 401s.
 
@@ -292,6 +292,107 @@ build a billing engine.
     inventory or the dashboard nav (SC3 stays 6 user-facing items). It is
     recorded so "no admin at v1" is an explicit, traceable decision rather than
     an omission.
+
+## Cloud app (`apps/cloud`) — phase-gated screens (Teams + managed memory)
+
+> **Scope note:** SC7–SC9 project the session-6 decisions
+> ([`decisions.md`](./decisions.md) Q29–Q33; ADRs [0011](../adr/0011-managed-runtime-sequencing.md)
+> / [0012](../adr/0012-r2-memory-store-adapter.md)) into the screen IA. They are
+> **phase-gated additions**, not v1 screens — the same pattern as SC6 (reserved,
+> not shipped at v1). The v1 inventory stays at 16 screens; these add routes
+> only when their prerequisite phase (per ADR 0011) lands. They honor ADR 0008
+> (one home per fact; no re-litigation of v1 IA) and the SC3 project-scoped vs
+> account-wide split. Nav items are **conditional** (appear only when the
+> account is eligible), so non-team / non-hosting users keep the locked 6-item
+> nav.
+
+- **SC7 — Teams tier (`/dashboard/team`) — phase 2, gated on ADR 0011 phase 1
+  (concurrency layer).**
+  - **Decision (locked 2026-06-24):** a single Teams screen, **account-wide**
+    (not project-scoped — teams own projects, not the reverse), appearing as a
+    **conditional nav item**: shown only when the account owns or belongs to a
+    team; hidden otherwise. Non-team users keep the locked 6-item nav (SC3) — no
+    phantom entry.
+  - **Internal sections (one route, three sections — not separate routes):**
+    1. **Members** — list (name / email / role / status), the locked role model
+       **Owner / Admin / Member** (Owner: billing + delete + role mgmt; Admin:
+       invite/remove members + manage shared projects; Member: read + write
+       shared projects). **Invite-by-email** reuses the SC4.1 magic-link flow
+       (an invite is a magic link to accept the seat). Remove member. **Seat
+       usage counter** (N seats used vs N billed) → "Manage seats" links out to
+       Polar (SC3.5), same as subscription management.
+    2. **Shared projects** — the team's shared projects. This is the
+       Teams-only concept that **requires ADR 0011 phase 1**: concurrent
+       teammate writes are safe *because* of the concurrency layer, not D6.
+       Members see these in their Projects list (SC3.2) with a **"shared" badge**
+       alongside their personal projects. **Write access is the
+       concurrency-gated surface** (read access is safe under D6 regardless);
+       this is the precise scope where "Teams needs the concurrency layer"
+       lives.
+    3. **Settings** — team name, default member role, **delete team** (danger
+       zone, re-auth required; does not delete members' personal accounts).
+  - **Team member's view:** a *member* (not owner/admin) sees the Team nav item
+    read-only (members/settings managed by admins) + the team's shared projects
+    in their Projects list, alongside any personal projects. The Linear/Vercel
+    model — joining a team augments your workspace, it doesn't replace it.
+  - **Counts:** +1 phase-gated screen (`/dashboard/team`); +1 conditional nav
+    item ("Team"). v1 inventory unchanged (16); this is a phase-2 addition.
+
+- **SC8 — Managed runtime / hosted memory (`/dashboard/memory`) — phase 3,
+  gated on ADR 0011 phase 3 + ADR 0012 (R2 store).**
+  - **Decision (locked 2026-06-24):** a hosted-memory home screen,
+    **project-scoped** (hosted memory is per-project: a user hosts some
+    projects, not others), appearing as a **conditional nav item**: shown only
+    when the managed tier is active for the selected project; hidden otherwise.
+  - **Internal sections (one route, four sections — not separate routes):**
+    1. **Runtime status** — "Hosted memory: Active / Inactive for this project."
+       Pro+ can enable per project; Free sees the Q33 1/day-capped state
+       (deterministic-floor-only).
+    2. **Consolidation** — last run, **runs-today vs the account-wide cap
+       `maxConsolidationRuns`** (Free 1 deterministic / Pro 24 frontier / Teams
+       ∞ — Q33), next scheduled run, run log. This is cloud differentiator A1
+       ("always-on consolidation") + A2 ("cross-device conflict resolution")
+       made visible.
+    3. **Pre-warming** — sessions pre-warmed today vs `maxPreWarmPerDay` (Free 0
+       / Pro+ >0 — Q19 / C5). The cloud's home-turf attack on the cold-start
+       token north star (Q16).
+    4. **Memory explorer** — search/browse the hosted recall + graph ("see what
+       your hosted memory knows"). **Phase-3.x candidate** to split to
+       `/dashboard/memory/explore` if it grows; IA-locked as a section now so
+       the nav shape is stable.
+  - **Overview card (extends SC3.1):** when the tier is active, Overview gains
+    a **5th project-scoped card "Hosted memory"** (mirrors how Connectors is
+    both a nav item and an Overview card — SC3.1 §3 + SC3.3). Phase-gated; v1
+    Overview stays 4 cards.
+  - **Counts:** +1 phase-gated screen (`/dashboard/memory`); +1 conditional nav
+    item ("Memory", project-scoped). v1 inventory unchanged (16); this is a
+    phase-3 addition.
+
+- **SC9 — Pricing & billing surface deltas — extend SC2 (`/pricing`) + SC3.5
+  (`/dashboard/billing`). No new routes.**
+  - **Decision (locked 2026-06-24):** the pricing/billing surfaces gain the
+    Q33 intelligence-entitlement dimensions as **rows in existing tables / cards
+    on existing screens**, not new pages. These are **deltas to locked screens**,
+    recorded as SC9 so the IA stays one-home-per-fact (ADR 0008 Rule 2).
+  - **`/pricing` table (SC2)** gains two entitlement rows in the plan table:
+    - **Consolidation runs/day** — Free **1** *(deterministic)* · Pro **24**
+      *(frontier)* · Teams **∞**. (Q33: Free's run is deterministic-floor-only;
+      Pro+ runs frontier extraction.)
+    - **Session pre-warming** — Free **—** · Pro **✓** · Teams **✓**.
+    - Storage + connectors rows stay (ADR 0006). Honest copy: *"Free gets a
+      nightly taste of hosted consolidation; Pro runs frontier extraction on
+      your behalf."*
+  - **`/dashboard/billing` current-plan card (SC3.5)** expands the entitlement
+    snapshot from 2 → 4 dimensions: storage used/cap, connectors used/cap,
+    **consolidation runs today/cap**, **pre-warm today/cap**. The numeric-cap
+    enforcement (Q19, `count < cap`) made visible across all four — consistent
+    with how SC3.5 already shows storage + connectors.
+  - **`/` landing pricing preview (SC2.1 §6) + `/use-cases`** copy shifts
+    "managed tier later" → active framing once phase 3 lands. **Copy, not IA** —
+    deferred to `copywriting`; recorded here so the copywriter knows the
+    managed tier is a phase-3 fact, not a hedge.
+  - **Counts:** no new screens; two locked screens gain rows/cards. v1
+    inventory unchanged (16).
 
 ## Docs app (`apps/docs`) — scope + screens
 
@@ -415,12 +516,23 @@ a screen; every screen points at the `SC-*` decision that locks it.
 | 14 | `/dashboard/api-keys` | Product | Key list + one-time-reveal create + soft-revoke | Auth, account-wide | SC3.4 |
 | 15 | `/dashboard/billing` | Product | Plan/usage snapshot + Polar checkout/portal links out | Auth, account-wide | SC3.5 |
 | 16 | `/dashboard/settings` | Product | Profile + security + danger-zone delete | Auth, account-wide | SC3.6 |
+| — | `/dashboard/team` | Product *(phase 2)* | Team members, shared projects (concurrency-gated writes), team settings | Auth, account-wide, **conditional nav** | SC7 |
+| — | `/dashboard/memory` | Product *(phase 3)* | Hosted memory: runtime status, consolidation, pre-warming, memory explorer | Auth, project-scoped, **conditional nav** | SC8 |
+
+> Rows marked **(phase N)** are gated on [ADR 0011](../adr/0011-managed-runtime-sequencing.md)
+> and are **not part of the v1 inventory** (the `#` column is `—` until they
+> ship). SC9 adds **no new rows** — it extends `/pricing` (row 2) and
+> `/dashboard/billing` (row 15) with Q33 entitlement dimensions.
 
 **Cloud dashboard shell:** top-nav 6 entries (Overview · Projects · Connectors ·
 API Keys · Billing · Settings) + global project switcher in header. The
 switcher scopes only project-scoped surfaces (Overview cards, Projects detail,
 Connectors); account-wide surfaces (API Keys, Billing, Settings) ignore it.
-Lock: SC3.
+**Two conditional nav items** appear only when eligible (do not change the v1
+6-item nav for ineligible users): **"Team"** (SC7, account-wide, when the
+account owns/belongs to a team) and **"Memory"** (SC8, project-scoped, when the
+managed tier is active for the selected project). Lock: SC3 (+ SC7/SC8 for the
+conditional items).
 
 ### Docs app (`apps/docs` → `docs.tekbreed.com`)
 
@@ -441,10 +553,15 @@ Lock: SC3.
 
 ### Counts
 
-- **Cloud:** 16 screens (5 marketing/legal + 4 auth + 7 dashboard incl. shell).
-  Auth dropped 6 → 4 under SC4.1 (passwordless: `/reset` + `/reset/confirm`
-  removed, `/verify` repurposed). Admin is deferred + namespace-reserved (SC6) —
-  not counted as a v1 screen.
+- **Cloud:** **16 v1 screens** (5 marketing/legal + 4 auth + 7 dashboard incl.
+  shell). Auth dropped 6 → 4 under SC4.1 (passwordless: `/reset` +
+  `/reset/confirm` removed, `/verify` repurposed). Admin is deferred +
+  namespace-reserved (SC6) — not counted as a v1 screen.
+  - **+2 phase-gated screens** (not in the v1 count): `/dashboard/team` (SC7,
+    phase 2 — Teams, gated on ADR 0011 phase 1) and `/dashboard/memory` (SC8,
+    phase 3 — managed runtime, gated on ADR 0011 phase 3 + ADR 0012). Both ship
+    as conditional nav items; the v1 6-item nav is unchanged for ineligible
+    users. SC9 adds no screens (extends `/pricing` + `/dashboard/billing`).
 - **Docs:** 8 sections + 1 external link; top-nav locked at 7 items.
 - **Cross-app rule (SC1):** cloud marketing/pricing/dashboard live **only** on
   `memo.tekbreed.com`; OSS docs/blog/changelog live **only** on

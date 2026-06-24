@@ -30,6 +30,13 @@ of Record).**
 > headroom for paid storage add-ons later. Teams billing model clarified as
 > **per-seat** ($24/seat/mo) throughout. Annual billing deferred to post-launch
 > (same "avoid premature billing complexity" principle).
+>
+> **Cross-ref (Q33, 2026-06-24):** the managed-runtime intelligence entitlements
+> (`maxConsolidationRuns` / `maxPreWarmPerDay`) follow this same numeric-cap
+> model and **do not change the prices below.** One margin guardrail locked at
+> Q33: **Free's 1 consolidation/day runs on the deterministic floor only (zero
+> LLM spend); Pro+ gets frontier extraction** — so the Free tier's hosted
+> compute is cost-safe. See decisions log Q33 + [ADR 0011](./0011-managed-runtime-sequencing.md).
 
 | Tier | Price | Storage | Connectors | Status |
 |---|---|---|---|---|
