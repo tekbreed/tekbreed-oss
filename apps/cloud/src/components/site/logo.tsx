@@ -1,15 +1,19 @@
 import { cn } from "~/lib/utils";
 
 /**
- * TekMemo brand mark (SC1 / SC2).
+ * TekMemo brand mark.
  *
- * A custom SVG glyph: a rounded-square container with a brand gradient stroke,
- * enclosing a connected "memory node" constellation — one central node linked to
- * three satellites. Reads as: connected memory, technical, premium. The gradient
- * (brand-blue → brand-violet) is the single accent used across the whole app.
+ * Derived from the TekBreed identity (the `< >` brackets + blue→green palette),
+ * but with the parent's DNA helix replaced by stacked memory layers — TekMemo is
+ * layered memory. Same glyph as the shared `logo.svg` / `favicon.ico` so the
+ * brand reads consistently across the docs and cloud apps. The brighter brand
+ * variants (#4fb2f3 / #5bd473) stay legible on both light and dark surfaces.
  *
  * `Wordmark` pairs the glyph with the mono "TekMemo" / "Cloud" treatment.
  */
+
+const BRAND_BLUE = "#4fb2f3";
+const BRAND_GREEN = "#5bd473";
 
 export function LogoMark({
 	className,
@@ -18,49 +22,44 @@ export function LogoMark({
 	className?: string;
 	size?: number;
 }) {
-	// Stable gradient id so multiple marks on one page don't collide.
+	// Stable gradient id; identical defs across instances reference the same fill.
 	const gid = "tekmemo-logo-grad";
 	return (
 		<svg
 			width={size}
 			height={size}
-			viewBox="0 0 32 32"
+			viewBox="0 0 100 100"
 			fill="none"
 			className={cn("shrink-0", className)}
 			role="img"
 			aria-label="TekMemo"
 		>
 			<defs>
-				<linearGradient id={gid} x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-					<stop stopColor="oklch(0.7 0.15 215)" />
-					<stop offset="0.5" stopColor="oklch(0.62 0.17 248)" />
-					<stop offset="1" stopColor="oklch(0.58 0.19 295)" />
+				{/* Memory layers fade blue → green, tying the bracket colors together. */}
+				<linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
+					<stop stopColor={BRAND_BLUE} />
+					<stop offset="1" stopColor={BRAND_GREEN} />
 				</linearGradient>
 			</defs>
-			{/* Container — rounded square with hairline gradient stroke. */}
-			<rect
-				x="1.5"
-				y="1.5"
-				width="29"
-				height="29"
-				rx="8"
-				stroke={`url(#${gid})`}
-				strokeWidth="1.25"
-				opacity="0.55"
-			/>
-			{/* Connection lines (drawn first so nodes sit on top). */}
-			<g stroke={`url(#${gid})`} strokeWidth="1.25" strokeLinecap="round" opacity="0.7">
-				<line x1="16" y1="16" x2="9" y2="9.5" />
-				<line x1="16" y1="16" x2="23.5" y2="10" />
-				<line x1="16" y1="16" x2="11" y2="23.5" />
+			<g strokeLinecap="round" strokeLinejoin="round" fill="none">
+				{/* Brackets — the TekBreed lineage (blue left, green right). */}
+				<polyline
+					points="25,25 5,50 25,75"
+					stroke={BRAND_BLUE}
+					strokeWidth="6"
+				/>
+				<polyline
+					points="75,25 95,50 75,75"
+					stroke={BRAND_GREEN}
+					strokeWidth="6"
+				/>
+				{/* Isometric layered stack — the TekMemo mark (memory in layers). */}
+				<g stroke={`url(#${gid})`} strokeWidth="6">
+					<polygon points="50,28 66,37 50,46 34,37" />
+					<polyline points="34,45 50,54 66,45" />
+					<polyline points="34,53 50,62 66,53" />
+				</g>
 			</g>
-			{/* Satellite nodes. */}
-			<circle cx="9" cy="9.5" r="2" fill={`url(#${gid})`} />
-			<circle cx="23.5" cy="10" r="2" fill={`url(#${gid})`} />
-			<circle cx="11" cy="23.5" r="2" fill={`url(#${gid})`} />
-			{/* Central node — slightly larger, brighter. */}
-			<circle cx="16" cy="16" r="3" fill={`url(#${gid})`} />
-			<circle cx="16" cy="16" r="3" fill="oklch(0.99 0 0)" opacity="0.9" />
 		</svg>
 	);
 }
@@ -80,12 +79,7 @@ export function Wordmark({
 			)}
 		>
 			TekMemo
-			{suffix ? (
-				<span className="text-muted-foreground">
-					{" "}
-					{suffix}
-				</span>
-			) : null}
+			{suffix ? <span className="text-muted-foreground"> {suffix}</span> : null}
 		</span>
 	);
 }

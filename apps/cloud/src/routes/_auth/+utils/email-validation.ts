@@ -44,9 +44,10 @@ export type EmailValidation = { ok: true } | { ok: false; issue: EmailIssue };
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
- * Validate an email address for signup. Pure + synchronous for the format +
- * disposable checks; the MX check is the caller's responsibility (async DNS).
- * Returns the first issue found, or `{ ok: true }`.
+ * Validate an email address. Pure + synchronous for the format +
+ * disposable checks; the async MX check is the caller's responsibility (signup
+ * composes it via {@link emailDomain} + `hasMxRecord`; login omits it to avoid
+ * lockout). Returns the first issue found, or `{ ok: true }`.
  */
 export function validateEmail(email: string): EmailValidation {
 	const trimmed = email.trim().toLowerCase();
@@ -58,6 +59,16 @@ export function validateEmail(email: string): EmailValidation {
 		return { ok: false, issue: { kind: "disposable", domain } };
 	}
 	return { ok: true };
+}
+
+/**
+ * The domain of a syntactically-valid email, or `null` if it doesn't parse.
+ * Lets callers run the MX lookup without re-splitting.
+ */
+export function emailDomain(email: string): string | null {
+	const trimmed = email.trim().toLowerCase();
+	if (!EMAIL_RE.test(trimmed)) return null;
+	return trimmed.split("@")[1] ?? null;
 }
 
 /**

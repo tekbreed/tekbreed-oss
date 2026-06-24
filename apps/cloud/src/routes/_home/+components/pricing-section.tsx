@@ -60,7 +60,7 @@ export function PricingSection() {
 										) : null}
 									</div>
 									<div className="mt-4 flex items-baseline gap-1">
-										<span className="display text-4xl text-foreground">
+										<span className="font-heading font-bold tracking-[-0.03em] leading-[1.02] text-4xl text-foreground">
 											{plan.price}
 										</span>
 										<span className="text-sm text-muted-foreground">

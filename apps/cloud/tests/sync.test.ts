@@ -29,8 +29,8 @@ import { createTestDb } from "./helpers/db";
  */
 
 const SALT = "test-salt";
-const RAW_KEY = "tk_live_syncowner0000000";
-const OTHER_KEY = "tk_live_otheraccount0000";
+const RAW_KEY = "tm_syncowner0000000";
+const OTHER_KEY = "tm_otheraccount0000";
 /** Tiny cap so the entitlement test can trip it with a few small files. */
 const STORAGE_CAP = 1_000; // bytes
 

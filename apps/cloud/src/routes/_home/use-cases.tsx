@@ -72,12 +72,14 @@ export default function UseCases(_props: Route.ComponentProps) {
 				<div className="flex items-center gap-2.5">
 					<span
 						aria-hidden
-						className="size-1.5 rounded-full bg-primary animate-pulse-dot"
+						className="size-1.5 rounded-full bg-primary animate-pulse"
 					/>
-					<span className="eyebrow text-primary">Use cases</span>
+					<span className="font-heading text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-primary">
+						Use cases
+					</span>
 				</div>
-				<h1 className="display max-w-2xl text-balance text-4xl text-foreground sm:text-5xl">
-					What TekMemo Cloud is <span className="text-gradient">for</span>.
+				<h1 className="font-heading font-bold tracking-[-0.03em] leading-[1.02] max-w-2xl text-balance text-4xl text-foreground sm:text-5xl">
+					What TekMemo Cloud is <span className="text-primary">for</span>.
 				</h1>
 				<p className="max-w-2xl text-base leading-relaxed text-muted-foreground">
 					The cloud is a file replica — it mirrors your{" "}
@@ -96,7 +98,7 @@ export default function UseCases(_props: Route.ComponentProps) {
 							<div className="grid gap-8 lg:grid-cols-[1fr_2fr]">
 								<div>
 									<div className="flex items-center gap-3">
-										<span className="display text-4xl text-muted-foreground/40">
+										<span className="font-heading font-bold tracking-[-0.03em] leading-[1.02] text-4xl text-muted-foreground/40">
 											{uc.n}
 										</span>
 										<span className="flex size-9 items-center justify-center rounded-lg border border-border bg-primary/10 text-primary">
@@ -130,13 +132,13 @@ export default function UseCases(_props: Route.ComponentProps) {
 			</div>
 
 			<div className="relative mt-16 overflow-hidden rounded-2xl border border-border bg-card/40 px-6 py-12 text-center glass">
-				<h2 className="display relative text-balance text-2xl text-foreground sm:text-3xl">
+				<h2 className="font-heading font-bold tracking-[-0.03em] leading-[1.02] relative text-balance text-2xl text-foreground sm:text-3xl">
 					Ready to sync your memory?
 				</h2>
 				<Button
 					asChild
 					size="lg"
-					className="btn-glow relative mt-6 h-10 gap-2 rounded-md px-6 text-sm"
+					className="relative mt-6 h-10 gap-2 rounded-md px-6 text-sm"
 				>
 					<Link to="/signup">
 						Get started free

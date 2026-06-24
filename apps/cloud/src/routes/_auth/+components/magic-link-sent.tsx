@@ -4,14 +4,16 @@ import { Card, CardContent } from "~/components/ui/card";
 /**
  * "Check your inbox" confirmation shown after a magic link is requested.
  * Shared by login and signup — both surface the same success state under
- * passwordless auth (SC4.1).
+ * passwordless auth (SC4.1). `onReset` is optional: the server-action flow
+ * keeps the form mounted via `useFetcher`, so there's no local "sent" state to
+ * clear — the reset affordance only applies when a caller manages that state.
  */
 export function MagicLinkSent({
 	email,
 	onReset,
 }: {
 	email: string;
-	onReset: () => void;
+	onReset?: () => void;
 }) {
 	return (
 		<Card className="text-center">
@@ -25,13 +27,15 @@ export function MagicLinkSent({
 					<strong className="text-foreground">{email}</strong>. Click it to
 					continue — it expires in 15 minutes.
 				</p>
-				<button
-					type="button"
-					onClick={onReset}
-					className="text-xs text-primary hover:underline font-medium"
-				>
-					Use a different email
-				</button>
+				{onReset && (
+					<button
+						type="button"
+						onClick={onReset}
+						className="text-xs text-primary hover:underline font-medium"
+					>
+						Use a different email
+					</button>
+				)}
 			</CardContent>
 		</Card>
 	);

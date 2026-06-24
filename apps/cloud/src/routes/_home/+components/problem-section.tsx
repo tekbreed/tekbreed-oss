@@ -1,4 +1,4 @@
-import { AlertTriangle, Laptop, Monitor, Server } from "lucide-react";
+import { AlertTriangle, Laptop, Server, Users } from "lucide-react";
 import { InlineCode } from "~/components/site/inline-code";
 import { SectionHeading } from "~/components/site/terminal";
 import { Section } from "~/components/site/visuals";
@@ -27,10 +27,10 @@ const DEVICES: Device[] = [
 		desc: "83 files. A stale snapshot from last month. Connector config doesn't match.",
 	},
 	{
-		icon: Monitor,
+		icon: Users,
 		tone: "text-red-500",
-		title: "Work laptop",
-		desc: "189 files. Missing the last 3 weeks of memory writes. Already diverged.",
+		title: "Coworker's laptop",
+		desc: "189 files. Your teammate pulled 3 weeks ago — their memory has already diverged from yours.",
 	},
 ];
 
@@ -44,8 +44,8 @@ export function ProblemSection() {
 				lede={
 					<>
 						You edit <InlineCode className="text-xs">.tekmemo/</InlineCode> on
-						your laptop. CI pushes a run log on the server. Your desktop has
-						last week's snapshot. They've silently diverged.
+						your laptop. CI pushes a run log on the server. A teammate is still
+						on last week's snapshot. They've silently diverged.
 					</>
 				}
 			/>

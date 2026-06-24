@@ -2,6 +2,7 @@ import { ArrowRight, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Link, NavLink } from "react-router";
 import { Button } from "~/components/ui/button";
+import { SITE_LINKS } from "~/lib/site";
 import { cn } from "~/lib/utils";
 import { GithubMark } from "./brand-icons";
 import { Logo } from "./logo";
@@ -26,7 +27,7 @@ export function SiteHeader() {
 			{/* Announcement strip — single accent line, dismissible feel without state. */}
 			{/* <div className="border-b border-border/60">
 				<div className="mx-auto flex max-w-6xl items-center justify-center gap-2 px-6 py-1.5 text-center">
-					<span className="size-1.5  animate-pulse-dot" aria-hidden />
+					<span className="size-1.5  animate-pulse" aria-hidden />
 					<span className="font-mono text-xs text-muted-foreground">
 						TekMemo Cloud sync is live —{" "}
 						<Link
@@ -71,12 +72,21 @@ export function SiteHeader() {
 							</NavLink>
 						))}
 						<a
-							href="https://docs.tekbreed.com"
+							href={SITE_LINKS.docs}
 							className="px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
 							rel="noreferrer"
 							target="_blank"
 						>
 							Docs ↗
+						</a>
+						<a
+							href={SITE_LINKS.github}
+							// className="mt-4 inline-flex size-9 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
+							rel="noreferrer"
+							target="_blank"
+							aria-label="GitHub"
+						>
+							<GithubMark className="size-4" />
 						</a>
 						<span aria-hidden className="mx-2 h-5 w-px bg-border" />
 						<NavLink
@@ -88,7 +98,7 @@ export function SiteHeader() {
 						<Button
 							asChild
 							size="sm"
-							className="btn-glow ml-1 h-8 rounded-md px-3 text-sm"
+							className="ml-1 h-8 rounded-md px-3 text-sm"
 						>
 							<Link to="/signup">
 								Get started
@@ -114,7 +124,7 @@ export function SiteHeader() {
 
 				{/* Mobile Drawer */}
 				{mobileOpen && (
-					<div className="md:hidden border-t border-border/40 bg-background/95 px-6 py-4 flex flex-col gap-3 animate-fade-in backdrop-blur-xl">
+					<div className="md:hidden border-t border-border/40 bg-background/95 px-6 py-4 flex flex-col gap-3 animate-in fade-in-0 duration-200 backdrop-blur-xl">
 						{NAV.map((item) => (
 							<Link
 								key={item.to}
@@ -126,7 +136,7 @@ export function SiteHeader() {
 							</Link>
 						))}
 						<a
-							href="https://docs.memo.tekbreed.com"
+							href={SITE_LINKS.docs}
 							className="text-sm font-medium py-1.5 text-muted-foreground hover:text-foreground transition-colors"
 							rel="noreferrer"
 							target="_blank"
@@ -134,17 +144,17 @@ export function SiteHeader() {
 						>
 							Docs ↗
 						</a>
-
-						<span aria-hidden className="h-px bg-border/40 my-1" />
 						<a
-							href="https://github.com/tekbreed/tekmemo"
-							className="mt-4 size-9 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
+							href={SITE_LINKS.github}
+							// className="mt-4 inline-flex size-9 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
 							rel="noreferrer"
 							target="_blank"
 							aria-label="GitHub"
 						>
 							<GithubMark className="size-4" />
 						</a>
+						<span aria-hidden className="h-px bg-border/40 my-1" />
+
 						<Link
 							to="/login"
 							className="text-sm font-medium py-1.5 text-muted-foreground hover:text-foreground transition-colors"
@@ -155,7 +165,7 @@ export function SiteHeader() {
 						<Button
 							asChild
 							size="sm"
-							className="btn-glow h-9 rounded-md w-full justify-center text-sm"
+							className="h-9 rounded-md w-full justify-center text-sm"
 						>
 							<Link to="/signup" onClick={() => setMobileOpen(false)}>
 								Get started

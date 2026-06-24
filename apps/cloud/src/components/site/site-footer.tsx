@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { SITE_LINKS } from "~/lib/site";
 import { GithubMark } from "./brand-icons";
 import { LogoMark, Wordmark } from "./logo";
 
@@ -9,17 +10,17 @@ import { LogoMark, Wordmark } from "./logo";
  * faded wordmark backdrop, the product + project columns, and a bottom bar with
  * the copyright + API status link. Keeps the cross-app rule (SC1): cloud
  * marketing stays on `memo.tekbreed.com`, the OSS front door lives at
- * `docs.tekbreed.com` — linked, not duplicated.
+ * `docs.memo.tekbreed.com` — linked, not duplicated.
  */
 
 const COLS = [
 	{
 		title: "Product",
 		links: [
-			{ label: "Pricing", to: "/pricing" },
 			{ label: "Use cases", to: "/use-cases" },
-			{ label: "OSS docs ↗", href: "https://docs.memo.tekbreed.com" },
-			{ label: "GitHub ↗", href: "https://github.com/tekbreed/tekmemo" },
+			{ label: "Pricing", to: "/pricing" },
+			{ label: "OSS docs ↗", href: SITE_LINKS.docs },
+			{ label: "GitHub ↗", href: SITE_LINKS.github },
 		],
 	},
 	{
@@ -46,7 +47,7 @@ export function SiteFooter() {
 							file replica — the engine stays on your machine.
 						</p>
 						<a
-							href="https://github.com/tekbreed/tekmemo"
+							href={SITE_LINKS.github}
 							className="mt-4 inline-flex size-9 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
 							rel="noreferrer"
 							target="_blank"
@@ -58,7 +59,9 @@ export function SiteFooter() {
 
 					{COLS.map((col) => (
 						<div key={col.title} className="flex flex-col gap-3">
-							<span className="eyebrow text-muted-foreground">{col.title}</span>
+							<span className="font-heading text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+								{col.title}
+							</span>
 							{col.links.map((link) =>
 								"to" in link ? (
 									<Link
@@ -87,7 +90,7 @@ export function SiteFooter() {
 
 			<div className="border-t border-border/60">
 				<div className="mx-auto flex max-w-6xl flex-col gap-2 px-6 py-5 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-8">
-					<p>© {new Date().getFullYear()} Tekbreed.</p>
+					<p>© {new Date().getFullYear()} Tekbreed. All rights reserved.</p>
 					<a href="/v1/health" className="hover:text-foreground">
 						API status
 					</a>

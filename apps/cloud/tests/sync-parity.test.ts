@@ -40,7 +40,7 @@ import { createTestDb } from "./helpers/db";
  */
 
 const SALT = "parity-salt";
-const RAW_KEY = "tk_live_parity0000000000";
+const RAW_KEY = "tm_parity0000000000";
 // `http://localhost` is the one non-https host the client's baseUrl validator
 // permits (self-hosted dev carve-out). The host is irrelevant here — requests
 // are bridged straight into the Hono app — but the validator runs regardless.

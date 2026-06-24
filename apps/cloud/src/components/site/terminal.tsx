@@ -1,7 +1,12 @@
 import { Check, Copy } from "lucide-react";
-import type * as React from "react";
+import * as React from "react";
 import { useCopyToClipboard } from "~/hooks/use-copy-to-clipboard";
+import { useInView } from "~/hooks/use-in-view";
+import { usePrefersReducedMotion } from "~/hooks/use-prefers-reduced-motion";
+import { useTerminalTyping } from "~/hooks/use-terminal-typing";
 import { cn } from "~/lib/utils";
+
+type Command = { cmd: string; note?: string };
 
 /**
  * Terminal window — the styled premium shell for code/CLI demos (Signal aesthetic).
@@ -22,10 +27,13 @@ export function TerminalWindow({
 	title = "tekmemo — zsh",
 	commands,
 	className,
+	animated = false,
 }: {
 	title?: string;
-	commands: { cmd: string; note?: string }[];
+	commands: Command[];
 	className?: string;
+	/** Play a typing/streaming sequence on scroll-into-view (reduced-motion safe). */
+	animated?: boolean;
 }) {
 	return (
 		<div
@@ -55,11 +63,75 @@ export function TerminalWindow({
 				</span>
 			</div>
 			{/* Command rows */}
-			<div className="divide-y divide-border/50">
-				{commands.map((item, i) => (
-					<CommandRow key={item.cmd} index={i} {...item} />
-				))}
-			</div>
+			{animated ? (
+				<AnimatedCommandRows commands={commands} />
+			) : (
+				<div className="divide-y divide-border/50">
+					{commands.map((item, i) => (
+						<CommandRow key={item.cmd} index={i} {...item} />
+					))}
+				</div>
+			)}
+		</div>
+	);
+}
+
+/**
+ * Blinking block caret — sits after the typed text on the active command row.
+ */
+function Caret() {
+	return (
+		<span
+			aria-hidden
+			className="ml-0.5 inline-block h-[1.05em] w-[0.5ch] translate-y-[0.15em] bg-primary/80 animate-caret-blink"
+		/>
+	);
+}
+
+/**
+ * AnimatedCommandRows — drives the terminal "live": each command types in,
+ * pauses as if running, then streams its output note, before the next row
+ * appears. Only starts once scrolled into view; honors `prefers-reduced-motion`
+ * by rendering the final, fully-typed state immediately.
+ */
+function AnimatedCommandRows({ commands }: { commands: Command[] }) {
+	const reduced = usePrefersReducedMotion();
+	const [ref, inView] = useInView<HTMLDivElement>({ threshold: 0.4 });
+	const lengths = React.useMemo(
+		() => commands.map((c) => c.cmd.length),
+		[commands],
+	);
+	const state = useTerminalTyping(lengths, inView && !reduced);
+
+	const visibleCount = reduced ? commands.length : state.row + 1;
+
+	return (
+		<div ref={ref} className="divide-y divide-border/50">
+			{commands.map((item, i) => {
+				if (i >= visibleCount) return null;
+				const typed = i < state.row ? item.cmd : item.cmd.slice(0, state.char);
+				const noteVisible =
+					reduced ||
+					i < state.row ||
+					state.phase === "note" ||
+					state.phase === "done";
+				return (
+					<CommandRow
+						key={item.cmd}
+						index={i}
+						cmd={item.cmd}
+						note={item.note}
+						display={reduced ? undefined : typed}
+						caret={!reduced && i === state.row}
+						noteVisible={noteVisible}
+						className={
+							!reduced && i === state.row
+								? "animate-in fade-in slide-in-from-left-1 duration-300"
+								: undefined
+						}
+					/>
+				);
+			})}
 		</div>
 	);
 }
@@ -68,23 +140,41 @@ function CommandRow({
 	index,
 	cmd,
 	note,
+	display,
+	caret = false,
+	noteVisible = true,
+	className,
 }: {
 	index: number;
 	cmd: string;
 	note?: string;
+	/** Overrides the rendered command text (the partially-typed string). */
+	display?: string;
+	caret?: boolean;
+	noteVisible?: boolean;
+	className?: string;
 }) {
 	const { copy, copied } = useCopyToClipboard();
+	const text = display ?? cmd;
 	return (
-		<div className="group/cmd flex items-center gap-3 px-4 py-3 transition-colors hover:bg-white/[0.02]">
+		<div
+			className={cn(
+				"group/cmd flex items-center gap-3 px-4 py-3 transition-colors hover:bg-white/2",
+				className,
+			)}
+		>
 			<span className="font-mono text-xs text-primary/70 select-none">
 				{String(index + 1).padStart(2, "0")}
 			</span>
 			<span aria-hidden className="font-mono text-sm text-muted-foreground">
 				$
 			</span>
-			<code className="flex-1 font-mono text-sm text-foreground">{cmd}</code>
-			{note ? (
-				<span className="hidden text-xs text-muted-foreground sm:inline">
+			<code className="flex-1 font-mono text-sm text-foreground">
+				{text}
+				{caret ? <Caret /> : null}
+			</code>
+			{note && noteVisible ? (
+				<span className="hidden text-xs text-muted-foreground sm:inline animate-in fade-in duration-300">
 					{note}
 				</span>
 			) : null}
@@ -135,13 +225,15 @@ export function SectionHeading({
 			<div className="flex items-center gap-2.5">
 				<span
 					aria-hidden
-					className="size-1.5 rounded-full bg-primary animate-pulse-dot"
+					className="size-1.5 rounded-full bg-primary animate-pulse"
 				/>
-				<span className="eyebrow text-primary">{eyebrow}</span>
+				<span className="font-heading text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-primary">
+					{eyebrow}
+				</span>
 			</div>
 			<h2
 				className={cn(
-					"display max-w-2xl text-3xl text-foreground sm:text-4xl",
+					"font-heading font-bold tracking-[-0.03em] leading-[1.02] max-w-2xl text-3xl text-foreground sm:text-4xl",
 					align === "center" && "mx-auto",
 				)}
 			>

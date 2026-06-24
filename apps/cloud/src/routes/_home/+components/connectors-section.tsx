@@ -9,6 +9,7 @@ import { SectionHeading } from "~/components/site/terminal";
 import { Section } from "~/components/site/visuals";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
+import { SITE_LINKS } from "~/lib/site";
 import { cn } from "~/lib/utils";
 import { CONNECTORS } from "../+utils/landing-content";
 
@@ -37,11 +38,7 @@ export function ConnectorsSection() {
 						}
 					/>
 					<Button asChild size="sm" variant="link" className="mt-6 h-auto p-0">
-						<a
-							href="https://docs.tekbreed.com"
-							rel="noreferrer"
-							target="_blank"
-						>
+						<a href={SITE_LINKS.docs} rel="noreferrer" target="_blank">
 							See connector docs
 							<ArrowRight className="size-3.5" />
 						</a>

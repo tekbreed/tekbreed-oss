@@ -1,6 +1,5 @@
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { data, useFetcher } from "react-router";
 import { Button } from "~/components/ui/button";
 import {
 	Card,
@@ -9,6 +8,12 @@ import {
 	CardHeader,
 	CardTitle,
 } from "~/components/ui/card";
+import { createDb } from "~/db/index.server";
+import { createAuth } from "~/server/auth";
+import { getCtx, getEnv } from "~/server/context.server";
+import { createMagicLinkMailer } from "~/server/email";
+import { enabledOAuthProviders } from "~/server/oauth-providers.server";
+import { consumeMagicLinkToken } from "~/server/rate-limit.server";
 import {
 	AuthSwitchLink,
 	EmailField,
@@ -16,7 +21,10 @@ import {
 } from "./+components/form-parts";
 import { MagicLinkSent } from "./+components/magic-link-sent";
 import { OAuthButtons } from "./+components/oauth-buttons";
+import type { Route } from "./+types/login";
 import { emailIssueMessage, validateEmail } from "./+utils/email-validation";
+import type { FetcherResult } from "./+utils/types";
+import { useAuthRedirect } from "./hooks/use-auth-redirect";
 
 export function meta() {
 	return [
@@ -25,32 +33,82 @@ export function meta() {
 	];
 }
 
-export default function LoginPage() {
-	const navigate = useNavigate();
-	const [params] = useSearchParams();
-	const next = params.get("next") ?? "/dashboard";
+/**
+ * Exposes the server-derived set of enabled OAuth providers so the buttons
+ * render iff `createAuth` will accept them (A2). No DB hit — pure env check.
+ */
+export async function loader({ context }: Route.LoaderArgs) {
+	return { providers: enabledOAuthProviders(getEnv(context)) };
+}
 
-	const [email, setEmail] = useState("");
-	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState("");
-	const [sent, setSent] = useState(false);
+/**
+ * Magic-link request action for login (SC4.1).
+ *
+ * Runs server-side so Better Auth's `signInMagicLink` is called directly — no
+ * extra HTTP hop through the client. Better Auth uses the email only to send
+ * the link; the actual session is minted on verify (`/api/auth/magic-link/verify`,
+ * owned by Better Auth). On success returns `{ ok, email }`; the component uses
+ * that to flip to the "check your inbox" state.
+ */
+export async function action({ request, context }: Route.ActionArgs) {
+	const formData = await request.formData();
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-		const validation = validateEmail(email);
-		if (!validation.ok) {
-			setError(emailIssueMessage(validation.issue));
-			return;
-		}
-		setLoading(true);
-		setError("");
-		await new Promise((r) => setTimeout(r, 600));
-		setLoading(false);
-		setSent(true);
-	};
+	const email = String(formData.get("email")).trim();
+	const callbackURL = String(formData.get("callbackURL") ?? "/dashboard");
 
-	if (sent) {
-		return <MagicLinkSent email={email} onReset={() => setSent(false)} />;
+	const env = getEnv(context);
+
+	// Rate-limit before any DB/email work so a flood never reaches Plunk. Login
+	// omits the MX check (unlike signup) so a transient DoH failure can't lock a
+	// returning user out of their account.
+	const limited = await consumeMagicLinkToken(env, request, getCtx(context));
+	if (!limited.ok) {
+		const secs = Math.ceil((limited.reset - Date.now()) / 1000);
+		return data(
+			{
+				ok: false,
+				error: `Too many requests. Try again in ${Math.max(secs, 0)}s.`,
+			},
+			{ status: 429 },
+		);
+	}
+
+	const validation = validateEmail(email);
+
+	if (!validation.ok) {
+		return data(
+			{ ok: false, error: emailIssueMessage(validation.issue) },
+			{ status: 400 },
+		);
+	}
+
+	const db = createDb(env);
+	const auth = createAuth(env, db, createMagicLinkMailer(env));
+
+	await auth.api.signInMagicLink({
+		body: { email, callbackURL },
+		// Request headers carry IP/UA so Better Auth's rate-limiting has context.
+		headers: request.headers,
+	});
+
+	return { ok: true, email };
+}
+
+/**
+ * Login page (SC4.1). Passwordless: the user enters an email, the server
+ * action calls Better Auth's `signInMagicLink`, and the link in their email is
+ * the only factor. The form uses `useFetcher` (no navigation) so the "sending…"
+ * pending state and the "check inbox" result both render inline.
+ */
+export default function LoginPage({ loaderData }: Route.ComponentProps) {
+	const { providers } = loaderData;
+	const next = useAuthRedirect();
+	const fetcher = useFetcher<FetcherResult>();
+	const submitting = fetcher.state === "submitting";
+	const result = fetcher.data;
+
+	if (result?.ok) {
+		return <MagicLinkSent email={result.email} />;
 	}
 
 	return (
@@ -62,16 +120,17 @@ export default function LoginPage() {
 				</CardDescription>
 			</CardHeader>
 			<CardContent>
-				<OAuthButtons onSelect={() => navigate(next, { replace: true })} />
-
-				<form onSubmit={handleSubmit} className="space-y-4">
-					<FormError message={error} />
-					<EmailField value={email} onChange={setEmail} />
-					<Button type="submit" className="w-full" disabled={loading}>
-						{loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-						{loading ? "Sending link…" : "Email me a login link"}
+				<OAuthButtons providers={providers} callbackURL={next} />
+				<fetcher.Form method="post" className="space-y-4">
+					{/* Preserve the post-verify destination through the action round-trip. */}
+					<input type="hidden" name="callbackURL" value={next} />
+					{!result?.ok ? <FormError message={result?.error} /> : null}
+					<EmailField />
+					<Button type="submit" className="w-full" disabled={submitting}>
+						{submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+						{submitting ? "Sending link…" : "Email me a login link"}
 					</Button>
-				</form>
+				</fetcher.Form>
 
 				<AuthSwitchLink
 					to="/signup"

@@ -1,8 +1,6 @@
 import {
-	AlertCircle,
 	ArrowUpRight,
 	CheckCircle2,
-	Clock,
 	Copy,
 	HardDrive,
 	Plug,
@@ -11,7 +9,6 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
-import { Badge } from "~/components/ui/badge";
 import {
 	Card,
 	CardContent,
@@ -20,43 +17,45 @@ import {
 	CardTitle,
 } from "~/components/ui/card";
 import { Progress } from "~/components/ui/progress";
-import {
-	type Connector,
-	formatBytes,
-	formatRelative,
-	MOCK_ACCOUNT,
-	MOCK_CONNECTORS,
-	type Project,
-} from "~/utils/mock-data";
+import type { AccountView, ProjectSummary } from "~/server/queries";
+import { formatBytes, formatRelative } from "~/utils/format";
 
 /**
  * The four SC3.1 overview cards, project-scoped. Each maps to a real data
  * source: sync status, storage usage (entitlement gate visible), connectors
- * health, and the copyable quick-start CLI command.
+ * health (honest empty state — there is no `connectors` table; connectors run
+ * locally per ADR Q1, so the cloud always reports 0 of N), and the copyable
+ * quick-start CLI command.
+ *
+ * Storage usage is account-wide (entitlement cap), surfaced from the layout
+ * loader's `usage`/`account` — the project's own storage is shown in the sync
+ * card. The cap is the account's `maxHostedStorageBytes`.
  */
-
-export function OverviewCards({ project }: { project: Project }) {
-	const projectConnectors = MOCK_CONNECTORS.filter(
-		(c) => c.projectId === project.id,
-	);
-	const activeConnectors = projectConnectors.filter((c) => c.enabled).length;
+export function OverviewCards({
+	project,
+	account,
+	usage,
+}: {
+	project: ProjectSummary | null;
+	account: AccountView | null;
+	usage: { storageBytes: number; connectorsUsed: number };
+}) {
+	const maxStorage = account?.maxHostedStorageBytes ?? 0;
 	const storagePercent =
-		(project.storageBytes / MOCK_ACCOUNT.maxStorageBytes) * 100;
+		maxStorage > 0 ? (usage.storageBytes / maxStorage) * 100 : 0;
 
 	return (
 		<div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 			<SyncStatusCard project={project} />
 			<StorageCard
-				storageBytes={project.storageBytes}
+				usedBytes={usage.storageBytes}
+				maxBytes={maxStorage}
 				storagePercent={storagePercent}
 				nearCap={storagePercent > 70}
+				plan={account?.plan ?? "free"}
 			/>
-			<ConnectorsCard
-				active={activeConnectors}
-				max={MOCK_ACCOUNT.maxConnectors}
-				connectors={projectConnectors}
-			/>
-			<QuickStartCard projectName={project.name} />
+			<ConnectorsCard max={account?.maxConnectors ?? 0} />
+			<QuickStartCard projectName={project?.name ?? "your-project"} />
 		</div>
 	);
 }
@@ -85,36 +84,43 @@ function CardShell({
 	);
 }
 
-function SyncStatusCard({ project }: { project: Project }) {
+function SyncStatusCard({ project }: { project: ProjectSummary | null }) {
 	return (
 		<CardShell label="Sync status" icon={RefreshCw}>
-			<p className="mb-1 text-xl font-bold">{project.fileCount} files</p>
+			<p className="mb-1 text-xl font-bold">{project?.fileCount ?? 0} files</p>
 			<p className="text-[10px] text-muted-foreground">
-				Last sync {formatRelative(project.lastSyncAt)}
+				{project?.lastSyncAt
+					? `Last sync ${formatRelative(project.lastSyncAt)}`
+					: "Never synced"}
 			</p>
 			<code className="mt-1.5 block truncate rounded border border-border/30 bg-muted/20 px-1 font-mono text-[10px] text-primary">
-				{project.cursor}
+				{project?.cursor ?? "—"}
 			</code>
 		</CardShell>
 	);
 }
 
 function StorageCard({
-	storageBytes,
+	usedBytes,
+	maxBytes,
 	storagePercent,
 	nearCap,
+	plan,
 }: {
-	storageBytes: number;
+	usedBytes: number;
+	maxBytes: number;
 	storagePercent: number;
 	nearCap: boolean;
+	plan: AccountView["plan"];
 }) {
 	return (
 		<CardShell label="Storage" icon={HardDrive}>
-			<p className="mb-1 text-xl font-bold">{formatBytes(storageBytes)}</p>
+			<p className="mb-1 text-xl font-bold">{formatBytes(usedBytes)}</p>
 			<Progress value={storagePercent} className="mb-1.5 h-1.5" />
 			<p className="text-[10px] text-muted-foreground">
-				of {formatBytes(MOCK_ACCOUNT.maxStorageBytes)} · {MOCK_ACCOUNT.plan}{" "}
-				plan
+				{maxBytes > 0
+					? `of ${formatBytes(maxBytes)} · ${plan} plan`
+					: "No storage cap"}
 			</p>
 			{nearCap && (
 				<Link
@@ -128,49 +134,26 @@ function StorageCard({
 	);
 }
 
-function ConnectorsCard({
-	active,
-	max,
-	connectors,
-}: {
-	active: number;
-	max: number;
-	connectors: Connector[];
-}) {
+/**
+ * Connectors health card. There is no cloud-side `connectors` table (connectors
+ * run locally per ADR Q1; config is the synced `connectors.json` blob), so this
+ * truthfully reports 0 of the account's cap. When a table lands, this becomes
+ * the live count without changing the card shape.
+ */
+function ConnectorsCard({ max }: { max: number }) {
 	return (
 		<CardShell label="Connectors" icon={Plug}>
 			<p className="mb-1 text-xl font-bold">
-				{active}{" "}
+				0{" "}
 				<span className="text-xs font-normal text-muted-foreground">
 					/ {max}
 				</span>
 			</p>
-			<div className="mt-1.5 space-y-1">
-				{connectors.map((c) => (
-					<div key={c.id} className="flex items-center gap-1.5">
-						<RunStatusIcon status={c.lastRunStatus} />
-						<span className="font-mono text-[10px] capitalize">{c.type}</span>
-						{!c.enabled && (
-							<Badge
-								variant="secondary"
-								className="h-3.5 px-1 py-0 text-[9px] leading-none"
-							>
-								off
-							</Badge>
-						)}
-					</div>
-				))}
-			</div>
+			<p className="text-[10px] text-muted-foreground">
+				Connectors run locally — cloud shows none yet.
+			</p>
 		</CardShell>
 	);
-}
-
-function RunStatusIcon({ status }: { status: Connector["lastRunStatus"] }) {
-	if (status === "success")
-		return <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-primary" />;
-	if (status === "never")
-		return <Clock className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />;
-	return <AlertCircle className="h-3.5 w-3.5 shrink-0 text-destructive" />;
 }
 
 function QuickStartCard({ projectName }: { projectName: string }) {

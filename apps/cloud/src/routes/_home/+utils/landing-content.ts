@@ -9,7 +9,7 @@
 
 export const HERO_COMMANDS = [
 	{
-		cmd: "tekmemo init <project>",
+		cmd: "tekmemo init quoin",
 		note: "Initialize and connect to cloud",
 	},
 	{ cmd: "tekmemo push", note: "Pushed 247 files (2.4 MB) in 1.2s" },
@@ -33,7 +33,7 @@ export const CLOUD_FILES = [
 export const SYNC_STEPS = [
 	{
 		step: "01",
-		cmd: "tekmemo init <project>",
+		cmd: "tekmemo init quion",
 		title: "Initialize",
 		desc: "Creates .tekmemo/ in the current directory and registers the project with TekMemo Cloud. Generates an API key for this machine.",
 	},

@@ -7,7 +7,8 @@ import {
 	KeyRound,
 	Plus,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useFetcher } from "react-router";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
@@ -29,59 +30,133 @@ import {
 	TableHeader,
 	TableRow,
 } from "~/components/ui/table";
-import { formatDate, formatRelative, MOCK_API_KEYS } from "~/utils/mock-data";
+import { createDb } from "~/db/index.server";
+import { getEnv } from "~/server/context.server";
+import type { ApiKeyView } from "~/server/queries";
+import {
+	createApiKey,
+	getAccountForUser,
+	listApiKeysForAccount,
+	revokeApiKey,
+} from "~/server/queries";
+import { requireUser } from "~/server/session.server";
+import { formatDate } from "~/utils/format";
+import { PageHeader } from "./+components/page-header";
+import type { Route } from "./+types/api-keys";
 
-interface ApiKey {
-	id: string;
-	label: string;
-	lastFour: string;
-	createdAt: string;
-	lastSeen: string;
-	revokedAt: string | null;
-}
+/**
+ * API keys (SC3.x). Real DB-backed provisioning + revocation. The cloud stores
+ * ONLY a salted sha256 lookup hash — the raw `tm_…` key is returned by the
+ * create action EXACTLY ONCE and surfaced in a one-time reveal dialog; once the
+ * dialog closes the key is unrecoverable (revoke + re-create is the only path).
+ *
+ * Both mutations are ownership-guarded (`accountId` scopes every write), so a
+ * key id from elsewhere cannot touch another account's key. There is no
+ * `lastSeen` field (tracking is deferred), so the list shows Created + Status
+ * only. The list refreshes via loader revalidation after each action.
+ */
 
-const REVEALED_KEY =
-	"tk_live_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6";
-
-export function meta() {
+export function meta(_: Route.MetaArgs) {
 	return [{ title: "API Keys — TekMemo Cloud" }];
 }
 
-export default function ApiKeysPage() {
-	const [keys, setKeys] = useState<ApiKey[]>(MOCK_API_KEYS);
+/** Server data: the account's API keys, newest first. */
+export interface ApiKeysLoaderData {
+	keys: ApiKeyView[];
+}
+
+/** Action response — a discriminated union over `intent`. */
+export type ApiKeyActionData =
+	| { intent: "create"; rawKey: string; row: ApiKeyView }
+	| { intent: "revoke"; ok: boolean }
+	| { intent: "error"; ok: false };
+
+export async function loader({
+	request,
+	context,
+}: Route.LoaderArgs): Promise<ApiKeysLoaderData> {
+	const user = await requireUser(request, getEnv(context));
+	const db = createDb(getEnv(context));
+	const account = await getAccountForUser(db, user.id);
+	const keys = account ? await listApiKeysForAccount(db, account.id) : [];
+	return { keys };
+}
+
+/**
+ * Create + revoke. Ownership is re-resolved server-side on every submission
+ * (the signed-in account must own the key being revoked). Create returns the
+ * one-time raw key so the route can surface it in the reveal dialog; revoke is
+ * idempotent (revoking an already-revoked or foreign key is a no-op).
+ */
+export async function action({
+	request,
+	context,
+}: Route.ActionArgs): Promise<ApiKeyActionData> {
+	const user = await requireUser(request, getEnv(context));
+	const db = createDb(getEnv(context));
+	const form = await request.formData();
+	const intent = String(form.get("intent") ?? "");
+
+	const account = await getAccountForUser(db, user.id);
+	if (!account) {
+		return { intent: "error", ok: false };
+	}
+
+	if (intent === "create") {
+		const label = String(form.get("label") ?? "");
+		const { rawKey, row } = await createApiKey(db, {
+			accountId: account.id,
+			label,
+			salt: getEnv(context).TEKMEMO_API_KEY_SALT ?? "",
+		});
+		return { intent: "create", rawKey, row };
+	}
+
+	if (intent === "revoke") {
+		const keyId = String(form.get("keyId") ?? "");
+		if (keyId) {
+			await revokeApiKey(db, account.id, keyId);
+		}
+		return { intent: "revoke", ok: true };
+	}
+
+	return { intent: "error", ok: false };
+}
+
+export default function ApiKeysPage({ loaderData }: Route.ComponentProps) {
+	const { keys } = loaderData;
+	const createFetcher = useFetcher<ApiKeyActionData>();
+	const revokeFetcher = useFetcher<ApiKeyActionData>();
+
 	const [showCreate, setShowCreate] = useState(false);
 	const [label, setLabel] = useState("");
 	const [createdKey, setCreatedKey] = useState<{
-		key: string;
+		rawKey: string;
 		label: string;
 	} | null>(null);
 	const [copied, setCopied] = useState(false);
 	const [showKey, setShowKey] = useState(false);
 	const [revokeId, setRevokeId] = useState<string | null>(null);
 
-	const createKey = () => {
-		const newKey: ApiKey = {
-			id: `key_${Math.random().toString(36).slice(2, 8)}`,
-			label,
-			lastFour: Math.random().toString(36).slice(2, 6),
-			createdAt: new Date().toISOString(),
-			lastSeen: new Date().toISOString(),
-			revokedAt: null,
-		};
-		setKeys((prev) => [...prev, newKey]);
-		setCreatedKey({ key: REVEALED_KEY, label });
-		setShowCreate(false);
-		setLabel("");
-	};
+	// The raw key is shown exactly once: when the create action lands, capture it
+	// into local state to drive the reveal dialog, and tear down the create form.
+	// Once dismissed, the key is gone forever — only its hash is persisted.
+	useEffect(() => {
+		if (createFetcher.data?.intent === "create") {
+			setCreatedKey({
+				rawKey: createFetcher.data.rawKey,
+				label: createFetcher.data.row.label ?? "Unlabeled",
+			});
+			setShowCreate(false);
+			setLabel("");
+		}
+	}, [createFetcher]);
 
-	const revokeKey = (id: string) => {
-		setKeys((prev) =>
-			prev.map((k) =>
-				k.id === id ? { ...k, revokedAt: new Date().toISOString() } : k,
-			),
-		);
-		setRevokeId(null);
-	};
+	// Optimistically grey a key the moment its revoke submission fires, before
+	// the action returns and the loader revalidates.
+	const revokingId = revokeFetcher.formData?.get("keyId");
+	const isRevoking = (id: string) =>
+		revokingId != null && String(revokingId) === id;
 
 	const copy = (text: string) => {
 		navigator.clipboard.writeText(text).catch(() => {});
@@ -91,25 +166,23 @@ export default function ApiKeysPage() {
 
 	return (
 		<div className="p-6">
-			<div className="flex items-center justify-between mb-6">
-				<div>
-					<h2 className="text-xl font-bold tracking-tight mb-0.5">API Keys</h2>
-					<p className="text-xs text-muted-foreground">
-						Account-wide. Keys authenticate all sync operations.
-					</p>
-				</div>
-				<Button
-					size="sm"
-					onClick={() => setShowCreate(true)}
-					className="text-xs h-9 bg-primary text-primary-foreground hover:bg-primary/90"
-				>
-					<Plus className="w-4 h-4 mr-1.5" /> New key
-				</Button>
-			</div>
+			<PageHeader
+				title="API Keys"
+				subtitle="Account-wide. Keys authenticate all sync operations."
+				action={
+					<Button
+						size="sm"
+						onClick={() => setShowCreate(true)}
+						className="h-9 text-xs"
+					>
+						<Plus className="mr-1.5 h-4 w-4" /> New key
+					</Button>
+				}
+			/>
 
-			<div className="rounded-lg border border-primary/20 bg-primary/5 flex items-start gap-3 px-4 py-3 mb-6">
-				<AlertTriangle className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-				<p className="text-xs text-primary/80 leading-normal">
+			<div className="mb-6 flex items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3">
+				<AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+				<p className="text-xs leading-normal text-primary/80">
 					Raw API keys are shown <strong>only once at creation</strong>. We
 					store a salted SHA-256 hash. Treat keys like passwords — never commit
 					them to version control.
@@ -118,83 +191,93 @@ export default function ApiKeysPage() {
 
 			<Card>
 				<CardContent className="p-0">
-					<Table>
-						<TableHeader>
-							<TableRow>
-								<TableHead className="px-5 py-3 text-xs">Label</TableHead>
-								<TableHead className="px-5 py-3 text-xs hidden sm:table-cell">
-									Key
-								</TableHead>
-								<TableHead className="px-5 py-3 text-xs hidden md:table-cell">
-									Created
-								</TableHead>
-								<TableHead className="px-5 py-3 text-xs">Last seen</TableHead>
-								<TableHead className="px-5 py-3 text-xs">Status</TableHead>
-								<TableHead className="px-5 py-3 text-xs text-right">
-									Actions
-								</TableHead>
-							</TableRow>
-						</TableHeader>
-						<TableBody>
-							{keys.map((key) => (
-								<TableRow
-									key={key.id}
-									className={key.revokedAt ? "opacity-50" : ""}
-								>
-									<TableCell className="px-5 py-3 text-xs">
-										<div className="flex items-center gap-2">
-											<KeyRound className="w-4 h-4 text-primary/80 shrink-0" />
-											<span className="font-medium text-foreground">
-												{key.label}
-											</span>
-										</div>
-									</TableCell>
-									<TableCell className="px-5 py-3 text-xs hidden sm:table-cell">
-										<code className="font-mono text-muted-foreground text-[10px]">
-											tk_live_…{key.lastFour}
-										</code>
-									</TableCell>
-									<TableCell className="px-5 py-3 text-xs hidden md:table-cell text-muted-foreground">
-										{formatDate(key.createdAt)}
-									</TableCell>
-									<TableCell className="px-5 py-3 text-xs text-muted-foreground">
-										{key.revokedAt
-											? formatDate(key.revokedAt)
-											: formatRelative(key.lastSeen)}
-									</TableCell>
-									<TableCell className="px-5 py-3 text-xs">
-										{key.revokedAt ? (
-											<Badge
-												variant="destructive"
-												className="text-[10px] py-0 px-1.5 h-5 leading-none"
-											>
-												Revoked
-											</Badge>
-										) : (
-											<Badge
-												variant="outline"
-												className="text-[10px] py-0 px-1.5 h-5 leading-none text-primary border-primary/30 bg-primary/5"
-											>
-												Active
-											</Badge>
-										)}
-									</TableCell>
-									<TableCell className="px-5 py-3 text-xs text-right">
-										{!key.revokedAt && (
-											<Button
-												size="sm"
-												variant="ghost"
-												className="text-xs h-8 text-destructive hover:text-destructive hover:bg-destructive/5"
-												onClick={() => setRevokeId(key.id)}
-											>
-												Revoke
-											</Button>
-										)}
-									</TableCell>
+					{keys.length === 0 ? (
+						<div className="flex flex-col items-center justify-center gap-2 px-5 py-12 text-center">
+							<KeyRound className="h-8 w-8 text-muted-foreground/40" />
+							<p className="text-sm font-medium text-foreground">
+								No API keys yet
+							</p>
+							<p className="max-w-sm text-xs text-muted-foreground">
+								Create a key to authenticate{" "}
+								<code className="font-mono text-[10px]">tekmemo push</code> from
+								your machines and CI.
+							</p>
+						</div>
+					) : (
+						<Table>
+							<TableHeader>
+								<TableRow>
+									<TableHead className="px-5 py-3 text-xs">Label</TableHead>
+									<TableHead className="px-5 py-3 text-xs hidden sm:table-cell">
+										Key
+									</TableHead>
+									<TableHead className="px-5 py-3 text-xs hidden md:table-cell">
+										Created
+									</TableHead>
+									<TableHead className="px-5 py-3 text-xs">Status</TableHead>
+									<TableHead className="px-5 py-3 text-xs text-right">
+										Actions
+									</TableHead>
 								</TableRow>
-							))}
-						</TableBody>
-					</Table>
+							</TableHeader>
+							<TableBody>
+								{keys.map((key) => (
+									<TableRow
+										key={key.id}
+										className={
+											key.revokedAt || isRevoking(key.id) ? "opacity-50" : ""
+										}
+									>
+										<TableCell className="px-5 py-3 text-xs">
+											<div className="flex items-center gap-2">
+												<KeyRound className="h-4 w-4 shrink-0 text-primary/80" />
+												<span className="font-medium text-foreground">
+													{key.label ?? "Unlabeled"}
+												</span>
+											</div>
+										</TableCell>
+										<TableCell className="px-5 py-3 text-xs hidden sm:table-cell">
+											<code className="font-mono text-[10px] text-muted-foreground">
+												{key.lastFour ? `tm_…${key.lastFour}` : "tm_…"}
+											</code>
+										</TableCell>
+										<TableCell className="px-5 py-3 text-xs text-muted-foreground hidden md:table-cell">
+											{formatDate(key.createdAt)}
+										</TableCell>
+										<TableCell className="px-5 py-3 text-xs">
+											{key.revokedAt ? (
+												<Badge
+													variant="destructive"
+													className="h-5 px-1.5 py-0 text-[10px] leading-none"
+												>
+													Revoked
+												</Badge>
+											) : (
+												<Badge
+													variant="outline"
+													className="h-5 px-1.5 py-0 text-[10px] leading-none border-primary/30 bg-primary/5 text-primary"
+												>
+													Active
+												</Badge>
+											)}
+										</TableCell>
+										<TableCell className="px-5 py-3 text-right text-xs">
+											{!key.revokedAt && (
+												<Button
+													size="sm"
+													variant="ghost"
+													className="h-8 text-xs text-destructive hover:bg-destructive/5 hover:text-destructive"
+													onClick={() => setRevokeId(key.id)}
+												>
+													Revoke
+												</Button>
+											)}
+										</TableCell>
+									</TableRow>
+								))}
+							</TableBody>
+						</Table>
+					)}
 				</CardContent>
 			</Card>
 
@@ -219,7 +302,7 @@ export default function ApiKeysPage() {
 								placeholder="e.g. laptop, ci, work-desktop"
 								value={label}
 								onChange={(e) => setLabel(e.target.value)}
-								className="text-xs h-9"
+								className="h-9 text-xs"
 							/>
 						</div>
 					</div>
@@ -227,18 +310,23 @@ export default function ApiKeysPage() {
 						<Button
 							variant="outline"
 							size="sm"
-							className="text-xs h-9"
+							className="h-9 text-xs"
 							onClick={() => setShowCreate(false)}
 						>
 							Cancel
 						</Button>
 						<Button
-							onClick={createKey}
-							disabled={!label}
+							onClick={() =>
+								createFetcher.submit(
+									{ intent: "create", label },
+									{ method: "post" },
+								)
+							}
+							disabled={!label || createFetcher.state !== "idle"}
 							size="sm"
-							className="text-xs h-9 bg-primary text-primary-foreground hover:bg-primary/90"
+							className="h-9 text-xs"
 						>
-							Create key
+							{createFetcher.state !== "idle" ? "Creating…" : "Create key"}
 						</Button>
 					</DialogFooter>
 				</DialogContent>
@@ -263,44 +351,44 @@ export default function ApiKeysPage() {
 						</DialogDescription>
 					</DialogHeader>
 					<div className="space-y-3 py-2">
-						<div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 flex items-start gap-2">
-							<AlertTriangle className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-							<p className="text-[11px] text-primary/95 leading-normal">
+						<div className="flex items-start gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2">
+							<AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+							<p className="text-[11px] leading-normal text-primary/95">
 								You won't see this key again after closing this dialog.
 							</p>
 						</div>
 						<div className="rounded-lg border border-border/40 bg-muted/40 p-3">
-							<p className="text-[10px] text-muted-foreground mb-1.5">
+							<p className="mb-1.5 text-[10px] text-muted-foreground">
 								Label:{" "}
 								<strong className="text-foreground">{createdKey?.label}</strong>
 							</p>
 							<div className="flex items-center gap-2">
-								<code className="font-mono text-xs flex-1 break-all text-foreground bg-muted px-1.5 py-0.5 rounded border border-border/40">
-									{showKey ? createdKey?.key : `tk_live_${"•".repeat(42)}`}
+								<code className="flex-1 break-all rounded border border-border/40 bg-muted px-1.5 py-0.5 font-mono text-xs text-foreground">
+									{showKey ? createdKey?.rawKey : `tm_${"•".repeat(42)}`}
 								</code>
-								<div className="flex gap-1 shrink-0">
+								<div className="flex shrink-0 gap-1">
 									<button
 										type="button"
 										onClick={() => setShowKey((v) => !v)}
-										className="text-muted-foreground hover:text-foreground cursor-pointer p-1 rounded hover:bg-muted/80"
+										className="cursor-pointer rounded p-1 text-muted-foreground hover:bg-muted/80 hover:text-foreground"
 										title={showKey ? "Hide key" : "Show key"}
 									>
 										{showKey ? (
-											<EyeOff className="w-4 h-4" />
+											<EyeOff className="h-4 w-4" />
 										) : (
-											<Eye className="w-4 h-4" />
+											<Eye className="h-4 w-4" />
 										)}
 									</button>
 									<button
 										type="button"
-										onClick={() => copy(createdKey?.key ?? "")}
-										className="text-muted-foreground hover:text-foreground cursor-pointer p-1 rounded hover:bg-muted/80"
+										onClick={() => copy(createdKey?.rawKey ?? "")}
+										className="cursor-pointer rounded p-1 text-muted-foreground hover:bg-muted/80 hover:text-foreground"
 										title="Copy key"
 									>
 										{copied ? (
-											<CheckCircle2 className="w-4 h-4 text-primary" />
+											<CheckCircle2 className="h-4 w-4 text-primary" />
 										) : (
-											<Copy className="w-4 h-4" />
+											<Copy className="h-4 w-4" />
 										)}
 									</button>
 								</div>
@@ -309,7 +397,7 @@ export default function ApiKeysPage() {
 					</div>
 					<DialogFooter>
 						<Button
-							className="w-full text-xs h-9 bg-primary text-primary-foreground hover:bg-primary/90"
+							className="h-9 w-full text-xs"
 							onClick={() => {
 								setCreatedKey(null);
 								setShowKey(false);
@@ -337,7 +425,7 @@ export default function ApiKeysPage() {
 						<Button
 							variant="outline"
 							size="sm"
-							className="text-xs h-9"
+							className="h-9 text-xs"
 							onClick={() => setRevokeId(null)}
 						>
 							Cancel
@@ -345,10 +433,18 @@ export default function ApiKeysPage() {
 						<Button
 							variant="destructive"
 							size="sm"
-							className="text-xs h-9"
-							onClick={() => revokeId && revokeKey(revokeId)}
+							className="h-9 text-xs"
+							disabled={revokeFetcher.state !== "idle"}
+							onClick={() => {
+								if (!revokeId) return;
+								revokeFetcher.submit(
+									{ intent: "revoke", keyId: revokeId },
+									{ method: "post" },
+								);
+								setRevokeId(null);
+							}}
 						>
-							Revoke key
+							{revokeFetcher.state !== "idle" ? "Revoking…" : "Revoke key"}
 						</Button>
 					</DialogFooter>
 				</DialogContent>

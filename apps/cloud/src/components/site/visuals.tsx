@@ -29,3 +29,19 @@ export function Section({
 		</As>
 	);
 }
+
+/**
+ * SectionDivider — the fading hairline rule used between public-page sections.
+ * Centralized so the treatment (max-width + edge-fading gradient) never drifts
+ * between sections.
+ */
+export function SectionDivider({ className }: { className?: string }) {
+	return (
+		<div
+			className={cn(
+				"mx-auto h-px max-w-6xl bg-linear-to-r from-transparent via-border to-transparent",
+				className,
+			)}
+		/>
+	);
+}

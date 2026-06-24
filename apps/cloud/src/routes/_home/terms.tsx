@@ -1,5 +1,6 @@
 import { Section } from "~/components/site/visuals";
 import { Card, CardContent } from "~/components/ui/card";
+import { SITE_LINKS } from "~/lib/site";
 import type { Route } from "./+types/terms";
 
 /**
@@ -128,12 +129,24 @@ const SECTIONS = [
 		),
 	},
 	{
-		h: "10. Contact",
+		h: "10. Governing law",
+		body: (
+			<p>
+				These terms and your use of TekMemo Cloud are governed by the laws of
+				the jurisdiction in which{" "}
+				<strong className="text-foreground">TekBreed</strong> is established.
+				The specific governing law and venue will be confirmed with counsel
+				before commercial launch.
+			</p>
+		),
+	},
+	{
+		h: "11. Contact",
 		body: (
 			<p>
 				Open an issue on the{" "}
 				<a
-					href="https://github.com/codingsimba/tekmemo"
+					href={SITE_LINKS.github}
 					className="text-primary underline-offset-4 hover:underline"
 					rel="noreferrer"
 					target="_blank"
@@ -164,11 +177,13 @@ export default function Terms(_props: Route.ComponentProps) {
 				<div className="flex items-center gap-2.5">
 					<span
 						aria-hidden
-						className="size-1.5 rounded-full bg-primary animate-pulse-dot"
+						className="size-1.5 rounded-full bg-primary animate-pulse"
 					/>
-					<span className="eyebrow text-primary">Legal</span>
+					<span className="font-heading text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-primary">
+						Legal
+					</span>
 				</div>
-				<h1 className="display text-balance text-4xl text-foreground sm:text-5xl">
+				<h1 className="font-heading font-bold tracking-[-0.03em] leading-[1.02] text-balance text-4xl text-foreground sm:text-5xl">
 					Terms of Service
 				</h1>
 				<p className="font-mono text-xs text-muted-foreground">

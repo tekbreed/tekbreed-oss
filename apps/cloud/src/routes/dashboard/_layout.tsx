@@ -1,25 +1,118 @@
 import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Outlet } from "react-router";
-import { MOCK_PROJECTS, type Project } from "~/utils/mock-data";
+import { createDb } from "~/db/index.server";
+import { getEnv } from "~/server/context.server";
+import type { AccountView, ProjectSummary } from "~/server/queries";
+import {
+	getAccountForUser,
+	getAccountUsage,
+	listProjectsForAccount,
+} from "~/server/queries";
+import { requireUser } from "~/server/session.server";
 import { DashboardSidebar } from "./+components/dashboard-sidebar";
+import type { Route } from "./+types/_layout";
 
 /**
  * Dashboard shell (SC3). Thin wrapper: desktop sidebar + responsive mobile
  * drawer + the routed page via `<Outlet />`. The selected project flows to
  * project-scoped pages through the outlet context.
+ *
+ * Auth gate: the loader runs `requireUser`, which throws a redirect to
+ * `/login?redirect=...` for unauthenticated requests. Every dashboard route
+ * inherits this guard by nesting under this layout.
+ *
+ * Data: the loader resolves the signed-in user, their billing account, and the
+ * full project list from the real DB. The selected project is client-side state
+ * seeded from the default project — the sidebar switches it, and project-scoped
+ * pages + the recent-activity feed follow it via the outlet context + a
+ * `fetcher.load` resource route.
  */
-export default function DashboardLayout() {
-	const [selectedProject, setSelectedProject] = useState<Project>(
-		MOCK_PROJECTS[0],
+
+/** Server data resolved once per dashboard navigation. */
+export interface DashboardLoaderData {
+	user: {
+		id: string;
+		name: string;
+		email: string;
+		image: string | null;
+	};
+	projects: ProjectSummary[];
+	account: AccountView | null;
+	usage: { storageBytes: number; connectorsUsed: number };
+}
+
+/** Typed shape passed via `<Outlet context={…} />` to nested dashboard routes. */
+export interface DashboardOutletContext {
+	projects: ProjectSummary[];
+	selectedProject: ProjectSummary | null;
+	setSelectedProject: (project: ProjectSummary) => void;
+	account: AccountView | null;
+	usage: { storageBytes: number; connectorsUsed: number };
+}
+
+export async function loader({
+	request,
+	context,
+}: Route.LoaderArgs): Promise<DashboardLoaderData> {
+	const user = await requireUser(request, getEnv(context));
+	const db = createDb(getEnv(context));
+
+	// Provisioning is best-effort: an account may be missing only if signup
+	// provisioning raced. Degrade gracefully (null account → zeroed usage) rather
+	// than blocking the user out of their dashboard.
+	const account = await getAccountForUser(db, user.id);
+	const [projects, usage] = await Promise.all([
+		account
+			? listProjectsForAccount(db, account.id)
+			: Promise.resolve([] as ProjectSummary[]),
+		account
+			? getAccountUsage(db, account.id)
+			: Promise.resolve({ storageBytes: 0, connectorsUsed: 0 }),
+	]);
+
+	return {
+		user: {
+			id: user.id,
+			name: user.name,
+			email: user.email,
+			image: user.image,
+		},
+		projects,
+		account,
+		usage,
+	};
+}
+
+export default function DashboardLayout({ loaderData }: Route.ComponentProps) {
+	const { projects, account, usage } = loaderData;
+
+	// Seed the selection with the default project (or the first). `useMemo` so the
+	// initial value is stable across re-renders but recomputes if the project list
+	// identity changes after a navigation re-runs the loader.
+	const initial = useMemo<ProjectSummary | null>(
+		() => projects.find((p) => p.isDefault) ?? projects[0] ?? null,
+		[projects],
+	);
+	const [selectedProject, setSelectedProject] = useState<ProjectSummary | null>(
+		initial,
 	);
 	const [sidebarOpen, setSidebarOpen] = useState(false);
+
+	// Keep the selection valid if the list changes (a re-run that drops the
+	// previously-selected id falls back to the default/first).
+	const current =
+		selectedProject && projects.some((p) => p.id === selectedProject.id)
+			? selectedProject
+			: initial;
 
 	return (
 		<div className="flex h-screen overflow-hidden bg-background">
 			<div className="hidden md:flex">
 				<DashboardSidebar
-					selectedProject={selectedProject}
+					user={loaderData.user}
+					projects={projects}
+					selectedProject={current}
 					onSelectProject={setSelectedProject}
 				/>
 			</div>
@@ -34,8 +127,13 @@ export default function DashboardLayout() {
 					/>
 					<div className="relative z-10 h-full">
 						<DashboardSidebar
-							selectedProject={selectedProject}
-							onSelectProject={setSelectedProject}
+							user={loaderData.user}
+							projects={projects}
+							selectedProject={current}
+							onSelectProject={(p) => {
+								setSelectedProject(p);
+								setSidebarOpen(false);
+							}}
 						/>
 					</div>
 				</div>
@@ -63,7 +161,17 @@ export default function DashboardLayout() {
 				</div>
 
 				<main className="container mx-auto max-w-7xl flex-1 overflow-y-auto">
-					<Outlet context={{ selectedProject }} />
+					<Outlet
+						context={
+							{
+								projects,
+								selectedProject: current,
+								setSelectedProject,
+								account,
+								usage,
+							} satisfies DashboardOutletContext
+						}
+					/>
 				</main>
 			</div>
 		</div>

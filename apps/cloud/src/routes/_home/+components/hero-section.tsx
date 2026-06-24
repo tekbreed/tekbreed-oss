@@ -5,12 +5,13 @@ import { TerminalWindow } from "~/components/site/terminal";
 import { Section } from "~/components/site/visuals";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
+import { SITE_LINKS } from "~/lib/site";
 import { HERO_COMMANDS } from "../+utils/landing-content";
 
 /** Home hero — headline, lede, primary CTAs, and the terminal demo panel. */
 export function HeroSection() {
 	return (
-		<Section className="relative overflow-hidden pt-12 pb-20 sm:py-20 animate-fade-up">
+		<Section className="relative overflow-hidden pt-12 pb-20 sm:py-20 animate-in fade-in-0 slide-in-from-bottom-3 duration-700">
 			<div className="relative mx-auto max-w-3xl text-center">
 				<Badge
 					variant="outline"
@@ -20,7 +21,7 @@ export function HeroSection() {
 					Cloud sync is live
 				</Badge>
 				<h1 className="font-semibold text-balance text-5xl text-foreground md:text-6xl">
-					Your <span className="text-gradient">.tekmemo/</span> follows you
+					Your <span className="text-primary">.tekmemo/</span> follows you
 					everywhere
 				</h1>
 				<p className="mx-auto mt-6 max-w-2xl text-balance text-lg leading-relaxed text-muted-foreground">
@@ -33,7 +34,7 @@ export function HeroSection() {
 					<Button
 						asChild
 						size="lg"
-						className="btn-glow h-10 gap-2 rounded-md px-5 text-sm"
+						className="h-10 gap-2 rounded-md px-5 text-sm"
 					>
 						<Link to="/signup">
 							Get started free
@@ -46,11 +47,7 @@ export function HeroSection() {
 						variant="outline"
 						className="h-10 rounded-md px-5 text-sm"
 					>
-						<a
-							href="https://docs.tekbreed.com"
-							rel="noreferrer"
-							target="_blank"
-						>
+						<a href={SITE_LINKS.docs} rel="noreferrer" target="_blank">
 							<BookOpen className="size-4" />
 							View docs
 						</a>
@@ -58,7 +55,7 @@ export function HeroSection() {
 				</div>
 			</div>
 			<div className="relative mx-auto mt-14 max-w-2xl">
-				<TerminalWindow commands={HERO_COMMANDS} />
+				<TerminalWindow commands={HERO_COMMANDS} animated />
 			</div>
 		</Section>
 	);

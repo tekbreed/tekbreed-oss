@@ -9,32 +9,40 @@ import { Label } from "~/components/ui/label";
  */
 
 /** Inline error banner. Renders nothing when `message` is empty. */
-export function FormError({ message }: { message: string }) {
+export function FormError({ message }: { message?: string }) {
 	if (!message) return null;
 	return (
-		<div className="rounded-md border border-destructive/20 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+		<div
+			role="alert"
+			aria-live="assertive"
+			className="rounded-md border border-destructive/20 bg-destructive/10 px-3 py-2 text-xs text-destructive"
+		>
 			{message}
 		</div>
 	);
 }
 
-/** Email label + input, identical on login and signup. */
+/**
+ * Email label + input, identical on login and signup. Uncontrolled: uses
+ * `name` + `defaultValue` so the value serialises through `<Form>`/`fetcher.Form`
+ * `FormData` (RR's mutation model) without a controlled-state round-trip.
+ */
 export function EmailField({
-	value,
-	onChange,
+	name = "email",
+	defaultValue = "",
 }: {
-	value: string;
-	onChange: (value: string) => void;
+	name?: string;
+	defaultValue?: string;
 }) {
 	return (
 		<div className="space-y-1.5">
-			<Label htmlFor="email">Email</Label>
+			<Label htmlFor={name}>Email</Label>
 			<Input
-				id="email"
+				id={name}
+				name={name}
 				type="email"
 				placeholder="you@example.com"
-				value={value}
-				onChange={(e) => onChange(e.target.value)}
+				defaultValue={defaultValue}
 				autoComplete="email"
 				inputMode="email"
 			/>

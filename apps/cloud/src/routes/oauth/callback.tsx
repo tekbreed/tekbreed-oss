@@ -1,33 +1,25 @@
-import { Loader2 } from "lucide-react";
-import { useEffect } from "react";
-import { useNavigate } from "react-router";
-import { Card, CardContent } from "~/components/ui/card";
+import { redirect } from "react-router";
+import { getEnv } from "~/server/context.server";
+import { getSessionUser } from "~/server/session.server";
+import type { Route } from "./+types/callback";
 
 export function meta() {
 	return [{ title: "Completing Sign-in — TekMemo Cloud" }];
 }
 
-export default function OAuthCallbackPage() {
-	const navigate = useNavigate();
-
-	useEffect(() => {
-		const timer = setTimeout(() => {
-			navigate("/dashboard", { replace: true });
-		}, 1200);
-		return () => clearTimeout(timer);
-	}, [navigate]);
-
-	return (
-		<div className="min-h-screen flex items-center justify-center bg-muted/5 p-4">
-			<Card className="max-w-xs w-full text-center">
-				<CardContent className="pt-8 pb-8">
-					<Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
-					<p className="text-sm font-medium">Completing sign-in…</p>
-					<p className="text-xs text-muted-foreground mt-1">
-						Hang tight, this takes just a moment.
-					</p>
-				</CardContent>
-			</Card>
-		</div>
-	);
+/**
+ * OAuth callback route guard.
+ *
+ * Better Auth owns the actual OAuth token exchange at `/api/auth/callback/*`
+ * (the provider redirects there directly, server-side). This route is a thin
+ * guard for the rare case a user lands at `/oauth/callback` outside that flow:
+ * authenticated users are bounced to the dashboard, everyone else to login. It
+ * renders nothing of its own. The provider buttons land in A2.
+ */
+export async function loader({
+	request,
+	context,
+}: Route.LoaderArgs): Promise<Response> {
+	const user = await getSessionUser(request, getEnv(context));
+	throw redirect(user ? "/dashboard" : "/login");
 }

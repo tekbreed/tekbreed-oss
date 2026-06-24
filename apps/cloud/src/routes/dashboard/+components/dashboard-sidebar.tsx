@@ -20,12 +20,8 @@ import {
 	DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { cn } from "~/lib/utils";
-import {
-	MOCK_PROJECTS,
-	MOCK_USER,
-	type Project,
-	userInitials,
-} from "~/utils/mock-data";
+import type { ProjectSummary } from "~/server/queries";
+import { userInitials } from "~/utils/format";
 
 const NAV_ITEMS = [
 	{ to: "/dashboard", label: "Overview", icon: LayoutDashboard, end: true },
@@ -41,20 +37,30 @@ const NAV_ITEMS = [
 	{ to: "/dashboard/settings", label: "Settings", icon: Settings, end: false },
 ] as const;
 
+/** Minimal user shape the sidebar needs (a slice of the loader's user). */
+interface SidebarUser {
+	name: string;
+	email: string;
+}
+
 /**
  * Dashboard sidebar — logo, global project switcher (SC3), nav, account menu.
  * Extracted from the layout so each piece stays readable and the layout shell
- * stays a thin wrapper.
+ * stays a thin wrapper. Pure-presentational: all data arrives via props from
+ * the layout loader.
  */
 export function DashboardSidebar({
+	user,
+	projects,
 	selectedProject,
 	onSelectProject,
 }: {
-	selectedProject: Project;
-	onSelectProject: (project: Project) => void;
+	user: SidebarUser;
+	projects: ProjectSummary[];
+	selectedProject: ProjectSummary | null;
+	onSelectProject: (project: ProjectSummary) => void;
 }) {
 	const navigate = useNavigate();
-	const user = MOCK_USER;
 	const initials = userInitials(user.name);
 
 	return (
@@ -65,7 +71,11 @@ export function DashboardSidebar({
 				</Link>
 			</div>
 
-			<ProjectSwitcher selected={selectedProject} onSelect={onSelectProject} />
+			<ProjectSwitcher
+				projects={projects}
+				selected={selectedProject}
+				onSelect={onSelectProject}
+			/>
 
 			<nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-3">
 				{NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
@@ -100,11 +110,13 @@ export function DashboardSidebar({
 }
 
 function ProjectSwitcher({
+	projects,
 	selected,
 	onSelect,
 }: {
-	selected: Project;
-	onSelect: (project: Project) => void;
+	projects: ProjectSummary[];
+	selected: ProjectSummary | null;
+	onSelect: (project: ProjectSummary) => void;
 }) {
 	return (
 		<div className="border-b px-3 py-3">
@@ -118,22 +130,28 @@ function ProjectSwitcher({
 							<FolderOpen className="h-3 w-3 text-primary" />
 						</div>
 						<span className="flex-1 truncate text-left font-medium">
-							{selected.name}
+							{selected?.name ?? "No project"}
 						</span>
 						<ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
 					</button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="start" className="w-52">
-					{MOCK_PROJECTS.map((p) => (
-						<DropdownMenuItem
-							key={p.id}
-							onClick={() => onSelect(p)}
-							className={selected.id === p.id ? "bg-muted" : ""}
-						>
-							<FolderOpen className="mr-2 h-3.5 w-3.5" />
-							{p.name}
-						</DropdownMenuItem>
-					))}
+					{projects.length === 0 ? (
+						<div className="px-2 py-1.5 text-xs text-muted-foreground">
+							No projects yet
+						</div>
+					) : (
+						projects.map((p) => (
+							<DropdownMenuItem
+								key={p.id}
+								onClick={() => onSelect(p)}
+								className={selected?.id === p.id ? "bg-muted" : ""}
+							>
+								<FolderOpen className="mr-2 h-3.5 w-3.5" />
+								{p.name}
+							</DropdownMenuItem>
+						))
+					)}
 					<DropdownMenuSeparator />
 					<DropdownMenuItem>
 						<Plus className="mr-2 h-3.5 w-3.5" />
@@ -150,7 +168,7 @@ function AccountMenu({
 	initials,
 	onLogout,
 }: {
-	user: { name: string; email: string };
+	user: SidebarUser;
 	initials: string;
 	onLogout: () => void;
 }) {

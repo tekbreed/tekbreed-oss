@@ -1,5 +1,6 @@
 import { Section } from "~/components/site/visuals";
 import { Card, CardContent } from "~/components/ui/card";
+import { SITE_LINKS } from "~/lib/site";
 import type { Route } from "./+types/privacy";
 
 /**
@@ -15,7 +16,6 @@ import type { Route } from "./+types/privacy";
  * before launch, but the data-flow facts below are derived from the shipped
  * architecture (ADR 0005, ADR 0006, cloud-sync-and-refactor.md §12.2).
  */
-
 const SECTIONS = [
 	{
 		h: "1. The short version",
@@ -105,8 +105,9 @@ const SECTIONS = [
 			<p>
 				Because your memory lives locally as plain files, you always hold a
 				complete copy. You can stop syncing at any time. Deleting your account
-				purges your stored blobs and metadata from R2 and our database — a full
-				GDPR-style erasure available from the dashboard's danger zone.
+				purges your stored blobs and metadata from R2 and our database within 24
+				hours — a full GDPR-style erasure available from the dashboard's danger
+				zone.
 			</p>
 		),
 	},
@@ -121,19 +122,32 @@ const SECTIONS = [
 		),
 	},
 	{
-		h: "8. Contact",
+		h: "8. Cookies",
 		body: (
 			<p>
-				Questions about this policy or your data? Open an issue on the{" "}
+				We use{" "}
+				<strong className="text-foreground">functional cookies only</strong> —
+				to keep you signed in and protect against CSRF. We set no advertising,
+				analytics, or cross-site tracking cookies, so there is no consent banner
+				to click through.
+			</p>
+		),
+	},
+	{
+		h: "9. Contact",
+		body: (
+			<p>
+				TekMemo Cloud is operated by{" "}
+				<strong className="text-foreground">TekBreed</strong>, the data
+				controller. For questions about this policy, or to access, correct, or
+				delete your personal data, email{" "}
 				<a
-					href="https://github.com/codingsimba/tekmemo"
+					href={SITE_LINKS.privacyEmail}
 					className="text-primary underline-offset-4 hover:underline"
-					rel="noreferrer"
-					target="_blank"
 				>
-					public GitHub repository
+					privacy@tekbreed.com
 				</a>
-				.
+				. We never route personal-data requests through public channels.
 			</p>
 		),
 	},
@@ -157,11 +171,13 @@ export default function Privacy(_props: Route.ComponentProps) {
 				<div className="flex items-center gap-2.5">
 					<span
 						aria-hidden
-						className="size-1.5 rounded-full bg-primary animate-pulse-dot"
+						className="size-1.5 rounded-full bg-primary animate-pulse"
 					/>
-					<span className="eyebrow text-primary">Legal</span>
+					<span className="font-heading text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-primary">
+						Legal
+					</span>
 				</div>
-				<h1 className="display text-balance text-4xl text-foreground sm:text-5xl">
+				<h1 className="font-heading font-bold tracking-[-0.03em] leading-[1.02] text-balance text-4xl text-foreground sm:text-5xl">
 					Privacy Policy
 				</h1>
 				<p className="font-mono text-xs text-muted-foreground">

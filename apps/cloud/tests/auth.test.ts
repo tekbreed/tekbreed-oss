@@ -21,7 +21,7 @@ import { createTestDb } from "./helpers/db";
  *
  * §12.4 contract covered:
  *   - missing / malformed Authorization header → 401 `unauthorized`
- *   - non-`tk_live_` token shape → 401
+ *   - non-`tm_` token shape → 401
  *   - unknown key hash → 401 (same code/message as a revoked key — no probing)
  *   - valid, non-revoked key → 200, `c.var.account` populated
  *   - revoked key (`revoked_at` set) → 401
@@ -31,9 +31,9 @@ const SALT = "test-salt";
 const STUB_ENV = { BLOBS: {} } as unknown as CloudWorkerEnv;
 
 /** The raw key a client would send; we store its hash in the seed. */
-const RAW_KEY = "tk_live_abcdef1234567890";
+const RAW_KEY = "tm_abcdef1234567890";
 /** Wrong key to prove an unknown hash doesn't authenticate. */
-const WRONG_KEY = "tk_live_zzzzzzzzzzzzzzzz";
+const WRONG_KEY = "tm_zzzzzzzzzzzzzzzz";
 
 let db: Database;
 
@@ -131,7 +131,7 @@ describe("bearer auth middleware", () => {
 		expect(body.error?.code).toBe("unauthorized");
 	});
 
-	it("rejects a Bearer token that is not tk_live_… format", async () => {
+	it("rejects a Bearer token that is not tm_… format", async () => {
 		await seedKey({});
 		const res = await fetchAuthed(
 			appWithAuth(),
@@ -191,7 +191,7 @@ describe("bearer auth middleware", () => {
 	it("respects per-key entitlements: a pro account loads its pro caps", async () => {
 		await seedKey({
 			accountId: "acct_pro",
-			rawKey: "tk_live_prokey0000000000",
+			rawKey: "tm_prokey0000000000",
 		});
 		// Override the seeded account's plan + caps to pro values.
 		await db
@@ -205,7 +205,7 @@ describe("bearer auth middleware", () => {
 		const res = await fetchAuthed(
 			appWithAuth(),
 			undefined,
-			"Bearer tk_live_prokey0000000000",
+			"Bearer tm_prokey0000000000",
 		);
 		expect(res.status).toBe(200);
 		const body = await jsonBody(res);

@@ -72,7 +72,7 @@ export const PLANS: Plan[] = [
 		// ships; the public copy must still state the per-seat model honestly.
 		period: "/seat/mo",
 		desc: "For teams sharing a canonical .tekmemo/ across all members.",
-		cta: { label: "Notify me", href: "#teams-notify" },
+		cta: { label: "Coming soon", href: "#teams-notify" },
 		highlight: false,
 		soon: true,
 		features: [

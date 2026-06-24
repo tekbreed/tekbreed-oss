@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { InlineCode } from "~/components/site/inline-code";
 import { Section } from "~/components/site/visuals";
 import { Button } from "~/components/ui/button";
+import { SITE_LINKS } from "~/lib/site";
 
 const TRUST = [
 	{ icon: Check, label: "Free forever tier" },
@@ -20,7 +21,7 @@ export function BottomCta() {
 					<div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-6">
 						<GitBranch className="w-6 h-6 text-primary" />
 					</div>
-					<h2 className="display mx-auto max-w-xl text-balance text-3xl text-foreground sm:text-4xl">
+					<h2 className="font-heading font-bold tracking-[-0.03em] leading-[1.02] mx-auto max-w-xl text-balance text-3xl text-foreground sm:text-4xl">
 						Ready to sync?
 					</h2>
 					<p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
@@ -32,7 +33,7 @@ export function BottomCta() {
 						<Button
 							asChild
 							size="lg"
-							className="btn-glow h-10 gap-2 rounded-md px-6 text-sm"
+							className="h-10 gap-2 rounded-md px-6 text-sm"
 						>
 							<Link to="/signup">
 								Get started free
@@ -45,11 +46,7 @@ export function BottomCta() {
 							variant="outline"
 							className="h-10 rounded-md px-5 text-sm"
 						>
-							<a
-								href="https://docs.tekbreed.com"
-								rel="noreferrer"
-								target="_blank"
-							>
+							<a href={SITE_LINKS.docs} rel="noreferrer" target="_blank">
 								Read the docs
 							</a>
 						</Button>
