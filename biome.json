@@ -14,7 +14,8 @@
 			"!**/*.css",
 			"!**/worker-configuration.d.ts",
 			"!**/components/ui/**",
-			"!**/Initial design/**"
+			"!**/Initial design/**",
+			"!**/drizzle/meta/**"
 		]
 	},
 	"formatter": {
