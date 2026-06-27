@@ -18,13 +18,13 @@
  */
 
 import { openai } from "@ai-sdk/openai";
-import { generateText, stepCountIs } from "ai";
+import { Tekmemo } from "@tekbreed/tekmemo";
 import {
 	buildRuntimeMemoryContext,
 	buildRuntimeMemoryToolDefinition,
 	createAiSdkRuntimeFromTekmemo,
 } from "@tekbreed/tekmemo-adapter-ai-sdk";
-import { Tekmemo } from "@tekbreed/tekmemo";
+import { generateText, stepCountIs } from "ai";
 
 const memo = new Tekmemo({ rootDir: "./.tekmemo", projectId: "demo" });
 const runtime = createAiSdkRuntimeFromTekmemo(memo);

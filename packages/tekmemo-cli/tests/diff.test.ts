@@ -35,7 +35,10 @@ describe("diff", () => {
 				argv: ["snapshot", "--root", temp.rootDir, "--label", "v1"],
 			});
 
-			const memo2 = new Tekmemo({ rootDir: temp.rootDir, autoBootstrap: false });
+			const memo2 = new Tekmemo({
+				rootDir: temp.rootDir,
+				autoBootstrap: false,
+			});
 			await memo2.store.write(
 				TEKMEMO_PATHS.memory.core,
 				"# Core Memory\n\nSecond version.\n",
@@ -98,7 +101,10 @@ describe("diff", () => {
 				argv: ["snapshot", "--root", temp.rootDir, "--label", "alpha"],
 			});
 
-			const memo2 = new Tekmemo({ rootDir: temp.rootDir, autoBootstrap: false });
+			const memo2 = new Tekmemo({
+				rootDir: temp.rootDir,
+				autoBootstrap: false,
+			});
 			await memo2.store.write(
 				TEKMEMO_PATHS.memory.core,
 				"# Core Memory\n\nBeta.\n",

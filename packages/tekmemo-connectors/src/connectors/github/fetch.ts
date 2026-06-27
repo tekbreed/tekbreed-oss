@@ -73,7 +73,15 @@ async function fetchKind(
 	while (remaining > 0) {
 		if (signal?.aborted) throw new Error("GitHub ingest aborted.");
 		const first = Math.min(PAGE_SIZE, remaining);
-		const page = await fetchPage(token, owner, repo, kind, first, cursor, signal);
+		const page = await fetchPage(
+			token,
+			owner,
+			repo,
+			kind,
+			first,
+			cursor,
+			signal,
+		);
 		for (const node of page.nodes) {
 			collected.push(node);
 		}
@@ -152,9 +160,7 @@ async function fetchPage(
 		if (isAbortError(error)) {
 			throw signal?.aborted
 				? new Error("GitHub ingest aborted.")
-				: new Error(
-						`GitHub request timed out after ${REQUEST_TIMEOUT_MS}ms.`,
-					);
+				: new Error(`GitHub request timed out after ${REQUEST_TIMEOUT_MS}ms.`);
 		}
 		throw error;
 	} finally {
@@ -287,9 +293,10 @@ function withRequestTimeout(signal?: AbortSignal): {
 	const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 	if (signal !== undefined) {
 		if (signal.aborted) controller.abort();
-		else signal.addEventListener("abort", () => controller.abort(), {
-			once: true,
-		});
+		else
+			signal.addEventListener("abort", () => controller.abort(), {
+				once: true,
+			});
 	}
 	return {
 		signal: controller.signal,

@@ -87,7 +87,14 @@ function render(S) {
 				let cov = 0;
 				for (const [x1, y1, x2, y2] of shape.segs) {
 					// Distance in device pixels for consistent 1px anti-aliasing.
-					const d = distToSeg(px + 0.5, py + 0.5, x1 * scale, y1 * scale, x2 * scale, y2 * scale);
+					const d = distToSeg(
+						px + 0.5,
+						py + 0.5,
+						x1 * scale,
+						y1 * scale,
+						x2 * scale,
+						y2 * scale,
+					);
 					cov = Math.max(cov, Math.min(1, halfDev + 0.5 - d));
 					if (cov >= 1) break;
 				}
@@ -95,9 +102,9 @@ function render(S) {
 				const [cr, cg, cb] = shape.color(my);
 				// src-over (premultiplied).
 				const sa = cov;
-				r = cr / 255 * sa + r * (1 - sa);
-				g = cg / 255 * sa + g * (1 - sa);
-				b = cb / 255 * sa + b * (1 - sa);
+				r = (cr / 255) * sa + r * (1 - sa);
+				g = (cg / 255) * sa + g * (1 - sa);
+				b = (cb / 255) * sa + b * (1 - sa);
 				a = sa + a * (1 - sa);
 			}
 			const i = (py * S + px) * 4;
@@ -124,7 +131,8 @@ const CRC_TABLE = (() => {
 })();
 function crc32(buf) {
 	let c = 0xffffffff;
-	for (let i = 0; i < buf.length; i++) c = CRC_TABLE[(c ^ buf[i]) & 0xff] ^ (c >>> 8);
+	for (let i = 0; i < buf.length; i++)
+		c = CRC_TABLE[(c ^ buf[i]) & 0xff] ^ (c >>> 8);
 	return (c ^ 0xffffffff) >>> 0;
 }
 function chunk(type, data) {
@@ -186,7 +194,10 @@ function encodeICO(frames) {
 }
 
 const SIZES = [16, 32, 48, 64];
-const frames = SIZES.map((size) => ({ size, png: encodePNG(size, render(size)) }));
+const frames = SIZES.map((size) => ({
+	size,
+	png: encodePNG(size, render(size)),
+}));
 const ico = encodeICO(frames);
 
 const targets = [
@@ -195,5 +206,9 @@ const targets = [
 ];
 for (const t of targets) {
 	writeFileSync(t, ico);
-	console.log("wrote", t.pathname, `(${ico.length} bytes, sizes ${SIZES.join("/")})`);
+	console.log(
+		"wrote",
+		t.pathname,
+		`(${ico.length} bytes, sizes ${SIZES.join("/")})`,
+	);
 }

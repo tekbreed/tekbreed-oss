@@ -1,5 +1,5 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.4.14/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.4.16/schema.json",
 
 	"vcs": {
 		"enabled": true,
@@ -13,9 +13,12 @@
 			"!**/mockServiceWorker.js",
 			"!**/*.css",
 			"!**/worker-configuration.d.ts",
+			"!skills-lock.json",
 			"!**/components/ui/**",
 			"!**/Initial design/**",
-			"!**/drizzle/meta/**"
+			"!**/drizzle/meta/**",
+			"!**/./agents/**",
+			"!**/./tekmemo/**"
 		]
 	},
 	"formatter": {

@@ -13,9 +13,9 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { TekMemoCloudClientOptions } from "../cloud-client/types";
-import type { Extractor } from "../graph/extraction/extractor";
 import type { MemoryEmbedder } from "../core/types/embeddings";
 import type { MemoryStore } from "../core/types/memory-store";
+import type { Extractor } from "../graph/extraction/extractor";
 import type { RecallStore } from "../recall/types";
 import type {
 	RuntimeReadPolicy,

@@ -138,9 +138,7 @@ async function fetchPage(
 		if (isAbortError(error)) {
 			throw signal?.aborted
 				? new Error("Notion ingest aborted.")
-				: new Error(
-						`Notion request timed out after ${REQUEST_TIMEOUT_MS}ms.`,
-					);
+				: new Error(`Notion request timed out after ${REQUEST_TIMEOUT_MS}ms.`);
 		}
 		throw error;
 	} finally {
@@ -299,9 +297,10 @@ function withRequestTimeout(signal?: AbortSignal): {
 	const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 	if (signal !== undefined) {
 		if (signal.aborted) controller.abort();
-		else signal.addEventListener("abort", () => controller.abort(), {
-			once: true,
-		});
+		else
+			signal.addEventListener("abort", () => controller.abort(), {
+				once: true,
+			});
 	}
 	return {
 		signal: controller.signal,

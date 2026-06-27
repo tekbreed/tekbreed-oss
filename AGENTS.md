@@ -1,21 +1,5 @@
 # AGENTS.md - TekMemo
 
-This file is the bootstrap for agents working in this repo.
-**All project knowledge lives in TekMemo** — use MCP tools, not this file.
-
-## TekMemo Memory (REQUIRED)
-
-This repo uses TekMemo as its single source of truth for project knowledge.
-At the **start of every task**, agents MUST:
-
-1. **Load context** — Search your available tools for TekMemo context/memory tools (e.g. `context`, `recall`, `read_core_memory`, `read_notes_memory`) and call the appropriate one with the task description.
-2. **Look up details** — If the initial context is insufficient, use TekMemo recall/search tools to find specific domain knowledge.
-3. **Adhere to memory** — Follow any constraints, decisions, and references returned by TekMemo.
-4. **Persist new facts** — When new facts, decisions, or constraints are discovered during work, store them via TekMemo remember/write tools so future agents benefit.
-
-TekMemo is the **single source of truth** for project identity, architecture, constraints, and decisions.
-This file contains only behavioral rules and pointers — no project facts.
-
 ## Behavioral Rules
 
 - **Do not** add new npm dependencies without evaluating if an existing package already covers the need

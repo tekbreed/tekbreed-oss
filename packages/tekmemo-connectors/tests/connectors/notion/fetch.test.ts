@@ -175,9 +175,7 @@ describe("fetchNotionPages", () => {
 		for (const status of [401, 403]) {
 			const fetchMock = vi
 				.fn()
-				.mockResolvedValue(
-					restResponse({ message: "forbidden" }, { status }),
-				);
+				.mockResolvedValue(restResponse({ message: "forbidden" }, { status }));
 			globalThis.fetch = fetchMock as unknown as typeof fetch;
 
 			const sm: NotionSourceMapping = {
